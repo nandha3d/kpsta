@@ -76,7 +76,7 @@ Class ReactionGallery extends MY_Controller {
         return $this->load->view('admin/reactionGallery/content', $content, TRUE);
     }
 
-    public function createForm($url, $formValues = false, $title = "Add Order || circular") {
+    public function createForm($url, $formValues = false, $title = "Add Reaction Gallery") {
         $data['title'] = $title;
         $data['url'] = $url;
         $data['addUrl'] = base_url('admin/reaction_gallery/add');

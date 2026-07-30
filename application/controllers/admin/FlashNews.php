@@ -72,7 +72,7 @@ Class FlashNews extends MY_Controller {
         return $this->load->view('admin/flashNews/content', $content, TRUE);
     }
 
-    public function createForm($url, $formValues = false, $title = "Add Order || circular") {
+    public function createForm($url, $formValues = false, $title = "Add Flash News") {
         $data['title'] = $title;
         $data['url'] = $url;
         $data['addUrl'] = base_url('admin/flash_news/' . $this->uri->segment(3) . '/add');

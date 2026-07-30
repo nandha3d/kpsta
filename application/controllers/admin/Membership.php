@@ -70,7 +70,7 @@ Class Membership extends MY_Controller {
         return $this->load->view('admin/membership/content', $content, TRUE);
     }
 
-    public function createForm($url, $formValues = false, $title = "Add Order || circular") {
+    public function createForm($url, $formValues = false, $title = "Add Membership") {
         $data['title'] = $title;
         $data['url'] = $url;
         $data['addUrl'] = base_url('admin/membership/add');

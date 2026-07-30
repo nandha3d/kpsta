@@ -64,7 +64,7 @@ Class Forms extends MY_Controller {
         return $this->load->view('admin/forms/content', $content, TRUE);
     }
 
-    public function createForm($url, $formValues = false, $title = "Add Order || circular") {
+    public function createForm($url, $formValues = false, $title = "Add Form / Poster") {
         $data['title'] = $title;
         $data['url'] = $url;
         $data['addUrl'] = base_url('admin/forms/add');
