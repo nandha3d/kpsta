@@ -75,7 +75,7 @@
             <div class="input-group file-caption-main">
                 <div class="form-control file-caption  kv-fileinput-caption" tabindex="500">
                     <div class="file-caption-name" title="">
-                        <?php $view = ($formValues['upload_type']) && $formValues['upload_type'] == 'file' ? base_url(ORDER_CIRCULAR_PATH) . $formValues['path'] : 'javascript:void(0)' ?>
+                        <?php $view = (isset($formValues['upload_type']) && $formValues['upload_type'] == 'file') ? base_url(ORDER_CIRCULAR_PATH . '/' . ($formValues['path'] ?? '')) : 'javascript:void(0)'; ?>
                         <?php echo isset($formValues['upload_type']) && $formValues['upload_type'] == 'file' ? $formValues['pdfName'] : '' ?>
                     </div>
                 </div>

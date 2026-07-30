@@ -64,7 +64,7 @@
                                         <a href="javascript:void(0)" class="btn btn-edit edit" data-href="<?php echo base_url('admin/office_bearer/edit/' . $row['id']) ?>">
                                             <i class="fa fa-pencil"></i> Edit
                                         </a>
-                                        <a href="javascript:void(0)" class="btn btn-delete" data-href="<?php echo base_url('admin/office_bearer/delete/' . $row['id']) ?>" data-toggle="modal" data-target="#delete" data-precheck="" data-message="Are you sure you want to delete this?" data-confirm-text="Delete" data-confirm-callback="executeAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">" data-toggle="modal" data-target="#delete" data-precheck="" data-message="Delete this Office Bearer ?" data-confirm-text="Delete" data-confirm-callback="executeAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
+                                        <a href="javascript:void(0)" class="btn btn-delete" data-href="<?php echo base_url('admin/office_bearer/delete/' . $row['id']) ?>" data-toggle="modal" data-target="#delete" data-precheck="" data-message="Delete this Office Bearer ?" data-confirm-text="Delete" data-confirm-callback="executeAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
                                             <i class="fa fa-trash"></i> Delete
                                         </a>
                                         <?php $view = base_url(OFFICE_BEARER) . '/' . $row['image'] ?>

@@ -1,4 +1,4 @@
-<div class="data"  data-year="<?php echo $year ?>" data-year-config="<?php echo $yearConfig ?>" data-view="<?php echo $view ?>"></div>
+<div class="data"  data-year="<?php echo isset($year) ? $year : '' ?>" data-year-config="<?php echo isset($yearConfig) ? $yearConfig : '' ?>" data-view="<?php echo isset($view) ? $view : '' ?>"></div>
 <?php if (count($orders)) { ?> 
     <div class="row">
         <div class="col-sm-12">
@@ -49,7 +49,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="table-responsive  " >
-                <table class="table table-hover table-striped table-bordered" data-year="<?php echo $year ?>" data-year-config="<?php echo $yearConfig ?>" data-view="<?php echo $view ?>">
+                <table class="table table-hover table-striped table-bordered" data-year="<?php echo isset($year) ? $year : '' ?>" data-year-config="<?php echo isset($yearConfig) ? $yearConfig : '' ?>" data-view="<?php echo isset($view) ? $view : '' ?>">
                     <thead>
                         <tr>
                             <th class="text-center">

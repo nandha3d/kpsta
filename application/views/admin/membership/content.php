@@ -53,6 +53,13 @@
                                     </div>
                                 </td>
                                 <td style="text-align: right;">
+                                    <?php 
+                                        if (!empty($row['upload_type']) && $row['upload_type'] == "file") {
+                                            $view = base_url('uploads/membership/' . ($row['path'] ?? ''));
+                                        } else {
+                                            $view = !empty($row['path']) ? $row['path'] : 'javascript:void(0)';
+                                        }
+                                    ?>
                                     <div class="modern-actions">
                                         <a href="javascript:void(0)"   class="edit btn btn-edit"   data-href="<?php echo base_url('admin/membership/edit/' . $row['id']) ?>"><i class="fa fa-pencil"></i> Edit</a>
                                         <a  href="javascript:void(0)" class=" btn btn-delete" data-href="<?php echo base_url('admin/membership/delete/' . $row['id']) ?>" data-toggle="modal" data-target="#delete" data-precheck="" data-message="Are you sure you want to delete this?" data-confirm-text="Delete" data-confirm-callback="executeAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation"><i class="fa fa-trash"></i> Delete</a>
