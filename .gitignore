@@ -1,0 +1,14 @@
+/nbproject/
+*/config/development
+*/logs/log-*.php
+*/logs/!index.html
+*/cache/*
+*/cache/!index.html
+*/cache/!.htaccess
+/application/config/config.php
+/application/config/database.php
+/application/config/aauth.php
+/uploads/
+node_modules/
+test-results/
+playwright-report/
