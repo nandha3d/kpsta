@@ -147,14 +147,55 @@
 
     <div class="reaction-gallery-side">
       <h2>Reaction Gallery</h2>
-      <?php if(!empty($reactionGalleryImages)) { foreach($reactionGalleryImages as $rg) { ?>
-      <div class="poster-card">
-        <div style="background:#dc2626; color:white; padding:1rem; border-radius:12px; font-weight:800; font-size:1.4rem;">
-          <?php echo $rg['description']; ?><br>
-          <span style="font-size:1.1rem; background:#111; display:inline-block; padding:0.4rem 1rem; border-radius:6px; margin-top:1rem;"><?php echo isset($rg['created_at']) ? date('d-m-Y', strtotime($rg['created_at'])) : ''; ?></span>
+      <?php if(!empty($reactionGalleryImages)) { ?>
+        <div class="reaction-slider-container" style="position: relative; max-width: 360px; margin: 0 auto;">
+          <?php foreach($reactionGalleryImages as $idx => $rg) { ?>
+            <div class="poster-card reaction-slide" style="<?php echo $idx === 0 ? 'display: block;' : 'display: none;'; ?>">
+              <?php if(!empty($rg['image'])) { ?>
+                <a href="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" target="_blank">
+                  <img src="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" alt="<?php echo htmlspecialchars($rg['description']); ?>" style="width:100%; border-radius: var(--radius-lg); object-fit: cover; max-height: 450px;">
+                </a>
+                <?php if(!empty($rg['description'])) { ?>
+                  <div style="margin-top:0.75rem; font-weight:700; color:#111; font-size:1.05rem; text-align:center;">
+                    <?php echo htmlspecialchars($rg['description']); ?>
+                  </div>
+                <?php } ?>
+              <?php } else { ?>
+                <div style="background:#dc2626; color:white; padding:1.5rem; border-radius:12px; font-weight:800; font-size:1.3rem;">
+                  <?php echo htmlspecialchars($rg['description']); ?>
+                </div>
+              <?php } ?>
+            </div>
+          <?php } ?>
+          <?php if(count($reactionGalleryImages) > 1) { ?>
+            <div class="reaction-dots" style="margin-top: 1.25rem; display: flex; justify-content: center; gap: 0.5rem;">
+              <?php foreach($reactionGalleryImages as $idx => $rg) { ?>
+                <span class="rg-dot <?php echo $idx === 0 ? 'active' : ''; ?>" onclick="showReactionSlide(<?php echo $idx; ?>)" style="width: 12px; height: 12px; border-radius: 50%; background: <?php echo $idx === 0 ? '#f97316' : 'rgba(255,255,255,0.4)'; ?>; cursor: pointer; display: inline-block; transition: background 0.3s;"></span>
+              <?php } ?>
+            </div>
+          <?php } ?>
         </div>
-      </div>
-      <?php } } else { ?>
+        <script>
+          let currentRgSlide = 0;
+          const rgSlides = document.querySelectorAll('.reaction-slide');
+          const rgDots = document.querySelectorAll('.rg-dot');
+          function showReactionSlide(index) {
+            rgSlides.forEach((slide, i) => {
+              slide.style.display = (i === index) ? 'block' : 'none';
+            });
+            rgDots.forEach((dot, i) => {
+              dot.style.background = (i === index) ? '#f97316' : 'rgba(255,255,255,0.4)';
+            });
+            currentRgSlide = index;
+          }
+          if (rgSlides.length > 1) {
+            setInterval(() => {
+              currentRgSlide = (currentRgSlide + 1) % rgSlides.length;
+              showReactionSlide(currentRgSlide);
+            }, 4000);
+          }
+        </script>
+      <?php } else { ?>
         <p>No recent reactions.</p>
       <?php } ?>
     </div>
