@@ -478,7 +478,7 @@ class District extends MY_Controller {
         }
 
         //check whether  image is change while editing, then upload new image
-        if (isset($_FILES['image']) && $_FILES['image']) {
+        if (isset($_FILES['image']) && $_FILES['image']['name'] != '') {
             $uploadData = $this->uploadImage();
             if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
                 $data['code'] = 'error';

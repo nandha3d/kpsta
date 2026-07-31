@@ -82,6 +82,10 @@ class Download extends Public_Controller {
         $param['type'] = $segment['type'];
         $content['categories'] = $this->Download_model->getFormsCategory($param);
 
+        if (empty($param['category']) && !empty($content['categories'])) {
+            $param['category'] = $content['categories'][0]['id'];
+        }
+
         $config["total_rows"] = $this->Download_model->getAllCount($param, TRUE);
         if ($param['category'] > 0) {
             $config['suffix'] = '&category=' . $param['category'];

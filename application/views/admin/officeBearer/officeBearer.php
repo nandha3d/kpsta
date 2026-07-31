@@ -14,25 +14,16 @@
                 <div class="col-xs-7 col-sm-6 col-md-7 va-m">
                     <div id="toolbar" class="toolbar text-right">
                         <div class="std-toolbar btn-group">
-                            <a  class="btn btn-default" data-toggle="modal" data-target="#modal" data-id="new" data-title-new="Add">
+                            <a class="btn btn-default" data-toggle="modal" data-target="#modal" data-id="new" data-title-new="Add">
                                 <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm">New</span>
                             </a>
-                            <div class="dropdown-toolbar btn-group">
-                                <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default btn-nospin  dropdown-toggle" type="button"><i class="fa fa-caret-down"></i></button>
-                                <ul role="menu" class="dropdown-menu dropdown-menu-right">
-                                   
-                                </ul>
-                            </div>
                         </div>
-
-
                     </div>
                     <div class="clearfix"></div>
                 </div>
             </div>
         </div>
     </section>
-
 
     <div class="modal fade" id="modal" role="dialog" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true" >
         <div class="modal-dialog">
@@ -42,42 +33,98 @@
         </div>
     </div>
 
-
     <!-- Main content -->
     <section class="content">
 
         <div class="row">
             <div class="col-md-12">
-                <div class="box">
-                    <div class="box-header with-border">
-                        <div class="box-layout">
-                            <div class="col-xs-6 col-lg-8 va-m form-inline">
-
-                                <div class="input-group no-margin pull-left">
-                                    <span class="input-group-btn"><button type="button" class="btn btn-default"><i class="fa fa-question-circle"></i></button></span>
-                                    <input type="text" class="form-control" placeholder="Search..." name="search" data-href="<?php echo base_url('admin/office_bearer') ?>">
+                <div class="box box-primary">
+                    <div class="box-header with-border" style="padding: 15px;">
+                        <div class="row" style="margin-bottom: 10px;">
+                            <!-- Keyword Search -->
+                            <div class="col-md-3 col-sm-6" style="margin-bottom: 10px;">
+                                <label style="font-weight: 600; font-size: 12px; color: #555;">Search</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Search by name, email, phone..." name="search" data-href="<?php echo base_url('admin/office_bearer') ?>">
                                     <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default btn-flat" name="search"><i class="fa fa-search fa-fw"></i></button>
+                                        <button type="button" class="btn btn-primary btn-flat" name="btn-search"><i class="fa fa-search"></i></button>
                                     </span>
                                 </div>
-                                <div class="form-group col-md-6 hidden-xs hidden-sm ">
-                                    <?php unset($designation['']) ?>
-                                    <?php echo form_dropdown('designation-search[]', $designation, '', 'class="form-control category-search" style="width: 100%;"  multiple="multiple" data-placeholder="Search by Designation" '); ?>
-                                </div>
-
-
                             </div>
 
+                            <!-- Designation Filter -->
+                            <div class="col-md-3 col-sm-6" style="margin-bottom: 10px;">
+                                <label style="font-weight: 600; font-size: 12px; color: #555;">Designation</label>
+                                <?php unset($designation['']); ?>
+                                <?php echo form_dropdown('designation-search[]', $designation, '', 'class="form-control category-search" style="width: 100%;" multiple="multiple" data-placeholder="Filter by Designation"'); ?>
+                            </div>
 
+                            <!-- Level / Category Filter -->
+                            <div class="col-md-2 col-sm-6" style="margin-bottom: 10px;">
+                                <label style="font-weight: 600; font-size: 12px; color: #555;">Category / Level</label>
+                                <select name="level-search" class="form-control filter-control">
+                                    <option value="">All Categories</option>
+                                    <option value="State">State</option>
+                                    <option value="District">District</option>
+                                </select>
+                            </div>
 
-                            <div class="col-xs-6 col-lg-4 va-m text-right">
-                                <a class="btn btn-sm btn-danger" href="" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected campaigns?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
-                                    <span data-toggle="tooltip" title="" data-placement="left" data-original-title="Delete the selected items"><i class="fa fa-fw fa-trash-o"></i> <span class=""></span></span>
-                                </a>        
+                            <!-- District / Place Filter -->
+                            <div class="col-md-2 col-sm-6" style="margin-bottom: 10px;">
+                                <label style="font-weight: 600; font-size: 12px; color: #555;">Place / District</label>
+                                <select name="district-search" class="form-control filter-control">
+                                    <option value="">All Places / Districts</option>
+                                    <?php if(!empty($districts)) { foreach($districts as $d) { ?>
+                                        <option value="<?php echo htmlspecialchars($d); ?>"><?php echo htmlspecialchars($d); ?></option>
+                                    <?php } } ?>
+                                </select>
+                            </div>
+
+                            <!-- Former vs Active Filter -->
+                            <div class="col-md-2 col-sm-6" style="margin-bottom: 10px;">
+                                <label style="font-weight: 600; font-size: 12px; color: #555;">Leader Type</label>
+                                <select name="former-search" class="form-control filter-control">
+                                    <option value="">All Leaders</option>
+                                    <option value="0">Active Leaders</option>
+                                    <option value="1">Former Leaders</option>
+                                </select>
                             </div>
                         </div>
 
+                        <div class="row">
+                            <!-- Status Filter -->
+                            <div class="col-md-3 col-sm-6" style="margin-bottom: 10px;">
+                                <label style="font-weight: 600; font-size: 12px; color: #555;">Publish Status</label>
+                                <select name="publish-search" class="form-control filter-control">
+                                    <option value="">All Status</option>
+                                    <option value="1">Active / Published</option>
+                                    <option value="0">Inactive / Unpublished</option>
+                                </select>
+                            </div>
 
+                            <!-- Sort Options -->
+                            <div class="col-md-3 col-sm-6" style="margin-bottom: 10px;">
+                                <label style="font-weight: 600; font-size: 12px; color: #555;">Sort By</label>
+                                <select name="sort-search" class="form-control filter-control">
+                                    <option value="position-asc">Position (Default)</option>
+                                    <option value="position-desc">Position (Descending)</option>
+                                    <option value="name-asc">Name (A to Z)</option>
+                                    <option value="name-desc">Name (Z to A)</option>
+                                    <option value="designation-asc">Designation (A to Z)</option>
+                                    <option value="level-asc">Category (State / District)</option>
+                                </select>
+                            </div>
+
+                            <!-- Filter Actions -->
+                            <div class="col-md-6 col-sm-12 text-right" style="margin-top: 24px;">
+                                <button type="button" class="btn btn-default" id="btn-reset-filters">
+                                    <i class="fa fa-refresh"></i> Reset Filters
+                                </button>
+                                <a class="btn btn-danger" href="" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected items?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
+                                    <i class="fa fa-trash-o"></i> Delete Selected
+                                </a>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- /.box-header -->
@@ -92,9 +139,7 @@
             </div>
         </div>
 
-
     </section>
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-

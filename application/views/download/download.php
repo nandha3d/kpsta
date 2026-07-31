@@ -27,27 +27,26 @@
     </marquee>
   </div>
 
-  <main style="padding: 4rem 0 6rem;">
+  <main style="padding: 3.5rem 0 6rem;">
     <div class="container">
       
-      <!-- Search & Filter Bar (Optional if needed based on design) -->
-      <?php if(!empty($categories)) { ?>
-      <form action="<?php echo $urlString; ?>" method="GET" class="search-filter-bar" style="margin-bottom: 2rem;">
-        <select name="category" class="filter-select" onchange="this.form.submit()" style="max-width: 300px; margin-left: auto;">
-          <option value="">Search By Category ▼</option>
-          <?php foreach($categories as $cat) { ?>
-            <option value="<?php echo $cat['id']; ?>" <?php echo ($selectedCategory == $cat['id']) ? 'selected' : ''; ?>>
-              <?php echo $cat['name']; ?>
-            </option>
-          <?php } ?>
-        </select>
-      </form>
+      <!-- Category Navigation Tabs (Each category is a tab) -->
+      <?php if(!empty($categories)) { 
+        $activeCatId = !empty($selectedCategory) ? $selectedCategory : $categories[0]['id'];
+      ?>
+      <div class="tab-header">
+        <?php foreach($categories as $cat) { ?>
+          <a href="<?php echo $urlString . '?category=' . $cat['id']; ?>" class="tab-btn <?php echo ($activeCatId == $cat['id']) ? 'active' : ''; ?>">
+            <?php echo htmlspecialchars($cat['name']); ?>
+          </a>
+        <?php } ?>
+      </div>
       <?php } ?>
 
       <div class="download-list">
         <?php if(!empty($data)) { foreach($data as $item) { 
             if ($item['upload_type'] == 'file') {
-                $url = base_url('public/downloads/' . $item['path']);
+                $url = base_url(DOWNLOAD_PATH . $item['path']);
             } else if ($item['upload_type'] == 'url') {
                 $url = $item['path'];
             } else {
@@ -56,13 +55,17 @@
         ?>
         <div class="download-row">
           <div class="download-info">
-            <span class="pdf-icon-badge">FILE</span>
-            <span class="download-title"><?php echo $item['description']; ?></span>
+            <span class="pdf-icon-badge">PDF</span>
+            <span class="download-title"><?php echo htmlspecialchars($item['description']); ?></span>
           </div>
-          <a href="<?php echo $url; ?>" target="_blank" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
+          <a href="<?php echo $url; ?>" target="_blank" class="btn-circle-download" title="Download">
+            <span class="material-symbols-outlined">download</span>
+          </a>
         </div>
         <?php } } else { ?>
-          <p>No downloads available.</p>
+          <div class="alert alert-info text-center" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 3rem; border-radius: 12px; color: #64748b; margin-top: 1rem;">
+            <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">No downloads available.</p>
+          </div>
         <?php } ?>
       </div>
 

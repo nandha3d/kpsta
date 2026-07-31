@@ -1,0 +1,5 @@
+---
+deployment:
+ tasks:
+ - export DEPLOYPATH=/home1/credaqwv/public_html/kpsta/kpsta.in
+ - /bin/cp * $DEPLOYPATH 

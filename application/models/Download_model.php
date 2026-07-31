@@ -28,13 +28,39 @@ class Download_model extends CI_Model {
         $this->db->select('id, name');
         $query = $this->db->get('download_category');
         if ($query->num_rows() > 0) {
-//            $data[''] = '- - - SELECT CATEGORY - - -';
             foreach ($query->result() as $row) {
                 $data[$row->id] = $row->name;
             }
             return $data;
         }
         return array();
+    }
+
+    public function getOrAddCategory($category) {
+        if (empty($category)) {
+            return NULL;
+        }
+        if (is_numeric($category)) {
+            $this->db->where('id', $category);
+            $query = $this->db->get('download_category');
+            if ($query->num_rows() > 0) {
+                return $category;
+            }
+        }
+        
+        $this->db->where('name', $category);
+        $query = $this->db->get('download_category');
+        if ($query->num_rows() > 0) {
+            $row = $query->row();
+            return $row->id;
+        }
+
+        $this->db->insert('download_category', [
+            'name' => $category,
+            'created_at' => date("Y-m-d H:i:s"),
+            'created_by' => $this->session->userdata('id')
+        ]);
+        return $this->db->insert_id();
     }
 
     public function getFormsCategory($param) {
@@ -51,7 +77,7 @@ class Download_model extends CI_Model {
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;
         $param['search'] = isset($param['search']) ? $param['search'] : FALSE;
 
-        $this->db->select('o.id, o.description, o.upload_type, DATE_FORMAT(o.date,"%d-%m-%Y") as date, o.date as date_unformat, c.name as category, o.path, o.is_publish');
+        $this->db->select('o.id, o.description, o.upload_type, DATE_FORMAT(o.date,"%d-%m-%Y") as date, o.date as date_unformat, c.name as category, c.id as category_id, o.path, o.is_publish');
         $this->db->from('download o');
         $this->db->join('download_category c', 'o.category = c.id', 'left');
         if (isset($param['type']) && $param['type']) {

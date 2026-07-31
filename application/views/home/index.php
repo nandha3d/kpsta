@@ -150,18 +150,19 @@
       <?php if(!empty($reactionGalleryImages)) { ?>
         <div class="reaction-slider-container" style="position: relative; max-width: 360px; margin: 0 auto;">
           <?php foreach($reactionGalleryImages as $idx => $rg) { ?>
-            <div class="poster-card reaction-slide" style="<?php echo $idx === 0 ? 'display: block;' : 'display: none;'; ?>">
+            <div class="poster-card reaction-slide <?php echo empty($rg['description']) ? 'no-title' : ''; ?>" style="<?php echo $idx === 0 ? 'display: block;' : 'display: none;'; ?>">
               <?php if(!empty($rg['image'])) { ?>
-                <a href="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" target="_blank">
-                  <img src="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" alt="<?php echo htmlspecialchars($rg['description']); ?>" style="width:100%; border-radius: var(--radius-lg); object-fit: cover; max-height: 450px;">
+                <a href="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" target="_blank" style="display: block; width: 100%;">
+                  <img src="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" alt="<?php echo htmlspecialchars($rg['description']); ?>" style="width:100%; object-fit: cover; max-height: 450px;">
                 </a>
                 <?php if(!empty($rg['description'])) { ?>
-                  <div style="margin-top:0.75rem; font-weight:700; color:#111; font-size:1.05rem; text-align:center;">
-                    <?php echo htmlspecialchars($rg['description']); ?>
+                  <div class="poster-card-title">
+                    <img src="<?php echo base_url('public/Page References/logo.png'); ?>" alt="KPSTA" class="poster-logo">
+                    <span><?php echo htmlspecialchars($rg['description']); ?></span>
                   </div>
                 <?php } ?>
               <?php } else { ?>
-                <div style="background:#dc2626; color:white; padding:1.5rem; border-radius:12px; font-weight:800; font-size:1.3rem;">
+                <div style="background: linear-gradient(135deg, #d97706, #ea580c); color:white; padding:1.5rem; border-radius:var(--radius-lg); font-weight:800; font-size:1.3rem; text-align:center;">
                   <?php echo htmlspecialchars($rg['description']); ?>
                 </div>
               <?php } ?>

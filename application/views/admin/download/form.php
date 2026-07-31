@@ -33,17 +33,18 @@
     </div>
 
 
+    <?php $uploadType = isset($formValues['upload_type']) ? $formValues['upload_type'] : 'file'; ?>
     <?php $class = form_error('upload_type') ? 'form-group has-error' : 'form-group' ?>
     <div class="<?php echo $class ?>">
         <label for="content">Upload Type</label>
 
 
         <div class="btn-group margin upload-type-toggle button-toggle" data-toggle="buttons" >
-            <label class=" btn btn-default <?php echo (isset($formValues['upload_type']) && $formValues['upload_type'] == 'file') ? 'active' : '' ?>" data-active-class="success">
-                <input type="radio" name="upload_type" data-type="file" value="file"  autocomplete="off" <?php echo (isset($formValues['upload_type']) && $formValues['upload_type'] == 'file') ? 'checked' : '' ?>  > PDF
+            <label class=" btn btn-default <?php echo ($uploadType == 'file') ? 'active' : '' ?>" data-active-class="success">
+                <input type="radio" name="upload_type" data-type="file" value="file"  autocomplete="off" <?php echo ($uploadType == 'file') ? 'checked' : '' ?>  > PDF
             </label>
-            <label class=" btn  btn-default <?php echo (isset($formValues['upload_type']) && $formValues['upload_type'] == 'url' ) ? 'active' : '' ?>" data-active-class="success">
-                <input type="radio" name="upload_type" data-type="url" value="url" autocomplete="off" <?php echo (isset($formValues['upload_type']) && $formValues['upload_type'] == 'url' ) ? 'checked' : '' ?> > URL
+            <label class=" btn  btn-default <?php echo ($uploadType == 'url') ? 'active' : '' ?>" data-active-class="success">
+                <input type="radio" name="upload_type" data-type="url" value="url" autocomplete="off" <?php echo ($uploadType == 'url') ? 'checked' : '' ?> > URL
             </label>
         </div>
 
@@ -52,28 +53,26 @@
     <?php $class = form_error('path') ? 'form-group has-error' : 'form-group' ?>
     <div class="<?php echo $class ?>">
         <label >URL  <span class="text-danger"> [website name should start with https:// or http:// or www.]</span></label>
-        <?php $uploadType = isset($formValues['upload_type']) ? $formValues['upload_type'] : '' ?>
         <input  class="form-control" name="path" placeholder="Enter site url"  value="<?php echo isset($formValues['path']) ? $formValues['path'] : '' ?>" <?php echo $uploadType == "file" ? 'disabled="disabled"' : '' ?> >
     </div>
 
     <?php $class = form_error('pdfName') ? 'form-group has-error' : 'form-group' ?>
     <div class="<?php echo $class ?>">
         <label for="heading">File </label>
-        <input type="hidden" name="pdfName" value="<?php echo isset($formValues['upload_type']) && $formValues['upload_type'] == 'file' ? $formValues['pdfName'] : '' ?>">
+        <input type="hidden" name="pdfName" value="<?php echo $uploadType == 'file' && isset($formValues['pdfName']) ? $formValues['pdfName'] : '' ?>">
 
-        <div class="file-input file-input-new">
+        <div class="file-input <?php echo ($uploadType == 'file' && !empty($formValues['pdfName'])) ? '' : 'file-input-new' ?>">
             <div class="input-group file-caption-main">
                 <div class="form-control file-caption  kv-fileinput-caption" tabindex="500">
                     <div class="file-caption-name" title="">
-                        <?php $view = (isset($formValues['upload_type']) && $formValues['upload_type'] == 'file') ? base_url(DOWNLOAD_PATH . '/' . ($formValues['path'] ?? '')) : 'javascript:void(0)'; ?>
-                        <?php echo isset($formValues['upload_type']) && $formValues['upload_type'] == 'file' ? $formValues['pdfName'] : '' ?>
+                        <?php echo ($uploadType == 'file' && isset($formValues['pdfName'])) ? $formValues['pdfName'] : '' ?>
                     </div>
                 </div>
 
                 <div class="input-group-btn">
-                    <button data-href="<?php echo base_url('admin/forms/fileremove'); ?>" class="btn btn-default fileinput-remove fileinput-remove-button" title="Clear selected files" tabindex="500" type="button"><i class="glyphicon glyphicon-trash"></i>  <span class="hidden-xs">Remove</span></button>
+                    <button data-href="<?php echo base_url('admin/' . $menuType['route'] . '/fileremove'); ?>" class="btn btn-default fileinput-remove fileinput-remove-button" title="Clear selected files" tabindex="500" type="button"><i class="glyphicon glyphicon-trash"></i>  <span class="hidden-xs">Remove</span></button>
                     <div class="btn btn-primary btn-file" tabindex="500"><i class="glyphicon glyphicon-folder-open"></i>&nbsp;  <span class="hidden-xs">Browse …</span>
-                        <input type="file" data-show-preview="true" class="file" id="pdf" name="file" data-href="<?php echo base_url('admin/download/fileupload/') ?>">
+                        <input type="file" data-show-preview="true" class="file" id="pdf" name="file" data-href="<?php echo base_url('admin/' . $menuType['route'] . '/fileupload'); ?>">
                     </div>
                 </div>
             </div>
@@ -103,15 +102,13 @@
 
 
 <script type="text/javascript">
- 
-        $(function () {
-            $(".select2-category").select2({
-        dropdownParent: $("#modal")
+    $(function () {
+        $(".select2-category").select2({
+            tags: true,
+            dropdownParent: $("#modal")
         });
-            $('.datepicker').datepicker({
-    autoclose: true
+        $('.datepicker').datepicker({
+            autoclose: true
         });
-
     });
-
 </script>

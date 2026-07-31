@@ -35,30 +35,26 @@ $("body").on('submit', '#modal #save', function (e) {
 
 //enable and disable of URL BOX according to toggle - upload type
 $("body").on('click', '#modal .upload-type-toggle .btn-default', function (e) {
-    //$(this).find('.btn').toggleClass('active');
     var _type = $(this).find('input').val();
+    var $modal = $(this).closest('#modal');
     if (_type === 'url') {
-        $(this).closest('#modal').find('input[name="path"]').removeAttr('disabled');
+        $modal.find('input[name="path"]').removeAttr('disabled');
     } else if (_type === 'file') {
-        $(this).closest('#modal').find('input[name="path"]').attr('disabled', 'disabled');
+        $modal.find('input[name="path"]').attr('disabled', 'disabled');
     }
     $(this).closest('.form-group').removeClass('has-error');
 });
 
-//Before file upload, check whether the upload type is set to PDF
-$("body").on('click', '#modal input[name="file"]', function (e) {
-    var _label = $(this).closest('#modal').find('.upload-type-toggle');
-    if ($(_label).find('label').hasClass('active')) {
-        var _labelActiveClass = _label.find('label.active');
-        var _type = $(_labelActiveClass).find('input').data('type');
-        console.log(_type);
-        if (_type == "file") {
-            $(_label).closest('.form-group').removeClass('has-error');
-            return true;
-        }
-    }
-    $(_label).closest('.form-group').addClass('has-error');
-    return false;
+//When user clicks browse file button, ensure upload type automatically switches to PDF
+$("body").on('click', '#modal .btn-file, #modal input[name="file"]', function (e) {
+    var $modal = $(this).closest('#modal');
+    var $pdfRadio = $modal.find('input[name="upload_type"][value="file"]');
+    var $urlRadio = $modal.find('input[name="upload_type"][value="url"]');
+    
+    $pdfRadio.prop('checked', true).closest('label').addClass('active');
+    $urlRadio.prop('checked', false).closest('label').removeClass('active');
+    $modal.find('input[name="path"]').attr('disabled', 'disabled');
+    $modal.find('.upload-type-toggle').closest('.form-group').removeClass('has-error');
 });
 
 //upload  pdf file
@@ -158,11 +154,26 @@ $("body").on('click', '.edit', function (e) {
             if (result.code == 'success') {
                 $(this).dropdown('toggle');
                 $("body .modal-content-form").html(result.form);
+                if ($('.select2-category').length) {
+                    $('.select2-category').select2({
+                        tags: true,
+                        dropdownParent: $('#modal')
+                    });
+                }
                 $('#modal').modal({show: true});
             }
         }
     });
     return false;
+});
+
+$('#modal').on('shown.bs.modal', function () {
+    if ($('.select2-category').length) {
+        $('.select2-category').select2({
+            tags: true,
+            dropdownParent: $('#modal')
+        });
+    }
 });
 
 

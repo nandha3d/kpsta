@@ -23,9 +23,26 @@ class OfficeBearer extends MY_Controller {
     public function index() {
 
         $data['form'] = $this->createForm(base_url('admin/office_bearer/add'));
-
         $data['content'] = $this->getContent();
 
+        $data['designations'] = $this->OfficeBearer_model->getAllDesignation();
+        $data['section_headings'] = $this->OfficeBearer_model->getAllSectionHeadings();
+        $data['districts'] = [
+            'Thiruvananthapuram' => 'Thiruvananthapuram',
+            'Kollam' => 'Kollam',
+            'Pathanamthitta' => 'Pathanamthitta',
+            'Alappuzha' => 'Alappuzha',
+            'Kottayam' => 'Kottayam',
+            'Idukki' => 'Idukki',
+            'Ernakulam' => 'Ernakulam',
+            'Thrissur' => 'Thrissur',
+            'Palakkad' => 'Palakkad',
+            'Malappuram' => 'Malappuram',
+            'Kozhikode' => 'Kozhikode',
+            'Wayanad' => 'Wayanad',
+            'Kannur' => 'Kannur',
+            'Kasaragod' => 'Kasaragod'
+        ];
 
         //check whether the request is Ajax, Then send json return data
         if ($this->input->is_ajax_request()) {
@@ -49,6 +66,12 @@ class OfficeBearer extends MY_Controller {
 
         $param['search'] = trim((string)$this->input->get('search'));
         $param['designation'] = $this->input->get('designation');
+        $param['level'] = $this->input->get('level');
+        $param['district'] = $this->input->get('district');
+        $param['is_former'] = $this->input->get('is_former');
+        $param['is_publish'] = $this->input->get('is_publish');
+        $param['sort'] = $this->input->get('sort') ? $this->input->get('sort') : 'position-asc';
+
         $param['limit'] = 15;
         $param['page'] = (int)($this->input->get('page') && $this->input->get('page') !== 'undefined' ? $this->input->get('page') : 1);
         $param['offset'] = ($param['page'] > 0) ? ($param['page'] - 1) * $param['limit'] : 0;
@@ -70,7 +93,14 @@ class OfficeBearer extends MY_Controller {
         $content['config'] = $config;
 
         $this->newUrl = $this->getNewUrl([
-            'page' => $param['page']
+            'page' => $param['page'],
+            'search' => $param['search'],
+            'designation' => $param['designation'],
+            'level' => $param['level'],
+            'district' => $param['district'],
+            'is_former' => $param['is_former'],
+            'is_publish' => $param['is_publish'],
+            'sort' => $param['sort']
         ]);
 
         $content['content'] = $this->OfficeBearer_model->getAll($param);
@@ -108,11 +138,6 @@ class OfficeBearer extends MY_Controller {
 
         return $this->load->view('admin/officeBearer/form', $data, TRUE);
     }
-
-    /*
-     * This function for Insert latest news
-     * @return json_encode response
-     */
 
     public function add() {
         $formValues = $this->formValidation();
@@ -271,11 +296,6 @@ class OfficeBearer extends MY_Controller {
         return $formValues;
     }
 
-    /*
-     * It create html form For editing 
-     * @return json_endcode  data
-     */
-
     public function edit() {
         $data['code'] = 'error';
 
@@ -290,10 +310,6 @@ class OfficeBearer extends MY_Controller {
         exit;
     }
 
-    /**
-     * Update News info
-     * @return json_endcode  data
-     */
     public function update() {
 
         $formValues = $this->formValidation();
@@ -345,10 +361,6 @@ class OfficeBearer extends MY_Controller {
         exit;
     }
 
-    /**
-     * Update Publish status
-     * @return json_endcode  data
-     */
     public function publish() {
         $id = $this->uri->segment(4);
         $orderInfo = $this->OfficeBearer_model->getById($id);

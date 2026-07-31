@@ -1,13 +1,26 @@
 var imageWidthThumb = 173;
 var imageHeightThumb = 214;
 
-
-
 $(function () {
     $('.category-search').select2().on("change", function (e) {
         seach(0);
     });
-    
+
+    $('body').on('change', '.filter-control', function () {
+        seach(0);
+    });
+
+    $('body').on('click', '#btn-reset-filters', function () {
+        $('input[name="search"]').val('');
+        $('.category-search').val(null).trigger('change');
+        $('select[name="level-search"]').val('');
+        $('select[name="district-search"]').val('');
+        $('select[name="former-search"]').val('');
+        $('select[name="publish-search"]').val('');
+        $('select[name="sort-search"]').val('position-asc');
+        seach(0);
+    });
+
     // Initialize designation select with tags enabled so users can create new ones
     if ($('.select2-category').length) {
         $('.select2-category').select2({
@@ -17,25 +30,27 @@ $(function () {
     }
 });
 
-
 //search
 $("body").on('keyup', 'input[name="search"]', function (e) {
-    var _val = $.trim($(this).val());
-    if (_val) {
-        seach(0);
-    }
+    seach(0);
 });
 
-$("body").on('click', 'button[name="search"]', function (e) {
+$("body").on('click', 'button[name="search"], button[name="btn-search"]', function (e) {
     seach(0);
 });
 
 var ajax_request;
 function seach(_page) {
-    var _page = _page;
+    var _page = _page || 0;
     var search = $('input[name="search"]').val();
     var _category = $('.category-search').select2("val");
-    _category = _category ? _category.join(',') : '';
+    _category = Array.isArray(_category) ? _category.join(',') : (_category || '');
+
+    var level = $('select[name="level-search"]').val() || '';
+    var district = $('select[name="district-search"]').val() || '';
+    var is_former = $('select[name="former-search"]').val() || '';
+    var is_publish = $('select[name="publish-search"]').val() || '';
+    var sort = $('select[name="sort-search"]').val() || 'position-asc';
 
     if (typeof ajax_request !== 'undefined') {
         ajax_request.abort();
@@ -44,7 +59,16 @@ function seach(_page) {
         url: $('input[name="search"]').data('href'),
         type: 'GET',
         dataType: 'JSON',
-        data: {search: search, designation: _category, page: _page},
+        data: {
+            search: search,
+            designation: _category,
+            level: level,
+            district: district,
+            is_former: is_former,
+            is_publish: is_publish,
+            sort: sort,
+            page: _page
+        },
         success: function (result) {
             if (result.code == 'success') {
                 $('#table-content').html(result.content);

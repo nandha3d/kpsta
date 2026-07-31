@@ -90,62 +90,88 @@ class OfficeBearer_model extends CI_Model {
     }
 
     public function getAll($param) {
-        $param['limit'] = isset($param['limit']) ? $param['limit'] : 10;
+        $param['limit'] = isset($param['limit']) ? $param['limit'] : 15;
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;
-        $param['search'] = isset($param['search']) ? $param['search'] : FALSE;
 
-        $this->db->select('o.id, o.name,o.phone, o.email, o.is_publish, o.image, c.name as designation, o.designation as designationId, o.section_heading, o.year, o.is_former, o.level');
+        $this->db->select('o.id, o.name, o.phone, o.email, o.is_publish, o.image, c.name as designation, o.designation as designationId, o.section_heading, o.year, o.is_former, o.level, o.position');
         $this->db->from('office_bearer o');
         $this->db->join('office_bearer_designation c', 'o.designation = c.id', 'left');
 
-        if (isset($param['level'])) {
+        if (isset($param['level']) && $param['level'] !== '') {
             $this->db->where("o.level", $param['level']);
         }
 
-        if (isset($param['isPublish']) && $param['isPublish']) {
-            $this->db->where(array("o.is_publish" => 1));
+        if (isset($param['district']) && $param['district'] !== '') {
+            $this->db->group_start();
+            $this->db->where("o.section_heading", $param['district']);
+            $this->db->or_like("o.section_heading", $param['district']);
+            $this->db->group_end();
+        }
+
+        if (isset($param['is_publish']) && $param['is_publish'] !== '') {
+            $this->db->where("o.is_publish", $param['is_publish']);
         }
         
-        if (isset($param['is_former'])) {
-            if ($param['is_former'] == 0) {
-                // Active: not manually marked as former, and (no year set OR year >= active term)
-                $this->db->where("o.is_former", 0);
-                if (isset($param['active_term'])) {
-                    $this->db->group_start();
-                    $this->db->where("o.year IS NULL");
-                    $this->db->or_where("o.year", "");
-                    $this->db->or_where("o.year >=", $param['active_term']);
-                    $this->db->group_end();
-                }
-            } else {
-                // Former: manually marked as former OR year < active term
-                if (isset($param['active_term'])) {
-                    $this->db->group_start();
-                    $this->db->where("o.is_former", 1);
-                    $this->db->or_group_start();
-                    $this->db->where("o.year !=", "");
-                    $this->db->where("o.year IS NOT NULL");
-                    $this->db->where("o.year <", $param['active_term']);
-                    $this->db->group_end();
-                    $this->db->group_end();
-                } else {
-                    $this->db->where("o.is_former", 1);
-                }
+        if (isset($param['is_former']) && $param['is_former'] !== '') {
+            $this->db->where("o.is_former", $param['is_former']);
+        }
+        
+        if (isset($param['search']) && !empty($param['search'])) {
+            $this->db->group_start();
+            $this->db->like("o.name", $param['search']);
+            $this->db->or_like("o.email", $param['search']);
+            $this->db->or_like("o.phone", $param['search']);
+            $this->db->or_like("o.section_heading", $param['search']);
+            $this->db->or_like("c.name", $param['search']);
+            $this->db->group_end();
+        }
+
+        if (isset($param['designation']) && !empty($param['designation'])) {
+            $desigArr = is_array($param['designation']) ? $param['designation'] : explode(',', $param['designation']);
+            $desigArr = array_filter($desigArr);
+            if (!empty($desigArr)) {
+                $this->db->where_in("o.designation", $desigArr);
             }
         }
-        
-        if (isset($param['search']) && $param['search']) {
-            $this->db->where("o.name LIKE ", '%' . $param['search'] . '%');
-        }
-        if (isset($param['designation']) && $param['designation']) {
-            $this->db->where_in("o.designation", explode(',', $param['designation']));
+
+        // Sorting options
+        $sort = isset($param['sort']) ? $param['sort'] : 'position-asc';
+        switch($sort) {
+            case 'name-asc':
+                $this->db->order_by('o.name', 'ASC');
+                break;
+            case 'name-desc':
+                $this->db->order_by('o.name', 'DESC');
+                break;
+            case 'designation-asc':
+                $this->db->order_by('c.name', 'ASC');
+                break;
+            case 'designation-desc':
+                $this->db->order_by('c.name', 'DESC');
+                break;
+            case 'level-asc':
+                $this->db->order_by('o.level', 'ASC');
+                break;
+            case 'level-desc':
+                $this->db->order_by('o.level', 'DESC');
+                break;
+            case 'section-asc':
+                $this->db->order_by('o.section_heading', 'ASC');
+                break;
+            case 'section-desc':
+                $this->db->order_by('o.section_heading', 'DESC');
+                break;
+            case 'position-desc':
+                $this->db->order_by('o.position', 'DESC');
+                $this->db->order_by('o.id', 'DESC');
+                break;
+            case 'position-asc':
+            default:
+                $this->db->order_by('o.position', 'ASC');
+                $this->db->order_by('o.designation', 'ASC');
+                break;
         }
 
-        if ($param['limit'] == 3) {
-            $this->db->where('o.designation IN ( 1, 2, 3 )');
-        }
-
-        $this->db->order_by('o.designation, o.position ');
         $this->db->limit($param['limit'], $param['offset']);
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
@@ -155,58 +181,51 @@ class OfficeBearer_model extends CI_Model {
     }
 
     public function getAllCount($param) {
-        $param['search'] = isset($param['search']) ? $param['search'] : FALSE;
-
         $this->db->select('count(o.id) as count');
         $this->db->from('office_bearer o');
+        $this->db->join('office_bearer_designation c', 'o.designation = c.id', 'left');
 
-        if (isset($param['isPublish']) && $param['isPublish']) {
-            $this->db->where(array("o.is_publish" => 1));
-        }
-
-        if (isset($param['level'])) {
+        if (isset($param['level']) && $param['level'] !== '') {
             $this->db->where("o.level", $param['level']);
         }
 
-        if (isset($param['is_former'])) {
-            if ($param['is_former'] == 0) {
-                // Active: not manually marked as former, and (no year set OR year >= active term)
-                $this->db->where("o.is_former", 0);
-                if (isset($param['active_term'])) {
-                    $this->db->group_start();
-                    $this->db->where("o.year IS NULL");
-                    $this->db->or_where("o.year", "");
-                    $this->db->or_where("o.year >=", $param['active_term']);
-                    $this->db->group_end();
-                }
-            } else {
-                // Former: manually marked as former OR year < active term
-                if (isset($param['active_term'])) {
-                    $this->db->group_start();
-                    $this->db->where("o.is_former", 1);
-                    $this->db->or_group_start();
-                    $this->db->where("o.year !=", "");
-                    $this->db->where("o.year IS NOT NULL");
-                    $this->db->where("o.year <", $param['active_term']);
-                    $this->db->group_end();
-                    $this->db->group_end();
-                } else {
-                    $this->db->where("o.is_former", 1);
-                }
-            }
+        if (isset($param['district']) && $param['district'] !== '') {
+            $this->db->group_start();
+            $this->db->where("o.section_heading", $param['district']);
+            $this->db->or_like("o.section_heading", $param['district']);
+            $this->db->group_end();
         }
 
-        if ($param['search']) {
-            $this->db->where("o.name LIKE ", '%' . $param['search'] . '%');
+        if (isset($param['is_publish']) && $param['is_publish'] !== '') {
+            $this->db->where("o.is_publish", $param['is_publish']);
         }
-        if (isset($param['designation']) && $param['designation']) {
-            $this->db->where_in("o.designation", explode(',', $param['designation']));
+
+        if (isset($param['is_former']) && $param['is_former'] !== '') {
+            $this->db->where("o.is_former", $param['is_former']);
+        }
+
+        if (isset($param['search']) && !empty($param['search'])) {
+            $this->db->group_start();
+            $this->db->like("o.name", $param['search']);
+            $this->db->or_like("o.email", $param['search']);
+            $this->db->or_like("o.phone", $param['search']);
+            $this->db->or_like("o.section_heading", $param['search']);
+            $this->db->or_like("c.name", $param['search']);
+            $this->db->group_end();
+        }
+
+        if (isset($param['designation']) && !empty($param['designation'])) {
+            $desigArr = is_array($param['designation']) ? $param['designation'] : explode(',', $param['designation']);
+            $desigArr = array_filter($desigArr);
+            if (!empty($desigArr)) {
+                $this->db->where_in("o.designation", $desigArr);
+            }
         }
 
         $query = $this->db->get();
         $result = $query->row(0, 'array');
 
-        return $result['count'];
+        return isset($result['count']) ? $result['count'] : 0;
     }
 
     public function getById($id) {

@@ -169,6 +169,11 @@ Class Download extends MY_Controller {
         //check Download Type
         $segment = $this->getMenuType($this->getSegment3());
         $formValues['type'] = $segment['type'];
+
+        if (!empty($formValues['category'])) {
+            $formValues['category'] = $this->Download_model->getOrAddCategory($formValues['category']);
+        }
+
         //Insert values
         $add = $this->Download_model->add($formValues);
         if ($add) {
@@ -176,7 +181,7 @@ Class Download extends MY_Controller {
             $data['lastId'] = $add;
             $data['content'] = $this->getContent();
         } else {
-            $data['code'] = 'success';
+            $data['code'] = 'error';
             $data['data'] = 'Something went wrong! Pls try again';
         }
         echo json_encode($data);
@@ -207,8 +212,6 @@ Class Download extends MY_Controller {
             'pdfName' => $this->input->post('pdfName'),
             'is_publish' => $this->input->post('is_publish'),
         ];
-
-
 
         return $formValues;
     }
@@ -367,6 +370,10 @@ Class Download extends MY_Controller {
             }
         }
 
+        if (!empty($formValues['category'])) {
+            $formValues['category'] = $this->Download_model->getOrAddCategory($formValues['category']);
+        }
+
         //update news
         $this->Download_model->update($id, $formValues);
         $data['code'] = 'success';
@@ -424,7 +431,7 @@ Class Download extends MY_Controller {
 
         $data = array();
 
-        $data['form'] = $this->createCategoryForm(base_url('admin/download/category/add'));
+        $data['form'] = $this->createCategoryForm(base_url('admin/' . $this->menuType['route'] . '/category/add'));
         $data['content'] = $this->getCategoryContent();
 
         $this->load->view('admin/header');
@@ -435,7 +442,7 @@ Class Download extends MY_Controller {
     public function createCategoryForm($url, $formValues = false, $title = "Add Category") {
         $data['title'] = $title;
         $data['url'] = $url;
-        $data['addUrl'] = base_url('admin/download/category/add');
+        $data['addUrl'] = base_url('admin/' . $this->menuType['route'] . '/category/add');
         $data['formValues'] = $formValues;
         return $this->load->view('admin/download/category/form', $data, TRUE);
     }
@@ -448,7 +455,7 @@ Class Download extends MY_Controller {
         //validation FALSE
         if ($this->form_validation->run() == FALSE) {
             $data['code'] = 'error';
-            $data['form'] = $this->createCategoryForm(base_url('admin/download/category/add'), $formValues);
+            $data['form'] = $this->createCategoryForm(base_url('admin/' . $this->menuType['route'] . '/category/add'), $formValues);
             echo json_encode($data);
             exit;
         }
@@ -484,7 +491,7 @@ Class Download extends MY_Controller {
 
         if ($categoryInfo) {
 
-            $url = base_url('admin/download/category/update/' . $id);
+            $url = base_url('admin/' . $this->menuType['route'] . '/category/update/' . $id);
             $data['form'] = $this->createCategoryForm($url, $categoryInfo, 'Edit Category');
             $data['code'] = 'success';
         }
@@ -498,14 +505,13 @@ Class Download extends MY_Controller {
      */
     public function categoryUpdate() {
 
-
         $this->form_validation->set_rules('name', 'Name', 'trim|required');
         $formValues = ['name' => $this->input->post('name')];
 
         $id = $this->uri->segment(5);
         //validation FALSE
         if ($this->form_validation->run() == FALSE) {
-            $url = base_url('admin/download/category/update/' . $id);
+            $url = base_url('admin/' . $this->menuType['route'] . '/category/update/' . $id);
             $data['code'] = 'error';
             $data['form'] = $this->createCategoryForm($url, $formValues, 'Edit Category');
             echo json_encode($data);
@@ -592,5 +598,3 @@ Class Download extends MY_Controller {
     }
 
 }
-
-
