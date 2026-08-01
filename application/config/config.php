@@ -24,7 +24,12 @@ date_default_timezone_set('Asia/Kolkata');
 |
 */
 $base_protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'http';
-$script_path = str_replace(basename($_SERVER['SCRIPT_NAME'] ?? ''), '', $_SERVER['SCRIPT_NAME'] ?? '/');
+$raw_script_name = $_SERVER['SCRIPT_NAME'] ?? '/';
+if (strpos($raw_script_name, ':') !== false || strpos($raw_script_name, 'valet.php') !== false) {
+    $script_path = '/';
+} else {
+    $script_path = str_replace(basename($raw_script_name), '', $raw_script_name);
+}
 $config['base_url'] = $base_protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $script_path;
 
 /*

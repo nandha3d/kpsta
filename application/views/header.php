@@ -7,6 +7,7 @@
   <meta name="description" content="Official website of Kerala Pradesh School Teachers' Association (KPSTA), the largest school teachers association in Kerala united for quality education.">
   <link rel="icon" href="<?php echo base_url('public/Page References/logo.png'); ?>" type="image/png">
   <link rel="shortcut icon" href="<?php echo base_url('public/Page References/logo.png'); ?>" type="image/png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link rel="stylesheet" href="<?php echo base_url('public/css/styles.css?v=2.3'); ?>">
   <?php if (!empty($heading_bg_image)): ?>
   <style>
