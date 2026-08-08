@@ -7,14 +7,17 @@
         <div class="page-header">
             <div class="box-layout">
                 <div class="col-xs-5 col-sm-6 col-md-5 va-m">
-                    <h3 class="pull-left">Category</h3>
+                    <h3 class="pull-left">Designations</h3>
                     <div class="col-xs-2 text-right pull-left">
                     </div>
                 </div>
                 <div class="col-xs-7 col-sm-6 col-md-7 va-m">
                     <div id="toolbar" class="toolbar text-right">
                         <div class="std-toolbar btn-group">
-                            <a  class="btn btn-default" data-toggle="modal" data-target="#modal" data-id="new" data-title-new="Add Category">
+                            <a class="btn btn-default" href="<?php echo site_url('admin/office_bearer'); ?>">
+                                <i class="fa fa-arrow-left"></i> <span class="hidden-xs hidden-sm">Office Bearers</span>
+                            </a>
+                            <a  class="btn btn-primary" data-toggle="modal" data-target="#modal" data-id="new" data-title-new="Add Designation">
                                 <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm">New</span>
                             </a>
                         </div>
@@ -44,29 +47,11 @@
             <div class="col-md-12">
                 <div class="box">
                     <div class="box-header with-border">
-                        <div class="box-layout">
-                            <div class="col-xs-6 col-lg-8 va-m form-inline">
-
-                                <div class="input-group no-margin">
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default"><i class="fa fa-question-circle"></i></button>
-                                    </span>
-                                    <input type="text" class="form-control" placeholder="Search...">
-                                    <span class="input-group-btn">
-                                        <button type="button" class="btn btn-default btn-flat"><i class="fa fa-search fa-fw"></i></button>
-                                    </span>
-                                </div>
-
-                            </div>
-
-                            <div class="col-xs-6 col-lg-4 va-m text-right">
-                                <a class="btn btn-sm btn-danger" href="" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected campaigns?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
-                                    <span data-toggle="tooltip" title="" data-placement="left" data-original-title="Delete the selected items"><i class="fa fa-fw fa-trash-o"></i> <span class=""></span></span>
-                                </a>        
-                            </div>
-                        </div>
-
-
+                        <h3 class="box-title">Designations in use</h3>
+                        <p class="help-block" style="margin-bottom: 0;">
+                            Renaming a designation updates it everywhere it appears, including the
+                            <a href="<?php echo site_url('OfficeBearer'); ?>" target="_blank" rel="noopener">public office bearers page</a>.
+                        </p>
                     </div>
 
                     <!-- /.box-header -->

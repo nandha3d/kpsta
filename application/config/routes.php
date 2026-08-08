@@ -121,8 +121,6 @@ $route['admin/aauth/group/update/?(:num)'] = "admin/AauthGroup/update";
 $route['admin/aauth/group_to_menu'] = "admin/AauthGroupToMenu/index";
 $route['admin/aauth/group_to_menu/add'] = "admin/AauthGroupToMenu/add";
 $route['admin/aauth/group_to_menu/menu'] = "admin/AauthGroupToMenu/menu";
-$route['admin/aauth/group_to_menu/edit/?(:num)'] = "admin/AauthGroupToMenu/edit";
-$route['admin/aauth/group_to_menu/update/?(:num)'] = "admin/AauthGroupToMenu/update";
 
 //Latest News Section
 $route['admin/news/add'] = "admin/News/add";
@@ -239,6 +237,10 @@ $route['admin/result_link/delete/?(:num)?'] = "admin/ResultLink/delete";
 
 
 //office Bearers
+$route['admin/office_bearer/designation'] = "admin/OfficeBearer/designation";
+$route['admin/office_bearer/designation/add'] = "admin/OfficeBearer/designationAdd";
+$route['admin/office_bearer/designation/edit/(:num)'] = "admin/OfficeBearer/designationEdit/$1";
+$route['admin/office_bearer/designation/update/(:num)'] = "admin/OfficeBearer/designationUpdate/$1";
 $route['admin/office_bearer'] = "admin/OfficeBearer/index";
 $route['admin/office_bearer/add'] = "admin/OfficeBearer/add";
 $route['admin/office_bearer/edit/?(:num)?'] = "admin/OfficeBearer/edit";

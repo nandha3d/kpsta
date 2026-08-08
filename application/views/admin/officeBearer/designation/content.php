@@ -20,9 +20,9 @@
                             </td>
 
 
-                            <td><?php echo $row ?></td>
+                            <td><?php echo html_escape($row) ?></td>
 
-                            <td> <a href="javascript:void(0)"   class="edit"   data-href="<?php echo base_url('admin/order-circular/category/edit/' . $key) ?>"  >
+                            <td> <a href="javascript:void(0)"   class="edit"   data-href="<?php echo base_url('admin/office_bearer/designation/edit/' . $key) ?>"  >
                                     <span><i class="fa fa-pencil-square-o"></i>  Edit</span>
                                 </a>
                             </td>

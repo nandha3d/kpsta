@@ -12,32 +12,11 @@
                     </div>
                 </div>
                 <div class="col-xs-7 col-sm-6 col-md-7 va-m">
-                    <div id="toolbar" class="toolbar text-right">
-                        <div class="std-toolbar btn-group">
-                            <a  class="btn btn-default" data-toggle="modal" data-target="#modal" data-id="new" data-title="Add order & circular">
-                                <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm">New</span>
-                            </a>
-                            <div class="dropdown-toolbar btn-group">
-                                <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default btn-nospin  dropdown-toggle" type="button"><i class="fa fa-caret-down"></i></button>
-                            </div>
-                        </div>
-
-
-                    </div>
                     <div class="clearfix"></div>
                 </div>
             </div>
         </div>
     </section>
-
-
-    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content modal-content-form" >
-                <?php echo isset($form) ? $form : '' ?>
-            </div>
-        </div>
-    </div>
 
 
     <!-- Main content -->

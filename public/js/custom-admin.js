@@ -88,8 +88,12 @@
         }
     }
 
-    // 2. Highlight the exact current sub-link based on the URL
+    // 2. Highlight the current link. Only the longest match wins, so on
+    // .../office_bearer/designation the parent .../office_bearer stays quiet.
     var currentUrl = window.location.href.split('?')[0].replace(/\/$/, "");
+    var $best = null;
+    var bestLen = -1;
+
     $('.modern-sidebar-menu a').each(function () {
         var href = $(this).attr('href');
         if (!href || href === '#') {
@@ -99,16 +103,23 @@
 
         // Exact match or sub-page match (like /edit/1)
         if (currentUrl === linkUrl || currentUrl.indexOf(linkUrl + '/') === 0) {
-            $(this).parent('li').addClass('active');
-
-            // Expand parent treeview if it's inside one
-            var $treeview = $(this).closest('.treeview');
-            if ($treeview.length) {
-                $treeview.addClass('active menu-open');
-                $treeview.children('.treeview-menu').show();
+            if (linkUrl.length > bestLen) {
+                bestLen = linkUrl.length;
+                $best = $(this);
             }
         }
     });
+
+    if ($best) {
+        $best.parent('li').addClass('active');
+
+        // Expand parent treeview if it's inside one
+        var $treeview = $best.closest('.treeview');
+        if ($treeview.length) {
+            $treeview.addClass('active menu-open');
+            $treeview.children('.treeview-menu').show();
+        }
+    }
 
     $.fn.addSpinner = function () {
         this.prop('disabled', true);

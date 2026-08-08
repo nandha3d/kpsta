@@ -221,10 +221,16 @@ if (!isset($page_title) || $page_title === '') {
 
                         <li class="modern-menu-section"><span>Organisation</span></li>
 
-                        <li class="office_bearer-menu">
-                            <a href="<?php echo site_url("admin/office_bearer"); ?>" data-title="Office Bearers">
-                                <i class="fa fa-user"></i> <span>Office Bearers</span>
+                        <li class="treeview office_bearer-menu">
+                            <a href="#" data-title="Office Bearers">
+                                <i class="fa fa-user"></i>
+                                <span>Office Bearers</span>
+                                <i class="fa fa-angle-left modern-caret"></i>
                             </a>
+                            <ul class="treeview-menu">
+                                <li><a href="<?php echo site_url("admin/office_bearer"); ?>"><i class="fa fa-circle-o"></i><span>All Office Bearers</span></a></li>
+                                <li><a href="<?php echo site_url("admin/office_bearer/designation"); ?>"><i class="fa fa-circle-o"></i><span>Designations</span></a></li>
+                            </ul>
                         </li>
 
                         <li class="membership-menu">

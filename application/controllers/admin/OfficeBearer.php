@@ -391,4 +391,117 @@ class OfficeBearer extends MY_Controller {
         exit;
     }
 
+    /* ------------------------------------------------------------------
+     * Designations
+     *
+     * Designations are created on the fly when an office bearer is saved,
+     * so without this screen a typo could never be corrected - and the
+     * designation is what groups people into sections on the public page.
+     * Deleting is deliberately not offered: office_bearer rows reference
+     * these by id and would be left pointing at nothing.
+     * ------------------------------------------------------------------ */
+
+    public function designation() {
+        $data['form'] = $this->createDesignationForm(base_url('admin/office_bearer/designation/add'));
+        $data['content'] = $this->getDesignationContent();
+
+        if ($this->input->is_ajax_request()) {
+            $data['code'] = 'success';
+            echo json_encode($data);
+            exit;
+        }
+
+        $header['page_title'] = 'Designations';
+
+        $this->load->view('admin/header', $header);
+        $this->load->view('admin/officeBearer/designation/category', $data);
+        $this->load->view('admin/footer');
+    }
+
+    public function getDesignationContent() {
+        $content['categories'] = $this->OfficeBearer_model->getAllDesignation();
+        return $this->load->view('admin/officeBearer/designation/content', $content, TRUE);
+    }
+
+    public function createDesignationForm($url, $formValues = false, $title = "Add Designation") {
+        $data['title'] = $title;
+        $data['url'] = $url;
+        $data['addUrl'] = base_url('admin/office_bearer/designation/add');
+        $data['formValues'] = $formValues;
+
+        return $this->load->view('admin/officeBearer/designation/form', $data, TRUE);
+    }
+
+    public function designationAdd() {
+        $this->form_validation->set_rules('name', 'Designation Name', 'trim|required');
+        $formValues = array('name' => trim((string) $this->input->post('name')));
+
+        if ($this->form_validation->run() == FALSE) {
+            $data['code'] = 'error';
+            $data['form'] = $this->createDesignationForm(base_url('admin/office_bearer/designation/add'), $formValues);
+            echo json_encode($data);
+            exit;
+        }
+
+        if ($this->OfficeBearer_model->designationExists($formValues['name'])) {
+            $formValues['error'] = 'This designation already exists.';
+            $data['code'] = 'error';
+            $data['form'] = $this->createDesignationForm(base_url('admin/office_bearer/designation/add'), $formValues);
+            echo json_encode($data);
+            exit;
+        }
+
+        $id = $this->OfficeBearer_model->addDesignation($formValues['name']);
+        $data['code'] = $id ? 'success' : 'error';
+        $data['lastId'] = $id;
+        $data['content'] = $this->getDesignationContent();
+
+        echo json_encode($data);
+        exit;
+    }
+
+    public function designationEdit($id = false) {
+        $data['code'] = 'error';
+
+        $formInfo = $this->OfficeBearer_model->getDesignationById($id);
+        if ($formInfo) {
+            $data['form'] = $this->createDesignationForm(
+                    base_url('admin/office_bearer/designation/update/' . $id), $formInfo, 'Edit Designation');
+            $data['code'] = 'success';
+        }
+
+        echo json_encode($data);
+        exit;
+    }
+
+    public function designationUpdate($id = false) {
+        $url = base_url('admin/office_bearer/designation/update/' . $id);
+
+        $this->form_validation->set_rules('name', 'Designation Name', 'trim|required');
+        $formValues = array('name' => trim((string) $this->input->post('name')));
+
+        $formInfo = $this->OfficeBearer_model->getDesignationById($id);
+        if (!$formInfo) {
+            $formValues['error'] = 'Record not found.';
+        } else if ($this->OfficeBearer_model->designationExists($formValues['name'], $id)) {
+            $formValues['error'] = 'This designation already exists.';
+        }
+
+        if ($this->form_validation->run() == FALSE || isset($formValues['error'])) {
+            $data['code'] = 'error';
+            $data['form'] = $this->createDesignationForm($url, $formValues, 'Edit Designation');
+            echo json_encode($data);
+            exit;
+        }
+
+        $this->OfficeBearer_model->updateDesignation($id, $formValues['name']);
+
+        $data['code'] = 'success';
+        $data['lastId'] = $id;
+        $data['content'] = $this->getDesignationContent();
+
+        echo json_encode($data);
+        exit;
+    }
+
 }

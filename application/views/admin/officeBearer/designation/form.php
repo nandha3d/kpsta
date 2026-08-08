@@ -4,9 +4,9 @@
     <h4 class="modal-title" id="myModalLabel"><?php echo $title ?></h4>
 </div>
 <div class="modal-body">
-    <?php if (isset($error)) { ?>
+    <?php if (isset($formValues['error'])) { ?>
         <div class="alert alert-danger alert-dismissible">
-            <h4><i class="icon fa fa-ban"></i> Error !</h4> <?php echo $error ?>  
+            <h4><i class="icon fa fa-ban"></i> Error !</h4> <?php echo $formValues['error'] ?>
         </div>
     <?php } else if (validation_errors()) { ?>
         <div class = "alert alert-danger alert-dismissible">
@@ -16,10 +16,11 @@
 
 
 
-    <?php $class = form_error('description') ? 'form-group has-error' : 'form-group' ?>
+    <?php $class = form_error('name') ? 'form-group has-error' : 'form-group' ?>
     <div class="<?php echo $class ?>">
-        <label for="name">Category Name</label>
-        <input  class="form-control" name="name" placeholder="Enter Heading"  value="<?php echo isset($formValues['name']) ? $formValues['name'] : '' ?>">
+        <label for="name">Designation Name</label>
+        <input  class="form-control" name="name" placeholder="Enter designation"  value="<?php echo isset($formValues['name']) ? html_escape($formValues['name']) : '' ?>">
+        <p class="help-block">Used to group office bearers into sections on the public website.</p>
     </div>
 
 

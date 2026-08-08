@@ -89,6 +89,41 @@ class OfficeBearer_model extends CI_Model {
         return $this->db->insert_id();
     }
 
+    public function getDesignationById($id) {
+        $this->db->select('id, name');
+        $this->db->where('id', $id);
+        $query = $this->db->get('office_bearer_designation');
+
+        if ($query->num_rows() > 0) {
+            return $query->row(0, 'array');
+        }
+        return false;
+    }
+
+    /**
+     * Designations are shared across every office bearer, so the name has to
+     * stay unique - two rows with the same name would split one section into
+     * two on the public listing.
+     */
+    public function designationExists($name, $excludeId = false) {
+        $this->db->where('name', $name);
+        if ($excludeId) {
+            $this->db->where('id !=', $excludeId);
+        }
+        $query = $this->db->get('office_bearer_designation');
+        return $query->num_rows() > 0;
+    }
+
+    public function addDesignation($name) {
+        $this->db->insert('office_bearer_designation', array('name' => $name));
+        return $this->db->insert_id();
+    }
+
+    public function updateDesignation($id, $name) {
+        $this->db->where('id', $id);
+        return (bool) $this->db->update('office_bearer_designation', array('name' => $name));
+    }
+
     public function getAll($param) {
         $param['limit'] = isset($param['limit']) ? $param['limit'] : 15;
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;
