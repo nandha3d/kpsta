@@ -4,12 +4,10 @@
     <div class="container">
       <div class="footer-top">
         <div class="brand-logo" style="justify-content:center;">
-          <img src="<?php echo base_url('public/Page References/logo.png'); ?>" alt="KPSTA Logo" class="emblem-circle" style="width:64px; height:64px;">
-          <div class="brand-text" style="color:white; text-align:left;">
-            <h2 style="color:white; font-size:1.35rem;">KERALA PRADESH<br>SCHOOL TEACHERS' ASSOCIATION</h2>
-            <p style="color:#cbd5e1;">AFFILIATED TO AIPTF, AIFTO & EDUCATION INTERNATIONAL</p>
-          </div>
+          <img src="<?php echo base_url('public/images/logo-wide-new.png'); ?>" alt="KPSTA - Kerala Pradesh School Teachers' Association" class="brand-lockup footer-lockup">
         </div>
+
+        <div class="footer-divider"></div>
 
         <ul class="footer-nav">
           <li><a href="<?php echo base_url(); ?>">Home</a></li>

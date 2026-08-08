@@ -27,7 +27,7 @@
     </marquee>
   </div>
 
-  <main style="padding: 3.5rem 0 5rem;">
+  <main class="page-list">
     <div class="container">
 
       <!-- Search & Filter Bar -->
@@ -37,7 +37,7 @@
           <button type="submit" class="btn-search" aria-label="Search"><span class="material-symbols-outlined">search</span></button>
         </div>
         <select name="category" class="filter-select" onchange="this.form.submit()">
-          <option value="">Search By Label ▼</option>
+          <option value="">Search By Label</option>
           <?php if(!empty($categories)) { foreach($categories as $cat) { ?>
             <option value="<?php echo $cat['id']; ?>" <?php echo ($selectedCategory == $cat['id']) ? 'selected' : ''; ?>>
               <?php echo $cat['name']; ?>
@@ -53,7 +53,7 @@
         <div class="ribbon-line"></div>
       </div>
 
-      <div>
+      <div class="circular-list">
         <?php foreach($orderGroup as $order) { ?>
         <div class="circular-item">
           <div class="circular-date"><?php echo date('d', strtotime($order['date_unformat'])); ?></div>

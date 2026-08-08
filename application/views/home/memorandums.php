@@ -26,67 +26,67 @@
       <?php } ?>
     </marquee>
   </div>
-<main style="padding: 4rem 0 6rem;">
+<main class="page-download">
     <div class="container">
       <div class="download-list">
         
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>
-        <div class="download-row">
+        <div class="download-row has-icon">
           <div class="download-info"><span class="pdf-icon-badge">PDF</span><span class="download-title">Lorem ipsum dolor sit amet consectetur adipiscing elit.</span></div>
           <a href="#" class="btn-circle-download"><span class="material-symbols-outlined">download</span></a>
         </div>

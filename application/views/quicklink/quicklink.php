@@ -27,7 +27,7 @@
     </marquee>
   </div>
 
-  <main style="padding: 4rem 0 7rem;">
+  <main class="page-quicklinks">
     <div class="container">
       <div class="quick-links-grid">
         
@@ -37,7 +37,7 @@
         ?>
         <a href="<?php echo htmlspecialchars($url, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer" class="quick-link-btn">
           <span><?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></span>
-          <span class="material-symbols-outlined" style="font-size:1.3rem;">open_in_new</span>
+          <span class="material-symbols-outlined">arrow_right_alt</span>
         </a>
         <?php } } else { ?>
           <p>No quick links available at the moment.</p>

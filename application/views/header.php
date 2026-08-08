@@ -11,8 +11,10 @@
   <link rel="stylesheet" href="<?php echo base_url('public/css/styles.css?v=2.3'); ?>">
   <?php if (!empty($heading_bg_image)): ?>
   <style>
+    /* The hero artwork is reused, heavily washed out, behind the welcome card and footer */
+    :root { --hero-image: url('<?php echo $heading_bg_image; ?>'); }
     .hero-banner:not(.home-hero) {
-      background: linear-gradient(135deg, rgba(4, 62, 73, 0.75), rgba(12, 74, 92, 0.65)), url('<?php echo $heading_bg_image; ?>') !important;
+      background: linear-gradient(180deg, rgba(3, 38, 42, 0.88) 0%, rgba(13, 13, 40, 0.90) 50%, rgba(62, 40, 34, 0.82) 100%), url('<?php echo $heading_bg_image; ?>') !important;
       background-size: cover !important;
       background-position: center !important;
     }
@@ -50,11 +52,7 @@
   <header class="main-header">
     <div class="container header-container">
       <a href="<?php echo base_url(); ?>" class="brand-logo">
-        <img src="<?php echo base_url('public/Page References/logo.png'); ?>" alt="KPSTA Logo" class="emblem-circle">
-        <div class="brand-text">
-          <h1>KERALA PRADESH<br>SCHOOL TEACHERS' ASSOCIATION</h1>
-          <p>AFFILIATED TO AIPTF, AIFTO & EDUCATION INTERNATIONAL</p>
-        </div>
+        <img src="<?php echo base_url('public/images/logo-wide-dark.png'); ?>" alt="KPSTA - Kerala Pradesh School Teachers' Association" class="brand-lockup">
       </a>
       
       <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">

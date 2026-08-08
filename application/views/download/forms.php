@@ -27,17 +27,17 @@
     </marquee>
   </div>
 
-  <main style="padding: 3.5rem 0 6rem;">
+  <main class="page-download">
     <div class="container">
 
       <!-- Category Navigation Tabs (Each category is a tab) -->
       <?php if(!empty($categories)) { 
         $activeCatId = !empty($selectedCategory) ? $selectedCategory : $categories[0]['id'];
       ?>
-      <div class="tab-header">
+      <div class="tab-header <?php echo (isset($route) && $route === 'melakal') ? 'tab-header--joined' : ''; ?>">
         <?php foreach($categories as $cat) { ?>
           <a href="<?php echo $base_url . '?category=' . $cat['id']; ?>" class="tab-btn <?php echo ($activeCatId == $cat['id']) ? 'active' : ''; ?>">
-            <?php echo htmlspecialchars($cat['name']); ?>
+            <span class="tab-btn-label"><?php echo htmlspecialchars($cat['name']); ?></span>
           </a>
         <?php } ?>
       </div>
@@ -58,7 +58,6 @@
           ?>
             <div class="download-row">
               <div class="download-info">
-                <span class="pdf-icon-badge">PDF</span>
                 <span class="download-title"><?php echo htmlspecialchars($item['description']); ?></span>
               </div>
               <a href="<?php echo $url; ?>" target="_blank" class="btn-circle-download" title="Download">

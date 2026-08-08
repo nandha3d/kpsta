@@ -27,32 +27,45 @@
     </marquee>
   </div>
 
-  <main style="padding: 4rem 0 6rem;">
+  <main class="page-gallery">
     <div class="container">
-      
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem;">
-        
-        <?php if(!empty($albums)) { foreach($albums as $album) { ?>
-        <!-- Gallery Item -->
-        <a href="<?php echo base_url('Gallery/singleAlbum/'.$album['guId']); ?>" style="text-decoration:none;">
-          <div style="border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); background: white; transition: transform 0.3s ease, box-shadow 0.3s ease;" class="gallery-card">
-            <div style="height: 240px; background: linear-gradient(135deg, #0b2545, #134074); display:flex; align-items:center; justify-content:center; color:white; font-size:3rem; position:relative;">
-              
-              <?php if(!empty($album['coverImage'])) { ?>
-                <img src="<?php echo base_url(GALLERY_THUMB . '/' . $album['coverImage']); ?>" style="width:100%; height:100%; object-fit:cover;">
-              <?php } else { ?>
-                <span class="material-symbols-outlined" style="font-size:4rem; opacity:0.7;">photo_camera</span>
-              <?php } ?>
 
-              <div style="position:absolute; inset:0; background:rgba(0,0,0,0.3); opacity:0; transition:opacity 0.3s ease; display:flex; align-items:center; justify-content:center;" class="gallery-overlay">
-                <span class="material-symbols-outlined" style="font-size:2.5rem;">zoom_in</span>
-              </div>
-            </div>
-            <div style="padding: 1.25rem;">
-              <h3 style="font-size: 1.15rem; font-weight: 600; color: var(--color-primary); margin-bottom: 0.25rem;"><?php echo $album['name']; ?></h3>
-              <p style="font-size: 0.85rem; color: #64748b;"><?php echo date('F d, Y', strtotime($album['created_at'])); ?></p>
-            </div>
+      <?php
+        $galleryYears = array();
+        if(!empty($albums)) {
+          foreach($albums as $album) { $galleryYears[] = date('Y', strtotime($album['created_at'])); }
+        }
+        $galleryYears = array_values(array_unique($galleryYears));
+        rsort($galleryYears);
+        if(empty($galleryYears)) { $galleryYears = array(date('Y')); }
+        $activeYear = $galleryYears[0];
+      ?>
+
+      <div class="gallery-head">
+        <h2 class="gallery-title">Photos &#8211; <span id="galleryYearLabel"><?php echo $activeYear; ?></span></h2>
+        <div class="year-stepper">
+          <button type="button" class="year-nav" data-dir="-1" aria-label="Previous year"></button>
+          <select class="year-select" id="galleryYearSelect">
+            <?php foreach($galleryYears as $gy) { ?>
+              <option value="<?php echo $gy; ?>"><?php echo $gy; ?></option>
+            <?php } ?>
+          </select>
+          <button type="button" class="year-nav next" data-dir="1" aria-label="Next year"></button>
+        </div>
+      </div>
+
+      <div class="gallery-grid" id="galleryGrid">
+
+        <?php if(!empty($albums)) { foreach($albums as $album) { ?>
+        <a href="<?php echo base_url('Gallery/singleAlbum/'.$album['guId']); ?>" class="gallery-item" data-year="<?php echo date('Y', strtotime($album['created_at'])); ?>">
+          <div class="gallery-thumb">
+            <?php if(!empty($album['coverImage'])) { ?>
+              <img src="<?php echo base_url(GALLERY_THUMB . '/' . $album['coverImage']); ?>" alt="<?php echo htmlspecialchars($album['name']); ?>">
+            <?php } else { ?>
+              <span class="material-symbols-outlined gallery-thumb-fallback">photo_camera</span>
+            <?php } ?>
           </div>
+          <h3 class="gallery-caption"><?php echo $album['name']; ?></h3>
         </a>
         <?php } } else { ?>
           <p>No albums available.</p>
@@ -63,12 +76,30 @@
     </div>
   </main>
 
-  <style>
-    .gallery-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
-    .gallery-card:hover .gallery-overlay {
-      opacity: 1 !important;
-    }
-  </style>
+  <script>
+    (function () {
+      var select = document.getElementById('galleryYearSelect');
+      var label = document.getElementById('galleryYearLabel');
+      var grid = document.getElementById('galleryGrid');
+      if (!select || !grid) return;
+      function apply() {
+        var year = select.value;
+        if (label) label.textContent = year;
+        grid.querySelectorAll('.gallery-item').forEach(function (item) {
+          item.style.display = (item.getAttribute('data-year') === year) ? '' : 'none';
+        });
+      }
+      select.addEventListener('change', apply);
+      document.querySelectorAll('.year-nav').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var dir = parseInt(btn.getAttribute('data-dir'), 10);
+          var next = select.selectedIndex + dir;
+          if (next >= 0 && next < select.options.length) {
+            select.selectedIndex = next;
+            apply();
+          }
+        });
+      });
+      apply();
+    })();
+  </script>

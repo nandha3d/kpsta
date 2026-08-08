@@ -27,7 +27,7 @@
     </marquee>
   </div>
 
-  <main style="padding: 4rem 0 6rem;">
+  <main class="page-download">
     <div class="container">
       <p style="text-align: center; font-size: 1.2rem; color: #64748b;">Please select a category from the Downloads menu.</p>
     </div>

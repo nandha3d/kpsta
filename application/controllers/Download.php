@@ -72,6 +72,7 @@ class Download extends Public_Controller {
         $segment = $this->getMenuType($this->getSegment2());
 
         $content['contentTitle'] = $segment['contentTitle'];
+        $content['route'] = isset($segment['route']) ? $segment['route'] : '';
 
         $param['category'] = $this->input->get('category');
         $param['search'] = $this->input->get('search');

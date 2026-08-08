@@ -27,7 +27,7 @@
     </marquee>
   </div>
 
-  <main style="padding: 3rem 0 5rem;">
+  <main class="page-district">
     <div class="container">
 
       <?php if(!empty($content)) { foreach($content as $districtName => $data) { ?>

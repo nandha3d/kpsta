@@ -27,9 +27,9 @@
     </marquee>
   </div>
 
-  <main style="padding: 3rem 0 5rem;">
+  <main class="page-office-bearers">
     <div class="container">
-      <div style="display:flex; justify-content:flex-end; margin-bottom:1.5rem;">
+      <div class="page-actions">
         <a href="<?php echo base_url('Home/former_leaders'); ?>" class="btn-blue">Former leaders →</a>
       </div>
 

@@ -26,9 +26,9 @@
       <?php } ?>
     </marquee>
   </div>
-<main style="padding: 4rem 0 6rem;">
+<main class="page-bearers">
     <div class="container">
-      <div class="grid-bearers" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2.5rem;">
+      <div class="grid-bearers">
         <?php if(!empty($former_leaders)): ?>
           <?php foreach($former_leaders as $ob): ?>
           <div class="bearer-card">
@@ -40,7 +40,7 @@
                <?php } ?>
             </div>
             <div class="bearer-name"><?php echo htmlspecialchars($ob['name']); ?></div>
-            <div class="bearer-role" style="text-transform:none; font-weight:500; color:var(--color-text); line-height:1.4;">
+            <div class="bearer-role">
               <?php echo htmlspecialchars($ob['designation']); ?> <?php if(!empty($ob['year'])) { echo '('.htmlspecialchars($ob['year']).')'; } ?>
             </div>
           </div>

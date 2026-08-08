@@ -1,20 +1,44 @@
+  <?php if(!empty($sliderImages)): ?>
+  <style>
+    /* Home reuses the first slider frame as the wash behind the welcome card and footer */
+    :root { --hero-image: url('<?php echo base_url('uploads/slider/' . $sliderImages[0]['image']); ?>'); }
+  </style>
+  <?php endif; ?>
+
   <!-- Hero Section -->
   <section class="hero-banner home-hero">
     <!-- Background Slider Elements -->
+    <?php
+      // Only slides that actually carry an image file are rendered
+      $heroSlides = array();
+      if(!empty($sliderImages)) {
+        foreach($sliderImages as $image) {
+          if(!empty($image['image'])) { $heroSlides[] = $image; }
+        }
+      }
+    ?>
     <div class="hero-slider-bg" id="heroBgSlider">
-      <?php if(!empty($sliderImages)) { foreach($sliderImages as $key => $image) { ?>
+      <?php if(!empty($heroSlides)) { foreach($heroSlides as $key => $image) { ?>
         <div class="hero-slide <?php echo $key === 0 ? 'active' : ''; ?>" style="background-image: url('<?php echo base_url('uploads/slider/' . $image['image']); ?>');"></div>
       <?php } } else { ?>
         <div class="hero-slide active" style="background-color: #276269;"></div>
       <?php } ?>
       <div class="hero-overlay"></div>
     </div>
+
+    <?php if(count($heroSlides) > 1) { ?>
+    <div class="hero-dots" id="heroDots">
+      <?php foreach($heroSlides as $key => $image) { ?>
+        <button type="button" class="hero-dot <?php echo $key === 0 ? 'active' : ''; ?>" data-index="<?php echo $key; ?>" aria-label="Slide <?php echo $key + 1; ?>"></button>
+      <?php } ?>
+    </div>
+    <?php } ?>
     
     <div class="container hero-content">
       <div class="hero-flag">
         <picture>
           <source srcset="<?php echo base_url('public/Page References/giphy_cropped.webp'); ?>" type="image/webp">
-          <img src="<?php echo base_url('public/Page References/giphy_cropped.gif'); ?>" alt="KPSTA Flag" style="height: 85px; width: auto; margin: 0 auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));">
+          <img src="<?php echo base_url('public/Page References/giphy_cropped.gif'); ?>" alt="KPSTA Flag" style="height: 111px; width: auto; margin: 0 auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));">
         </picture>
       </div>
       <h1 class="hero-title">KPSTA</h1>
@@ -28,13 +52,24 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
+      const dots = document.querySelectorAll('#heroDots .hero-dot');
       if (slides.length > 1) {
         let currentSlide = 0;
-        setInterval(() => {
+        const show = (index) => {
           slides[currentSlide].classList.remove('active');
-          currentSlide = (currentSlide + 1) % slides.length;
+          if (dots[currentSlide]) dots[currentSlide].classList.remove('active');
+          currentSlide = (index + slides.length) % slides.length;
           slides[currentSlide].classList.add('active');
-        }, 5000); // Change slide every 5 seconds
+          if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+        };
+        let timer = setInterval(() => show(currentSlide + 1), 5000);
+        dots.forEach((dot) => {
+          dot.addEventListener('click', () => {
+            clearInterval(timer);
+            show(parseInt(dot.getAttribute('data-index'), 10));
+            timer = setInterval(() => show(currentSlide + 1), 5000);
+          });
+        });
       }
     });
   </script>
@@ -57,6 +92,8 @@
     </marquee>
   </div>
 
+  <main class="page-home">
+
   <!-- Welcome Section -->
   <section class="welcome-section">
     <div class="container">
@@ -71,10 +108,9 @@
   <!-- Office Bearers Section -->
   <section style="padding: 2rem 0 5rem;">
     <div class="container">
-      <h2 class="section-title">Office Bearers</h2>
-      
       <div class="home-office-bearers-layout">
         <div>
+          <h2 class="section-title">Office Bearers</h2>
           <div class="home-office-bearers-grid">
             <?php if(!empty($officeBearer)) { foreach($officeBearer as $ob) { ?>
             <div class="bearer-card">
@@ -148,7 +184,7 @@
     <div class="reaction-gallery-side">
       <h2>Reaction Gallery</h2>
       <?php if(!empty($reactionGalleryImages)) { ?>
-        <div class="reaction-slider-container" style="position: relative; max-width: 360px; margin: 0 auto;">
+        <div class="reaction-slider-container" style="position: relative; max-width: 473px; margin: 0 auto;">
           <?php foreach($reactionGalleryImages as $idx => $rg) { ?>
             <div class="poster-card reaction-slide <?php echo empty($rg['description']) ? 'no-title' : ''; ?>" style="<?php echo $idx === 0 ? 'display: block;' : 'display: none;'; ?>">
               <?php if(!empty($rg['image'])) { ?>
@@ -205,24 +241,25 @@
   <!-- Gallery Preview Section -->
   <section style="padding: 5rem 0;">
     <div class="container">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2.5rem;">
-        <h2 class="section-title" style="margin-bottom:0;">Gallery</h2>
-        <div style="display:flex; gap:0.5rem;">
-          <a href="<?php echo base_url('gallery'); ?>" class="btn-green" style="padding:0.6rem 1.25rem; border-radius:50px;">←</a>
-          <a href="<?php echo base_url('gallery'); ?>" class="btn-green" style="padding:0.6rem 1.25rem; border-radius:50px;">→</a>
+      <div class="home-gallery-head">
+        <h2 class="section-title">Gallery</h2>
+        <div class="home-gallery-nav">
+          <a href="<?php echo base_url('gallery'); ?>" class="gallery-nav-circle prev" aria-label="Previous"></a>
+          <a href="<?php echo base_url('gallery'); ?>" class="gallery-nav-circle next" aria-label="Next"></a>
         </div>
       </div>
 
       <div class="home-gallery-grid">
         <?php if(!empty($images)) { foreach(array_slice($images, 0, 5) as $img) { ?>
-        <a href="<?php echo base_url('Gallery/singleAlbum/'.$img['guId']); ?>" class="gallery-card" style="text-decoration: none; display: block; color: inherit; transition: transform 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; background: #fff;">
-          <div class="gallery-img-wrapper" style="overflow: hidden; border-radius: 12px;">
-             <img src="<?php echo base_url('uploads/gallery/original/'.$img['image']); ?>" alt="Gallery Image" style="width: 100%; height: 200px; object-fit: cover; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <a href="<?php echo base_url('Gallery/singleAlbum/'.$img['guId']); ?>" class="home-gallery-item">
+          <div class="home-gallery-thumb">
+             <img src="<?php echo base_url('uploads/gallery/original/'.$img['image']); ?>" alt="Gallery Image">
           </div>
-          <div class="gallery-caption" style="padding: 10px; text-align: center; font-weight: bold; font-size: 1.1rem;"><?php echo !empty($img['title']) ? $img['title'] : $img['name']; ?></div>
+          <div class="home-gallery-caption"><?php echo !empty($img['title']) ? $img['title'] : $img['name']; ?></div>
         </a>
         <?php } } ?>
       </div>
     </div>
   </section>
 
+  </main>
