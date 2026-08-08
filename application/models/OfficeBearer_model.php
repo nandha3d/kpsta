@@ -111,11 +111,18 @@ class OfficeBearer_model extends CI_Model {
         if (isset($param['is_publish']) && $param['is_publish'] !== '') {
             $this->db->where("o.is_publish", $param['is_publish']);
         }
-        
+
+        // Public pages ask for published rows only, via isPublish.
+        if (isset($param['isPublish']) && $param['isPublish']) {
+            $this->db->where("o.is_publish", 1);
+        }
+
+        $this->applyActiveTerm($param);
+
         if (isset($param['is_former']) && $param['is_former'] !== '') {
             $this->db->where("o.is_former", $param['is_former']);
         }
-        
+
         if (isset($param['search']) && !empty($param['search'])) {
             $this->db->group_start();
             $this->db->like("o.name", $param['search']);
@@ -200,6 +207,12 @@ class OfficeBearer_model extends CI_Model {
             $this->db->where("o.is_publish", $param['is_publish']);
         }
 
+        if (isset($param['isPublish']) && $param['isPublish']) {
+            $this->db->where("o.is_publish", 1);
+        }
+
+        $this->applyActiveTerm($param);
+
         if (isset($param['is_former']) && $param['is_former'] !== '') {
             $this->db->where("o.is_former", $param['is_former']);
         }
@@ -228,8 +241,25 @@ class OfficeBearer_model extends CI_Model {
         return isset($result['count']) ? $result['count'] : 0;
     }
 
+    /**
+     * Restrict a query to the term the Settings screen currently considers
+     * active. Rows captured before the year field existed carry no year, so
+     * they stay visible instead of blanking the public listings.
+     */
+    private function applyActiveTerm($param) {
+        if (empty($param['active_term'])) {
+            return;
+        }
+
+        $this->db->group_start();
+        $this->db->where("o.year", $param['active_term']);
+        $this->db->or_where("o.year IS NULL", NULL, FALSE);
+        $this->db->or_where("o.year", '');
+        $this->db->group_end();
+    }
+
     public function getById($id) {
-        $this->db->select('id, name,phone, email, is_publish, image, designation, position, section_heading, year, is_former');
+        $this->db->select('id, name, phone, email, is_publish, image, designation, position, section_heading, year, is_former, level');
         $this->db->where(array("id" => $id));
         $query = $this->db->get('office_bearer');
 

@@ -451,6 +451,31 @@ div.dataTables_length select {
 
 .membership-wrapper .container-wrapper{
     min-height: 600px;
+    /* The header band spans the full viewport, so the content below has to as
+       well. Without this the .row negative margins push content 15px past both
+       edges while the header stayed inside a centred .container, leaving the
+       nav bar and the page content visibly out of line. */
+    padding: 0 15px;
+}
+
+/* Header band matches the content width instead of a centred 1170px column */
+.membership-wrapper .membership-header-inner{
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.membership-wrapper .header-top-two > .nav-bar{
+    border-radius: 0;
+}
+
+@media (max-width: 767px){
+    .membership-wrapper .container-wrapper{
+        padding: 0 10px;
+    }
+    .membership-wrapper .membership-header-inner{
+        padding-left: 10px;
+        padding-right: 10px;
+    }
 }
 
 .report-menu a{

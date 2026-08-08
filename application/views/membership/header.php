@@ -62,7 +62,7 @@
         <div class="wrapper   membership-wrapper">
             <div class="header">
 
-                <div class="container">
+                <div class="container-fluid membership-header-inner">
                     <div class="row">
                         <div class="header-top-two">
                             <div class="col-xs-8 col-sm-6 width-full"><a href="<?php echo base_url() ?>">
@@ -97,15 +97,10 @@
                                             </li>
 
 
-                                            <li class="<?php
-                                            if ($this->session->userdata('group') != 7) {
-                                                if ($this->uri->segment(2) == 'main') {
-                                                    echo 'active';
-                                                }
-                                                ?>" >
+                                            <?php if ($this->session->userdata('group') != 7) { ?>
+                                                <li class="<?php echo $this->uri->segment(2) == 'main' ? 'active' : '' ?>" >
                                                     <a href="<?php echo base_url('membership/main') ?>">SCHOOL LIST</a>
                                                 </li>
-
                                             <?php } ?>
 
                                             <?php if ($this->session->userdata("group") <= 3) { ?>

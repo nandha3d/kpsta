@@ -1,6 +1,6 @@
                 </main>
                 <footer class="modern-footer">
-                    <strong>Copyright &copy; 2026 <a href="#">KPSTA Admin</a>.</strong> All rights reserved.
+                    <strong>Copyright &copy; <?php echo date('Y'); ?> <a href="<?php echo site_url(); ?>" target="_blank" rel="noopener">KPSTA</a>.</strong> All rights reserved.
                 </footer>
             </div> <!-- End of modern-main-content -->
         </div> <!-- End of modern-wrapper -->
@@ -32,38 +32,6 @@
         <script src="<?php echo base_url(); ?>public/plugins/slimScroll/jquery.slimscroll.min.js"></script>
         <!-- Custom -->
         <script src="<?php echo base_url(); ?>public/js/custom-admin.js?v=<?php echo time(); ?>"></script>
-
-        <script>
-        $(document).ready(function() {
-            // Modern Sidebar Toggle Logic
-            $('#sidebar-toggle').on('click', function(e) {
-                e.preventDefault();
-                $('.modern-wrapper').toggleClass('sidebar-collapsed');
-                if ($('.modern-wrapper').hasClass('sidebar-collapsed')) {
-                    $('.modern-sidebar').css('transform', 'translateX(-100%)');
-                    $('.modern-main-content').css('margin-left', '0');
-                } else {
-                    $('.modern-sidebar').css('transform', 'translateX(0)');
-                    $('.modern-main-content').css('margin-left', 'var(--sidebar-width)');
-                }
-            });
-
-            // Treeview toggle logic
-            $('.treeview > a').on('click', function(e) {
-                e.preventDefault();
-                var $parent = $(this).parent();
-                var $menu = $parent.find('> .treeview-menu');
-                
-                if ($parent.hasClass('menu-open')) {
-                    $parent.removeClass('menu-open');
-                    $menu.slideUp();
-                } else {
-                    $parent.addClass('menu-open');
-                    $menu.slideDown();
-                }
-            });
-        });
-        </script>
 
         <?php
         if (isset($special_js) && !empty($special_js)) {

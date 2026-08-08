@@ -1,32 +1,115 @@
 (function ($) {
-    // 1. Get the base URL segment to highlight the main parent if needed
-    var url = $("#url_segment").val();
-    if(url) {
+    var SIDEBAR_KEY = 'kpstaSidebarCollapsed';
+    var MOBILE_MAX = 768;
+
+    var $wrapper = $('#modernWrapper');
+    var $backdrop = $('#sidebarBackdrop');
+
+    function isMobile() {
+        return window.innerWidth <= MOBILE_MAX;
+    }
+
+    // Desktop: collapse to an icon rail. Mobile: slide the sidebar off canvas.
+    // Both are driven by classes only so the responsive rules keep working —
+    // inline styles here would survive a resize and strand the layout.
+    function applyStoredState() {
+        $('html').removeClass('pre-collapsed');
+        if (isMobile()) {
+            $wrapper.removeClass('sidebar-collapsed');
+            return;
+        }
+        var collapsed = false;
+        try {
+            collapsed = localStorage.getItem(SIDEBAR_KEY) === '1';
+        } catch (e) {}
+        $wrapper.toggleClass('sidebar-collapsed', collapsed);
+    }
+
+    function closeMobileSidebar() {
+        $wrapper.removeClass('sidebar-open');
+    }
+
+    $('#sidebar-toggle').on('click', function (e) {
+        e.preventDefault();
+        if (isMobile()) {
+            $wrapper.toggleClass('sidebar-open');
+            return;
+        }
+        var collapsed = !$wrapper.hasClass('sidebar-collapsed');
+        $wrapper.toggleClass('sidebar-collapsed', collapsed);
+        try {
+            localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
+        } catch (e) {}
+    });
+
+    $backdrop.on('click', closeMobileSidebar);
+
+    $(document).on('keyup', function (e) {
+        if (e.which === 27) {
+            closeMobileSidebar();
+        }
+    });
+
+    var resizeTimer = null;
+    $(window).on('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            closeMobileSidebar();
+            applyStoredState();
+        }, 150);
+    });
+
+    applyStoredState();
+
+    // Treeview expand / collapse
+    $('.modern-sidebar-menu').on('click', '.treeview > a', function (e) {
+        e.preventDefault();
+        var $parent = $(this).parent();
+        var $menu = $parent.children('.treeview-menu');
+
+        if ($parent.hasClass('menu-open')) {
+            $parent.removeClass('menu-open');
+            $menu.slideUp(180);
+        } else {
+            $parent.addClass('menu-open');
+            $menu.slideDown(180);
+        }
+    });
+
+    // 1. Highlight the section from the admin URI segment (admin/<segment>/...)
+    // Segments are slugs; strip anything else rather than build a bad selector.
+    var url = ($("#url_segment").val() || '').replace(/[^A-Za-z0-9_-]/g, '');
+    if (url) {
         var $menuItem = $("." + url + "-menu");
         $menuItem.addClass('active');
         if ($menuItem.hasClass('treeview')) {
             $menuItem.addClass('menu-open');
-            $menuItem.find('> .treeview-menu').show();
+            $menuItem.children('.treeview-menu').show();
         }
     }
 
-    // 2. Highlight exact current sub-link based on the URL
+    // 2. Highlight the exact current sub-link based on the URL
     var currentUrl = window.location.href.split('?')[0].replace(/\/$/, "");
-    $('.modern-sidebar-menu a').each(function() {
-        var linkUrl = $(this).attr('href').replace(/\/$/, "");
-        
+    $('.modern-sidebar-menu a').each(function () {
+        var href = $(this).attr('href');
+        if (!href || href === '#') {
+            return;
+        }
+        var linkUrl = href.replace(/\/$/, "");
+
         // Exact match or sub-page match (like /edit/1)
-        if (currentUrl === linkUrl || (linkUrl !== "" && currentUrl.indexOf(linkUrl + '/') === 0)) {
+        if (currentUrl === linkUrl || currentUrl.indexOf(linkUrl + '/') === 0) {
             $(this).parent('li').addClass('active');
-            
+
             // Expand parent treeview if it's inside one
             var $treeview = $(this).closest('.treeview');
             if ($treeview.length) {
                 $treeview.addClass('active menu-open');
-                $treeview.find('> .treeview-menu').show();
+                $treeview.children('.treeview-menu').show();
             }
         }
     });
+
     $.fn.addSpinner = function () {
         this.prop('disabled', true);
         this.find('i').addClass('hide');

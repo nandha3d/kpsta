@@ -92,7 +92,7 @@ class Slider_model extends CI_Model {
     }
 
     public function getById($id) {
-        $this->db->select('id, description, image, is_publish, position, is_heading_bg');
+        $this->db->select('id, description, image, is_publish, position, is_heading_bg, show_on_home, heading_pages');
         $this->db->where(array("id" => $id));
         $query = $this->db->get('slider');
 
@@ -131,16 +131,37 @@ class Slider_model extends CI_Model {
         return true;
     }
 
-    public function getHeadingBgForPage($page) {
+    /**
+     * Resolve the heading/hero background for a public page.
+     *
+     * $pages holds the page keys this request may match, most specific first
+     * (e.g. array('Gallery/summer-meet', 'Gallery')). A slider explicitly
+     * assigned to one of them via "Individual Pages Heading Background" always
+     * outranks a slider flagged for all pages, so a page level override is not
+     * defeated by the position of the site wide fallback.
+     */
+    public function getHeadingBgForPage($pages) {
+        $pages = array_values(array_filter((array) $pages, 'strlen'));
+
+        // Rank: page specific matches score highest, most specific key first.
+        $rank = '0';
+        foreach ($pages as $i => $page) {
+            $score = count($pages) - $i;
+            $rank = 'IF(FIND_IN_SET(' . $this->db->escape($page) . ', heading_pages) > 0, '
+                    . $score . ', ' . $rank . ')';
+        }
+
         $this->db->select('image');
+        $this->db->select($rank . ' AS page_rank', FALSE);
         $this->db->where('is_delete !=', '1');
         $this->db->where('is_publish', 1);
         $this->db->group_start();
         $this->db->where('is_heading_bg', 1);
-        if (!empty($page)) {
-            $this->db->or_where("FIND_IN_SET('$page', heading_pages) >", 0);
+        if ($pages) {
+            $this->db->or_where($rank . ' > 0', NULL, FALSE);
         }
         $this->db->group_end();
+        $this->db->order_by('page_rank', 'desc');
         $this->db->order_by('position', 'asc');
         $this->db->order_by('id', 'desc');
         $this->db->limit(1);

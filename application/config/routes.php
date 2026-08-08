@@ -88,9 +88,6 @@ $route['district'] = "District/index";
 $route['quicklink'] = "Quicklink/index";
 
 
-$route['membership'] = "Membership/index";
-
-
 $route['results'] = "Results/index";
 
 $route['privacy-policy'] = "Privacy/index";

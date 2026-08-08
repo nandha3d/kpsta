@@ -18,13 +18,35 @@ Class Home extends MY_Controller {
     }
 
     public function index() {
-        // Fetch dynamic counts for the dashboard
-        $data['total_users'] = $this->db->count_all('aauth_users');
-        $data['total_news'] = $this->db->count_all('news');
-        $data['total_gallery'] = $this->db->count_all('gallery');
-        $data['total_downloads'] = $this->db->count_all('download');
+        $this->load->model("News_model");
+        $this->load->model("Gallery_model");
+        $this->load->model("Download_model");
+        $this->load->model("OrderCircular_model");
+        $this->load->model("OfficeBearer_model");
+        $this->load->model("Settings_model");
 
-        $this->load->view('admin/header');
+        // Counts come from the models so soft deleted and unpublished rows are
+        // treated the same way the public site treats them.
+        $activeTerm = $this->Settings_model->getActiveTerm();
+
+        $data['active_term'] = $activeTerm;
+        $data['total_users'] = $this->db->count_all('aauth_users');
+        $data['total_news'] = $this->News_model->getAllNewsCount(array('isPublish' => TRUE));
+        $data['total_gallery'] = $this->Gallery_model->getAllAlbumCount();
+        $data['total_downloads'] = $this->Download_model->getAllCount(array(), TRUE);
+        $data['total_orders'] = $this->OrderCircular_model->getAllByTypeCount(array(), TRUE);
+        $data['total_office_bearers'] = $this->OfficeBearer_model->getAllCount(array(
+            'isPublish' => TRUE,
+            'is_former' => 0,
+            'active_term' => $activeTerm,
+            'level' => 'State',
+        ));
+
+        $data['recent_news'] = $this->News_model->getAllNews(array('limit' => 5));
+
+        $header['page_title'] = 'Dashboard';
+
+        $this->load->view('admin/header', $header);
         $this->load->view('admin/home/index', $data);
         $this->load->view('admin/footer');
     }

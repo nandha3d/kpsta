@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="input-group-btn">
-                    <button data-href="<?php echo base_url('admin/forms/fileremove'); ?>" class="btn btn-default fileinput-remove fileinput-remove-button" title="Clear selected files" tabindex="500" type="button"><i class="glyphicon glyphicon-trash"></i>  <span class="hidden-xs">Remove</span></button>
+                    <button data-href="<?php echo base_url('membership/whats_new/fileremove'); ?>" class="btn btn-default fileinput-remove fileinput-remove-button" title="Clear selected files" tabindex="500" type="button"><i class="glyphicon glyphicon-trash"></i>  <span class="hidden-xs">Remove</span></button>
                     <div class="btn btn-primary btn-file" tabindex="500"><i class="glyphicon glyphicon-folder-open"></i>&nbsp;  <span class="hidden-xs">Browse …</span>
                         <input type="file" data-show-preview="true" class="file" id="pdf" name="file"  >
                     </div>

@@ -144,12 +144,21 @@ class Public_Controller extends MY_Controller {
         parent::__construct("public");
 
         $this->load->model('Slider_model');
-        $page = $this->uri->segment(1);
+
+        // Candidate page keys for the heading background, most specific first:
+        // "download/forms" style keys win over the bare "download" section, and
+        // a detail page (gallery/<album>) still falls back to its section.
+        $pages = array();
+        $seg1 = $this->uri->segment(1);
         $seg2 = $this->uri->segment(2);
-        if ($seg2 && !is_numeric($seg2)) {
-            $page .= '/' . $seg2;
+        if ($seg1) {
+            if ($seg2 && !is_numeric($seg2)) {
+                $pages[] = $seg1 . '/' . $seg2;
+            }
+            $pages[] = $seg1;
         }
-        $headingBgResult = $this->Slider_model->getHeadingBgForPage($page);
+
+        $headingBgResult = $this->Slider_model->getHeadingBgForPage($pages);
         $headingBgImage = !empty($headingBgResult) ? base_url('uploads/slider/' . $headingBgResult['image']) : '';
         $this->load->vars(['heading_bg_image' => $headingBgImage]);
     }
