@@ -42,7 +42,7 @@ class Home extends Public_Controller {
         $content['news'] = $this->FlashNews_model->getAll(array('isPublish' => TRUE));
 
         $active_term = $this->Settings_model->getActiveTerm();
-        $content['officeBearer'] = $this->OfficeBearer_model->getAll(array('isPublish' => TRUE, 'is_former' => 0, 'limit' => 3, 'active_term' => $active_term, 'level' => 'State'));
+        $content['officeBearer'] = $this->OfficeBearer_model->getAll(array('isPublish' => TRUE, 'is_former' => 0, 'limit' => 3, 'active_term' => $active_term, 'level' => 'State', 'designation' => '1,2,3', 'sort' => 'primary'));
 
 
         if (ENVIRONMENT == "development") {

@@ -106,12 +106,14 @@ main {
   flex-grow: 1;
   position: relative;
   background-color: #ffffff;
+  /* Green tint is listed first so it paints ON TOP of the bg.png wash —
+     otherwise the opaque lower half of bg.png hides it on shorter pages. */
   background-image:
-    url('../images/bg.png'),
-    linear-gradient(180deg, rgba(232, 243, 227, 0) 0%, rgba(232, 243, 227, 0.55) 55%, rgba(232, 243, 227, 1) 100%);
+    linear-gradient(180deg, rgba(232, 243, 227, 0) 0%, rgba(232, 243, 227, 0.55) 55%, rgba(232, 243, 227, 1) 100%),
+    url('../images/bg.png');
   background-repeat: no-repeat, no-repeat;
-  background-position: top center, bottom center;
-  background-size: 100% auto, 100% 620px;
+  background-position: bottom center, top center;
+  background-size: 100% 620px, 100% auto;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -338,7 +340,11 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   white-space: nowrap;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover {
+  color: var(--color-primary);
+}
+
+.nav-link.active {
   color: #1c1c1c;
   font-weight: 700;
 }
@@ -2242,12 +2248,26 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .dark-teal-card {
+  position: relative;
   background: linear-gradient(180deg, #215a75 0%, #0d5c70 55%, #046470 100%);
   border-radius: 14px;
   padding: 48px 40px 40px;
   color: #ffffff;
   box-shadow: none;
   border: 2px solid rgba(255, 255, 255, 0.16);
+}
+
+.dark-teal-card::before {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.dark-teal-card > * {
+  position: relative;
 }
 
 .office-bearers-mini-grid {
@@ -2343,10 +2363,24 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .editorial-card {
+  position: relative;
   background: linear-gradient(180deg, #025b63 0%, #016a74 50%, #016067 100%);
   border: 4px solid #00646c;
   border-radius: 14px;
   padding: 53px 40px;
+}
+
+.editorial-card::before {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.editorial-card > * {
+  position: relative;
 }
 
 .editorial-list {
@@ -2364,6 +2398,11 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   font-weight: 400;
   line-height: 76px;
   color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.editorial-row:last-child {
+  border-bottom: none;
 }
 
 .editorial-left {
@@ -2684,4 +2723,9 @@ textarea:focus {
 @media (max-width: 1120px) {
   .top-bar-item + .top-bar-item,
   .top-bar-item + .top-bar-item + .top-bar-item { margin-left: 26px; }
+}
+
+/* Legacy sub-pages still get the page wash and the green tint above the footer */
+.page-legacy {
+  padding: 40px 0 90px;
 }

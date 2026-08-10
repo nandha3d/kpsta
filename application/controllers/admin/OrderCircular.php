@@ -276,6 +276,7 @@ Class OrderCircular extends MY_Controller {
 
             default:
                 $data['type'] = 0;
+                $data['contentTitle'] = 'Order & Circular';
                 break;
         }
         return $data;

@@ -207,6 +207,12 @@ class OfficeBearer_model extends CI_Model {
                 $this->db->order_by('o.position', 'DESC');
                 $this->db->order_by('o.id', 'DESC');
                 break;
+            // Primary office bearers read in designation order (President,
+            // General Secretary, Treasurer) rather than by position.
+            case 'primary':
+                $this->db->order_by('o.designation', 'ASC');
+                $this->db->order_by('o.position', 'ASC');
+                break;
             case 'position-asc':
             default:
                 $this->db->order_by('o.position', 'ASC');

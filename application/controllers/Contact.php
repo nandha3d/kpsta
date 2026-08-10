@@ -40,7 +40,14 @@ class Contact extends Public_Controller {
         }
 
         $this->load->model("OfficeBearer_model");
-        $data['officeBearer'] = $this->OfficeBearer_model->getAll(array('isPublish' => TRUE, 'limit' => 3));
+        $data['officeBearer'] = $this->OfficeBearer_model->getAll(array(
+            'isPublish' => TRUE,
+            'level' => 'State',
+            'is_former' => 0,
+            'designation' => '1,2,3',
+            'sort' => 'primary',
+            'limit' => 3,
+        ));
 
         $this->load->view('header');
         $this->load->view('contact/contact', $data);

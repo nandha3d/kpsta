@@ -781,7 +781,28 @@ a.modern-stat-card:hover { border-color: var(--primary); }
 }
 .form-control::placeholder { color: var(--text-muted) !important; font-weight: 400; }
 textarea.form-control { min-height: 100px; resize: vertical; line-height: 1.6; }
-select.form-control { cursor: pointer; appearance: auto; }
+select.form-control { cursor: pointer; appearance: auto; height: 44px !important; }
+
+/* select2 widgets should match the height and border of the native controls */
+.select2-container .select2-selection--single {
+  height: 44px !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--r) !important;
+  background: #f8fafc !important;
+}
+.select2-container .select2-selection--single .select2-selection__rendered {
+  line-height: 41px !important;
+  padding-left: 14px !important;
+  color: var(--text-dark) !important;
+}
+.select2-container .select2-selection--single .select2-selection__arrow {
+  height: 42px !important;
+}
+.select2-container--open .select2-selection--single {
+  border-color: var(--primary) !important;
+  background: #fff !important;
+}
+.select2-container { width: 100% !important; }
 
 /* Form labels in content areas */
 .form-group label,
@@ -795,12 +816,33 @@ select.form-control { cursor: pointer; appearance: auto; }
 }
 
 /* Modals — premium look */
+.modal-dialog {
+  margin: 30px auto !important;
+}
 .modal-content {
   border-radius: var(--r-xl) !important;
   border: none !important;
   box-shadow: 0 24px 80px rgba(0,0,0,0.15) !important;
   overflow: hidden;
   background: #ffffff !important;
+  /* Keep the header and footer pinned so Save/Cancel stay reachable */
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: calc(100vh - 60px) !important;
+}
+.modal-header,
+.modal-footer {
+  flex: 0 0 auto;
+}
+/* The admin forms wrap header/body/footer in a <form>, so the flex chain has to
+   pass through it or the body never shrinks and the dialog runs off-screen. */
+.modal-content > form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
 }
 .modal-header {
   border-bottom: 1px solid #f1f5f9 !important;
@@ -825,6 +867,10 @@ select.form-control { cursor: pointer; appearance: auto; }
   font-size: 14px;
   color: var(--text-body);
   background: #ffffff !important;
+  /* Tall forms scroll inside the dialog instead of running off-screen */
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
 }
 .modal-footer {
   border-top: 1px solid #f1f5f9 !important;

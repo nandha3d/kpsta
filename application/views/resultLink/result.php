@@ -1,3 +1,4 @@
+<main class="page-legacy">
 <div class="subpages-banner">
     <div class="container">
         <div class="row">
@@ -47,3 +48,4 @@
 
     </div>
 </div>
+</main>

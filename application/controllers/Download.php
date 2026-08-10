@@ -187,6 +187,10 @@ class Download extends Public_Controller {
 
             default:
                 $data['type'] = 0;
+                $data['contentTitle'] = 'Downloads';
+                $data['route'] = '';
+                $data['baseUrl'] = 'download/forms';
+                $data['category'] = false;
                 break;
         }
         return $data;

@@ -1,3 +1,4 @@
+<main class="page-legacy">
 <div class="subpages-banner">
     <div class="container">
         <div class="row">
@@ -71,3 +72,4 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.4.1/index.min.js"></script>
+</main>

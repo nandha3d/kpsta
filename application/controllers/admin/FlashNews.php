@@ -249,6 +249,7 @@ Class FlashNews extends MY_Controller {
 
             default:
                 $data['type'] = 0;
+                $data['contentTitle'] = 'Flash News';
                 break;
         }
         return $data;

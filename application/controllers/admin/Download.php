@@ -592,6 +592,9 @@ Class Download extends MY_Controller {
 
             default:
                 $data['type'] = 0;
+                $data['contentTitle'] = 'Downloads';
+                $data['route'] = 'download';
+                $data['category'] = true;
                 break;
         }
         return $data;
