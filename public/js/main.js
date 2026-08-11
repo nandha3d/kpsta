@@ -13,6 +13,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 1b. Mobile dropdown submenus (Organization, Downloads) open on tap
+  // instead of hover, since touch devices have no hover state. Tapping the
+  // arrow toggles the submenu open; tapping the label text still navigates.
+  document.querySelectorAll('.dropdown > .nav-link').forEach((link) => {
+    const arrow = link.querySelector('.material-symbols-outlined');
+    if (!arrow) return;
+    arrow.addEventListener('click', (e) => {
+      if (window.innerWidth > 768) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const parent = link.parentElement;
+      document.querySelectorAll('.dropdown.open').forEach((d) => {
+        if (d !== parent) d.classList.remove('open');
+      });
+      parent.classList.toggle('open');
+    });
+  });
+
   // 2. Tab Switching (Melakal page)
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabPanels = document.querySelectorAll('.tab-panel');

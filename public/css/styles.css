@@ -165,9 +165,9 @@ img {
 .top-bar {
   background-color: var(--color-primary);
   color: var(--color-white);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 400;
-  height: 55px;
+  height: 42px;
 }
 
 .top-bar .container {
@@ -189,37 +189,37 @@ img {
 .top-bar-item {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   white-space: nowrap;
 }
 
 /* Item offsets taken straight from the mockup (icon starts 112px / 83px after the
-   preceding label ends), so the row lands where the reference puts it. */
-.top-bar-item + .top-bar-item { margin-left: 112px; }
-.top-bar-item + .top-bar-item + .top-bar-item { margin-left: 83px; }
+   preceding label ends), scaled down to match the more compact bar. */
+.top-bar-item + .top-bar-item { margin-left: 90px; }
+.top-bar-item + .top-bar-item + .top-bar-item { margin-left: 66px; }
 
 .top-bar-item .material-symbols-outlined {
   color: var(--color-orange-icon);
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1;
 }
 
 .top-bar-socials {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
 .social-circle {
-  width: 45px;
-  height: 45px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-full);
   border: 2px solid var(--color-white);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 500;
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1;
   color: var(--color-white);
   flex-shrink: 0;
@@ -248,7 +248,7 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 128px;
+  height: 100px;
 }
 
 .brand-logo {
@@ -289,7 +289,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 /* The brand lockup is a single artwork in the reference, emblem + wordmark together */
 .brand-lockup {
-  width: 450px;
+  width: 360px;
   height: auto;
   display: block;
   flex-shrink: 0;
@@ -321,19 +321,19 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 64px;
+  gap: 48px;
   list-style: none;
 }
 
 /* Matches the wider first gap in the mockup */
-.nav-links > li:first-child { margin-right: 23px; }
+.nav-links > li:first-child { margin-right: 16px; }
 
 .nav-link {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: #1c1c1c;
   position: relative;
-  padding: 0 0 21px;
+  padding: 0 0 16px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -414,7 +414,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   background-size: cover;
   background-position: center;
   color: var(--color-white);
-  height: 341px;
+  height: 291px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -424,7 +424,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .hero-banner.home-hero {
-  height: 672px;
+  height: 622px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -502,12 +502,14 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 .hero-flag {
   display: inline-block;
-  margin-bottom: 26px;
+  margin-bottom: 16px;
   animation: float 3s ease-in-out infinite;
 }
 
+.hero-flag img { height: 90px; width: auto; }
+
 .hero-title {
-  font-size: 72px;
+  font-size: 58px;
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1;
@@ -517,10 +519,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .home-hero .hero-title {
-  font-size: 128px;
+  font-size: 100px;
   line-height: 1;
   letter-spacing: 0.01em;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .home-hero .hero-content {
@@ -528,15 +530,15 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .hero-subtitle {
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 700;
   line-height: 1.2;
   color: #ffffff;
-  margin-bottom: 88px;
+  margin-bottom: 56px;
 }
 
 .hero-tagline {
-  font-size: 38px;
+  font-size: 30px;
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.2;
@@ -545,10 +547,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .hero-subtagline {
-  font-size: 25px;
+  font-size: 19px;
   font-weight: 400;
   color: #ffffff;
-  margin-top: 28px;
+  margin-top: 20px;
 }
 
 @keyframes float {
@@ -564,7 +566,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   display: flex;
   align-items: stretch;
   overflow: hidden;
-  height: 58px;
+  height: 44px;
   position: relative;
   z-index: 5;
 }
@@ -573,10 +575,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   background-color: var(--color-orange);
   color: var(--color-white);
   font-weight: 700;
-  font-size: 19px;
-  line-height: 58px;
-  width: 205px;
-  padding: 0 0 0 36px;
+  font-size: 15px;
+  line-height: 44px;
+  width: 170px;
+  padding: 0 0 0 28px;
   text-transform: uppercase;
   letter-spacing: 0;
   flex-shrink: 0;
@@ -585,10 +587,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 .ticker-content {
   flex-grow: 1;
-  padding: 0 0 0 56px;
+  padding: 0 0 0 40px;
   align-self: center;
   font-weight: 500;
-  font-size: 19px;
+  font-size: 15px;
   color: #0f0f0f;
 }
 
@@ -644,19 +646,19 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .welcome-card h2 {
-  font-size: 48px;
+  font-size: 38px;
   line-height: 1;
   color: var(--color-white);
-  margin-bottom: 55px;
+  margin-bottom: 40px;
 }
 
 .welcome-card p {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 400;
   color: #ffffff;
   max-width: 1160px;
-  margin: 0 auto 51px;
-  line-height: 30px;
+  margin: 0 auto 36px;
+  line-height: 27px;
 }
 
 .btn-outline {
@@ -752,13 +754,13 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 .ribbon-badge {
   background-color: var(--color-primary);
   color: var(--color-white);
-  font-size: 28px;
+  font-size: 23px;
   font-weight: 700;
-  line-height: 73px;
-  height: 73px;
-  padding: 0 121px 0 40px;
+  line-height: 60px;
+  height: 60px;
+  padding: 0 100px 0 32px;
   border-radius: 8px 0 0 0;
-  clip-path: polygon(0 0, calc(100% - 102px) 0, 100% 100%, 0% 100%);
+  clip-path: polygon(0 0, calc(100% - 84px) 0, 100% 100%, 0% 100%);
   text-transform: none;
   letter-spacing: 0;
   white-space: nowrap;
@@ -782,11 +784,11 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 /* SECTION TITLES */
 .section-title {
   text-align: center;
-  font-size: 48px;
+  font-size: 38px;
   font-weight: 700;
   line-height: 1.15;
   color: #111111;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
 /* BEARERS & LEADERS CARDS
@@ -864,17 +866,17 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .bearer-name {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
-  line-height: 32px;
+  line-height: 27px;
   color: #111111;
-  margin: 15px 0 0;
+  margin: 12px 0 0;
 }
 
 .bearer-role {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 400;
-  line-height: 26px;
+  line-height: 23px;
   color: #111111;
   text-transform: none;
   margin: 1px 0 0;
@@ -883,8 +885,8 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 .bearer-phone {
   display: inline-flex;
   align-items: center;
-  gap: 15px;
-  font-size: 20px;
+  gap: 12px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 28px;
   color: #111111;
@@ -1010,10 +1012,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   background-color: #83c4be;
   display: flex;
   align-items: center;
-  padding: 0 24px;
-  font-size: 22px;
+  padding: 0 20px;
+  font-size: 18px;
   font-weight: 600;
-  line-height: 28px;
+  line-height: 24px;
   color: #111111;
 }
 
@@ -1040,7 +1042,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .news-header h2 {
-  font-size: 44px;
+  font-size: 32px;
   line-height: 1.15;
   color: #111111;
 }
@@ -1107,11 +1109,11 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .news-title {
-  font-size: 21px;
+  font-size: 18px;
   font-weight: 600;
-  line-height: 27px;
+  line-height: 23px;
   color: #111111;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .news-readmore {
@@ -1128,10 +1130,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .reaction-gallery-side h2 {
-  font-size: 44px;
+  font-size: 32px;
   line-height: 1.15;
   color: var(--color-white);
-  margin-bottom: 50px;
+  margin-bottom: 36px;
 }
 
 .poster-card {
@@ -1199,11 +1201,11 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  height: 128px;
-  padding: 0 24px 0 39px;
-  font-size: 27px;
+  height: 110px;
+  padding: 0 20px 0 32px;
+  font-size: 22px;
   font-weight: 600;
-  line-height: 31px;
+  line-height: 27px;
   color: var(--color-white) !important;
   background-color: var(--color-primary);
   border-radius: 12px;
@@ -1304,10 +1306,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .download-title {
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 600;
   color: #111111;
-  line-height: 35px;
+  line-height: 27px;
   flex: 1;
 }
 
@@ -1447,7 +1449,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .circular-title {
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 600;
   line-height: 1.2;
   color: #111111;
@@ -1896,9 +1898,9 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 .footer-brand-text h2 {
   font-family: var(--font-brand);
-  font-size: 27px;
+  font-size: 22px;
   font-weight: 700;
-  line-height: 30px;
+  line-height: 25px;
   color: #ffffff;
 }
 
@@ -1929,7 +1931,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 .footer-nav a {
   font-weight: 400;
-  font-size: 19px;
+  font-size: 16px;
   color: #ffffff;
 }
 
@@ -1939,13 +1941,13 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 .footer-contacts {
   display: flex;
-  gap: 117px;
+  gap: 90px;
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-  font-size: 17px;
+  font-size: 15px;
   color: #ffffff;
-  margin-top: 94px;
+  margin-top: 70px;
 }
 
 .footer-contact-item {
@@ -1969,11 +1971,11 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 .footer-bottom {
   text-align: center;
-  font-size: 17px;
+  font-size: 15px;
   color: #ffffff;
   border-top: none;
   padding-top: 0;
-  margin-top: 81px;
+  margin-top: 60px;
   position: relative;
   z-index: 10;
 }
@@ -2105,67 +2107,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   color: #ffffff;
 }
 
-/* RESPONSIVE MEDIA QUERIES */
-@media (max-width: 1024px) {
-  .split-section {
-    grid-template-columns: 1fr;
-  }
-  .grid-contact {
-    grid-template-columns: 1fr;
-  }
-  .home-office-bearers-layout {
-    grid-template-columns: 1fr;
-  }
-  .home-gallery-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .nav-links {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background-color: var(--color-white);
-    flex-direction: column;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-lg);
-    border-top: 1px solid var(--color-border);
-  }
-  .nav-links.open {
-    display: flex;
-  }
-  .mobile-toggle {
-    display: block;
-  }
-  .hero-title, .home-hero .hero-title {
-    font-size: 2.5rem;
-  }
-  .welcome-card {
-    padding: 2rem 1.5rem;
-  }
-  .top-bar .container {
-    justify-content: center;
-  }
-  .ribbon-badge {
-    font-size: 1.1rem;
-    padding: 0.6rem 1.5rem;
-  }
-  .home-office-bearers-grid {
-    grid-template-columns: 1fr;
-  }
-  .home-gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .home-gallery-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* RESPONSIVE MEDIA QUERIES — see the consolidated mobile section at the end of this file */
 
 /* ========================================================
    EXACT PDF MATCH STYLING FOR CONTACT V2 & POLISH
@@ -2187,30 +2129,30 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .contact-section-group h3 {
-  font-size: 27px;
+  font-size: 22px;
   font-weight: 700;
   color: #111111;
-  margin-bottom: 23px;
+  margin-bottom: 18px;
   line-height: 1.25;
 }
 
 .contact-recog-text {
-  font-size: 20px;
+  font-size: 17px;
   color: #111111;
-  line-height: 30px;
-  margin-bottom: 24px;
+  line-height: 25px;
+  margin-bottom: 20px;
   font-weight: 400;
 }
 
 .contact-icon-row {
   display: flex;
   align-items: flex-start;
-  gap: 24px;
-  margin-bottom: 14px;
-  font-size: 20px;
+  gap: 20px;
+  margin-bottom: 12px;
+  font-size: 17px;
   color: #111111;
   font-weight: 400;
-  line-height: 30px;
+  line-height: 25px;
 }
 
 .contact-icon-row a {
@@ -2279,28 +2221,28 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .mini-bearer-item h4 {
-  font-size: 26px;
+  font-size: 21px;
   font-weight: 700;
-  line-height: 30px;
+  line-height: 25px;
   color: #ffffff;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .mini-bearer-item p {
-  font-size: 20px;
+  font-size: 16px;
   color: #ffffff;
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
-  line-height: 26px;
-  margin-bottom: 12px;
+  line-height: 21px;
+  margin-bottom: 10px;
 }
 
 .phone-badge-orange {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: 20px;
+  gap: 8px;
+  font-size: 16px;
   font-weight: 400;
   color: #ffffff;
   background-color: transparent;
@@ -2356,10 +2298,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .editorial-board-title {
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 700;
   color: #111111;
-  margin: 66px 0 37px;
+  margin: 50px 0 28px;
 }
 
 .editorial-card {
@@ -2394,9 +2336,9 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 400;
-  line-height: 76px;
+  line-height: 62px;
   color: #ffffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.22);
 }
@@ -2455,15 +2397,15 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 .quick-link-btn {
   background-color: #ffffff;
   border-radius: 6px;
-  padding: 12px 24px 12px 40px;
-  min-height: 86px;
+  padding: 12px 24px 12px 32px;
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 600;
-  line-height: 30px;
+  line-height: 24px;
   color: #2f2e74;
   text-decoration: none;
   box-shadow: 0 2px 7px rgba(60, 45, 25, 0.06);
@@ -2507,19 +2449,7 @@ textarea:focus {
   box-shadow: 0 0 0 4px rgba(11, 37, 69, 0.1);
 }
 
-@media (max-width: 900px) {
-  .contact-v2-grid {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-  .office-bearers-mini-grid {
-    grid-template-columns: 1fr;
-    gap: 1.75rem;
-  }
-  .editorial-row {
-    font-size: 0.9rem;
-  }
-}
+/* Contact mobile rules folded into the consolidated mobile section below */
 
 
 /* ==========================================================================
@@ -2537,7 +2467,7 @@ textarea:focus {
 }
 
 .gallery-title {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 700;
   line-height: 1;
   color: #111111;
@@ -2631,10 +2561,10 @@ textarea:focus {
 }
 
 .gallery-caption {
-  margin-top: 30px;
-  font-size: 24px;
+  margin-top: 22px;
+  font-size: 19px;
   font-weight: 700;
-  line-height: 29px;
+  line-height: 24px;
   color: #111111;
   text-align: center;
 }
@@ -2650,15 +2580,19 @@ textarea:focus {
    ========================================================================== */
 .tab-header--joined {
   display: flex;
-  gap: 0;
+  flex-wrap: wrap;
+  gap: 9px;
   margin-bottom: 30px;
 }
 
 .tab-header--joined .tab-btn {
-  flex: 1 1 0;
+  /* Fixed width per the reference — stays this size regardless of how many
+     categories exist, so a single category doesn't stretch across the row. */
+  flex: 0 0 348px;
+  width: 348px;
   height: 97px;
   filter: none;
-  padding: 0 100px 0 34px;
+  padding: 0 90px 0 34px;
   font-size: 26px;
   font-weight: 600;
   line-height: 32px;
@@ -2693,39 +2627,373 @@ textarea:focus {
    and the nav must shrink together so the nav never wraps into the wordmark.
    ========================================================================== */
 @media (max-width: 1919px) {
-  .nav-links { gap: 44px; }
-  .nav-links > li:first-child { margin-right: 12px; }
-  .brand-lockup { width: 410px; }
-  .header-container { height: 118px; }
+  .nav-links { gap: 36px; }
+  .nav-links > li:first-child { margin-right: 10px; }
+  .brand-lockup { width: 330px; }
+  .header-container { height: 92px; }
 }
 
 @media (max-width: 1600px) {
-  .nav-links { gap: 30px; }
+  .nav-links { gap: 26px; }
   .nav-links > li:first-child { margin-right: 0; }
-  .nav-link { font-size: 16px; }
-  .brand-lockup { width: 355px; }
-  .header-container { height: 108px; }
+  .nav-link { font-size: 15px; }
+  .brand-lockup { width: 290px; }
+  .header-container { height: 84px; }
   .top-bar .container,
   .main-header .container { padding: 0 30px; }
 }
 
 @media (max-width: 1330px) {
-  .nav-links { gap: 22px; }
-  .nav-link { font-size: 15px; }
-  .brand-lockup { width: 305px; }
-  .header-container { height: 98px; }
-  .top-bar { font-size: 14px; }
-  .top-bar-item + .top-bar-item { margin-left: 46px; }
-  .top-bar-item + .top-bar-item + .top-bar-item { margin-left: 40px; }
-  .social-circle { width: 36px; height: 36px; font-size: 15px; }
+  .nav-links { gap: 18px; }
+  .nav-link { font-size: 14px; }
+  .brand-lockup { width: 250px; }
+  .header-container { height: 76px; }
+  .top-bar { font-size: 12px; }
+  .top-bar-item + .top-bar-item { margin-left: 36px; }
+  .top-bar-item + .top-bar-item + .top-bar-item { margin-left: 30px; }
+  .social-circle { width: 30px; height: 30px; font-size: 13px; }
 }
 
 @media (max-width: 1120px) {
   .top-bar-item + .top-bar-item,
-  .top-bar-item + .top-bar-item + .top-bar-item { margin-left: 26px; }
+  .top-bar-item + .top-bar-item + .top-bar-item { margin-left: 20px; }
 }
 
 /* Legacy sub-pages still get the page wash and the green tint above the footer */
 .page-legacy {
   padding: 40px 0 90px;
+}
+
+/* ==========================================================================
+   MOBILE / RESPONSIVE -- consolidated
+   ==========================================================================
+   Almost every measurement above this point comes straight from a 1920px
+   reference mockup (fixed grid columns, fixed card widths, fixed heights).
+   None of that collapses gracefully below ~1000px, so this section rebuilds
+   every section explicitly for tablet and phone instead of patching gaps.
+   ========================================================================== */
+
+/* ---------- TABLET (<=1024px) ----------
+   Everything else at this width is handled by the phone/tablet-portrait
+   block below, which shares this breakpoint. */
+@media (max-width: 1024px) {
+  .split-section { grid-template-columns: 1fr; min-height: 0; }
+  .grid-contact { grid-template-columns: 1fr; }
+  .home-office-bearers-layout { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ---------- PHONE / TABLET-PORTRAIT (<=1024px) ---------- */
+@media (max-width: 1024px) {
+  .container { padding: 0 16px; }
+
+  /* Top bar carries no content the reference keeps on mobile -- drop it */
+  .top-bar { display: none; }
+
+  /* Header */
+  .header-container { height: 68px; }
+  .main-header .container { padding: 0 16px; }
+  .brand-lockup { width: 190px; }
+  .mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1.6rem;
+  }
+
+  /* Nav flyout */
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: calc(100vh - 68px);
+    overflow-y: auto;
+    background-color: var(--color-white);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 6px 0;
+    box-shadow: var(--shadow-lg);
+    border-top: 1px solid var(--color-border);
+    z-index: 999;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links > li { width: 100%; margin-right: 0 !important; }
+  .nav-link {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
+    justify-content: space-between;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .nav-link.active { background-color: var(--color-bg-light); }
+  .nav-link.active::after { display: none; }
+
+  /* Dropdown submenus become tap-to-expand panels (see main.js) instead of
+     hover popups, since touch has no hover state. */
+  .dropdown-menu {
+    position: static;
+    opacity: 1;
+    visibility: hidden;
+    max-height: 0;
+    overflow: hidden;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    transition: max-height 0.25s ease;
+  }
+  .dropdown.open .dropdown-menu {
+    visibility: visible;
+    max-height: 400px;
+    padding: 4px 0 8px;
+    background-color: #fafafa;
+  }
+  .dropdown-item { padding: 10px 34px; font-size: 14px; }
+
+  /* Hero */
+  .hero-banner { height: auto; min-height: 200px; padding: 44px 0; }
+  .hero-banner.home-hero { height: auto; min-height: 380px; padding: 40px 0 46px; }
+  .hero-title, .home-hero .hero-title { font-size: 34px; letter-spacing: 0; }
+  .home-hero .hero-title { margin-bottom: 10px; }
+  .hero-subtitle { font-size: 18px; line-height: 1.3; margin-bottom: 24px; padding: 0 8px; }
+  .hero-tagline { font-size: 17px; }
+  .hero-subtagline { font-size: 13px; margin-top: 10px; padding: 0 8px; }
+  .hero-flag { margin-bottom: 8px; }
+  .hero-flag img { height: 50px; }
+  .hero-dots { right: 12px; gap: 12px; }
+  .hero-dot { width: 8px; height: 8px; }
+
+  /* News ticker */
+  .news-ticker-bar { height: auto; min-height: 36px; }
+  .ticker-badge { width: 96px; font-size: 11px; line-height: 36px; padding-left: 12px; }
+  .ticker-content { font-size: 12px; padding-left: 14px; }
+
+  /* Welcome card -- was a fixed 477px box with no overflow handling, which is
+     what caused the paragraph/button to spill into the section below on
+     narrow screens. Let it size to its content instead. */
+  .welcome-section { padding: 40px 0 0; }
+  .welcome-card { height: auto; padding: 32px 18px 26px; }
+  .welcome-card::before { inset: 10px; }
+  .welcome-card::after { top: 10px; bottom: 10px; left: -10px; right: -10px; }
+  .welcome-card h2 { font-size: 24px; margin-bottom: 16px; }
+  .welcome-card p { font-size: 15px; line-height: 22px; margin-bottom: 22px; max-width: 100%; }
+  .btn-outline { width: 150px; height: 46px; font-size: 15px; }
+
+  /* Page shells -- inner-page hero is much shorter now, so the big desktop
+     top padding (94-133px, tuned to the 1920 mockup) is no longer needed */
+  .page-office-bearers, .page-list, .page-download, .page-quicklinks,
+  .page-bearers, .page-district, .page-contact, .page-gallery,
+  .page-legacy {
+    padding: 28px 0 56px;
+  }
+  .page-actions { margin-bottom: 20px; }
+
+  /* Ribbon headers -- the diagonal notch is a fixed-px cut that breaks once
+     text wraps, so mobile drops it for a plain rounded label */
+  .ribbon-section-header { margin: 36px 0 0; flex-wrap: wrap; row-gap: 8px; }
+  .ribbon-badge {
+    font-size: 15px;
+    height: auto;
+    line-height: 1.3;
+    padding: 9px 16px;
+    white-space: normal;
+    clip-path: none;
+    border-radius: 6px;
+  }
+  .ribbon-line { flex-basis: 100%; height: 2px; margin-left: 0; }
+  .section-title { font-size: 26px; margin-bottom: 20px; }
+
+  /* Bearer card grids (Office Bearers, District, Former Leaders, Home strip) */
+  .grid-bearers { grid-template-columns: repeat(auto-fit, minmax(240px, 300px)); column-gap: 16px; row-gap: 30px; padding-top: 20px; justify-content: center; }
+  .home-office-bearers-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .bearer-photo-wrapper {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    aspect-ratio: 300 / 317;
+    margin: 0 auto;
+    border-radius: 48px 14px 14px 14px;
+  }
+  .bearer-photo-wrapper img, .bearer-placeholder { border-radius: 42px 10px 10px 10px; }
+  .bearer-placeholder .material-symbols-outlined { font-size: 80px; }
+  .bearer-name { font-size: 16px; line-height: 20px; margin-top: 10px; }
+  .bearer-role { font-size: 13px; line-height: 17px; }
+  .bearer-phone { font-size: 13px; gap: 8px; }
+  .bearer-phone .material-symbols-outlined { width: 20px; height: 20px; font-size: 12px !important; }
+  .btn-green { min-width: 0; width: 100%; max-width: 260px; margin: 0 auto; display: block; font-size: 16px; height: 46px; line-height: 46px; }
+
+  /* Action panel (home) */
+  .action-card-link { height: 60px; }
+  .action-icon { width: 60px; height: 60px; }
+  .action-icon .material-symbols-outlined { font-size: 26px; }
+  .action-title { font-size: 14px; line-height: 18px; padding: 0 14px; }
+
+  /* Split News Window / Reaction Gallery */
+  .news-window-side, .reaction-gallery-side { padding: 32px 16px; }
+  .news-header { margin-bottom: 18px; }
+  .news-header h2, .reaction-gallery-side h2 { font-size: 22px; }
+  .reaction-gallery-side h2 { margin-bottom: 18px; }
+  .btn-view-all { width: 104px; height: 38px; line-height: 34px; font-size: 13px; }
+  .news-list { gap: 14px; }
+  .news-item-card { padding: 8px; gap: 12px; min-height: 0; }
+  .news-thumb { width: 80px; height: 80px; }
+  .news-date { font-size: 11px; margin-bottom: 4px; }
+  .news-title {
+    font-size: 14px;
+    line-height: 18px;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .news-readmore { font-size: 12px; }
+  .poster-card { max-width: 260px; }
+
+  /* Home gallery strip */
+  .home-gallery-head { margin-bottom: 18px; }
+  .home-gallery-grid { grid-template-columns: repeat(2, 1fr); column-gap: 14px; row-gap: 20px; }
+  .home-gallery-thumb img { height: 140px; }
+  .home-gallery-caption { font-size: 14px; margin-top: 10px; }
+  .gallery-nav-circle { width: 36px; height: 36px; }
+  .gallery-nav-circle::before { width: 16px; }
+  .gallery-nav-circle::after { width: 7px; height: 7px; }
+  .gallery-nav-circle.next::after { right: 10px; }
+  .gallery-nav-circle.prev::after { left: 10px; }
+
+  /* Footer */
+  .main-footer { padding: 36px 0 22px; }
+  .footer-top .brand-logo { flex-direction: column; gap: 12px; text-align: center; }
+  .footer-lockup { width: 220px; }
+  .footer-divider { margin-top: 22px; }
+  .footer-nav { gap: 10px 22px; margin-top: 22px; }
+  .footer-nav a { font-size: 13px; }
+  .footer-contacts { flex-direction: column; align-items: center; gap: 16px; margin-top: 26px; font-size: 13px; }
+  .footer-contact-item { max-width: 260px; justify-content: center; }
+  .footer-bottom { font-size: 12px; margin-top: 26px; padding: 0 16px; }
+
+  /* Category tab cards (Forms / Academic / Software / Service Corner) */
+  .tab-header { grid-template-columns: 1fr; gap: 12px; margin-top: 4px; }
+  .tab-btn {
+    height: auto;
+    min-height: 54px;
+    padding: 12px 40px 12px 18px;
+    font-size: 16px;
+    line-height: 20px;
+    clip-path: none;
+    border-radius: 8px;
+    filter: none;
+    box-shadow: 0 2px 6px rgba(60, 45, 25, 0.12);
+  }
+
+  /* Joined tab bar (Melakal) -- the fixed 348px width is correct for desktop
+     (see .tab-header--joined .tab-btn above) but has to give way to a full
+     width stack once the viewport can't fit even one at that size. */
+  .tab-header--joined { gap: 10px; }
+  .tab-header--joined .tab-btn {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 52px;
+    padding: 12px 40px 12px 18px;
+    font-size: 16px;
+    line-height: 20px;
+    clip-path: none;
+    border-radius: 8px;
+  }
+
+  /* Download rows */
+  .download-list { gap: 14px; }
+  .page-download .tab-header + .download-list { margin-top: 24px; }
+  .download-row { padding: 12px 16px; min-height: 0; flex-wrap: wrap; gap: 10px; }
+  .download-row.has-icon { padding-left: 16px; }
+  .download-info { gap: 12px; }
+  .download-title { font-size: 15px; line-height: 20px; }
+  .pdf-icon-badge { width: 34px; height: 42px; font-size: 11px; }
+  .btn-circle-download { width: 38px; height: 38px; }
+  .btn-circle-download .material-symbols-outlined { font-size: 20px; }
+
+  /* Order & Circular */
+  .search-filter-bar { justify-content: stretch; gap: 10px; margin-bottom: 20px; }
+  .search-input-group { width: 100%; height: 44px; }
+  .search-input-group input { font-size: 15px; padding: 0 14px; }
+  .filter-select {
+    width: 100%;
+    height: 44px;
+    font-size: 15px;
+    padding: 0 40px 0 16px;
+    background-position: right 14px center;
+  }
+  .page-list .ribbon-section-header { margin-top: 32px; }
+  .circular-list { margin-top: 16px; }
+  .circular-item { height: auto; flex-wrap: wrap; }
+  .circular-date { width: 56px; font-size: 22px; align-self: stretch; }
+  .circular-content { flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
+  .circular-title { font-size: 15px; }
+  .tag-pill { font-size: 13px; height: 28px; line-height: 28px; padding: 0 10px; }
+
+  /* Quick Links */
+  .quick-links-grid { grid-template-columns: 1fr; gap: 12px; }
+  .quick-link-btn { min-height: 58px; padding: 10px 16px; font-size: 16px; }
+  .quick-link-btn .material-symbols-outlined { font-size: 22px !important; }
+
+  /* Gallery page */
+  .page-gallery { padding: 28px 0 56px; }
+  .gallery-head { flex-wrap: wrap; gap: 14px; margin-bottom: 22px; }
+  .gallery-title { font-size: 24px; }
+  .year-stepper { gap: 8px; }
+  .year-nav { width: 36px; height: 36px; }
+  .year-nav::before { border-top-width: 9px; border-bottom-width: 9px; border-right-width: 14px; }
+  .year-nav.next::before { border-right-width: 0; border-left-width: 14px; }
+  .year-select {
+    width: 110px;
+    height: 36px;
+    font-size: 16px;
+    padding: 0 30px 0 12px;
+    background-position: right 12px center;
+  }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); column-gap: 12px; row-gap: 20px; }
+  .gallery-thumb { height: 140px; }
+  .gallery-caption { font-size: 14px; margin-top: 10px; }
+
+  /* Contact page */
+  .contact-v2-grid { grid-template-columns: 1fr; gap: 32px; }
+  .contact-left-info { gap: 30px; }
+  .contact-section-group h3 { font-size: 18px; margin-bottom: 12px; }
+  .contact-recog-text, .contact-icon-row { font-size: 14px; line-height: 20px; }
+  .contact-circle-icon { width: 30px; height: 30px; }
+  .contact-circle-icon .material-symbols-outlined { font-size: 16px !important; }
+  .dark-teal-card, .editorial-card { padding: 24px 16px; }
+  .office-bearers-mini-grid { grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px; }
+  .mini-bearer-item h4 { font-size: 18px; }
+  .mini-bearer-item p { font-size: 13px; }
+  .btn-more-bearers { width: 100%; max-width: 240px; height: 46px; line-height: 46px; font-size: 16px; }
+  .editorial-board-title { font-size: 20px; margin: 32px 0 16px; }
+  .editorial-row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    line-height: normal;
+    padding: 12px 0;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .editorial-line { display: none; }
+  .editorial-name { min-width: 0; width: 100%; text-align: left; padding-left: 48px; font-weight: 600; }
+}
+
+/* ---------- SMALL PHONE (<=480px) ---------- */
+@media (max-width: 480px) {
+  .brand-lockup { width: 160px; }
+  .hero-title, .home-hero .hero-title { font-size: 28px; }
+  .hero-subtitle { font-size: 16px; }
+  .grid-bearers, .home-office-bearers-grid,
+  .home-gallery-grid, .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  .bearer-photo-wrapper { max-width: 240px; }
 }

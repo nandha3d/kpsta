@@ -38,7 +38,7 @@
       <div class="hero-flag">
         <picture>
           <source srcset="<?php echo base_url('public/Page References/giphy_cropped.webp'); ?>" type="image/webp">
-          <img src="<?php echo base_url('public/Page References/giphy_cropped.gif'); ?>" alt="KPSTA Flag" style="height: 111px; width: auto; margin: 0 auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));">
+          <img src="<?php echo base_url('public/Page References/giphy_cropped.gif'); ?>" alt="KPSTA Flag" style="margin: 0 auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));">
         </picture>
       </div>
       <h1 class="hero-title">KPSTA</h1>
