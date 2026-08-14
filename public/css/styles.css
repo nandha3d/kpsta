@@ -1422,7 +1422,9 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(60, 45, 25, 0.06);
   border: none;
-  height: 79px;
+  /* Reference row is 79px, but real circular titles wrap to two or three
+     lines — a fixed height clipped them, so this is a floor, not a cap. */
+  min-height: 79px;
 }
 
 .circular-date {
@@ -1440,12 +1442,13 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .circular-content {
-  padding: 0 24px 0 47px;
+  padding: 12px 24px 12px 47px;
   flex-grow: 1;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 38px;
+  min-width: 0;
 }
 
 .circular-title {
