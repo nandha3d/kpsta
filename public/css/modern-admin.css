@@ -1113,3 +1113,246 @@ html.pre-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
 }
 
 /* (Removed old modern-status-toggle and modern-actions block in favor of new unified toggle switch and icon styles) */
+
+/* ==========================================================================
+   ADMIN TOOLBAR / PAGE HEADER LAYOUT
+   ==========================================================================
+   The admin views wrap their header and search rows in `.box-layout`, whose
+   children are floated Bootstrap `col-*` columns. `.box-layout` itself is not
+   defined in any stylesheet (it never was, including in the original build),
+   so the float parent collapsed to height 0 and the title, the New button and
+   the search row all piled onto each other. Making it a flex row gives it a
+   real height and lets the helper classes beside it (`va-m`, `toolbar`) do
+   what their names imply.
+   ========================================================================== */
+.box-layout {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Floats are ignored on flex items, so the Bootstrap columns inside stop
+   collapsing; drop their gutters and let them size to content instead. */
+.box-layout > [class*="col-"] {
+  float: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: auto !important;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* First column holds the page title and takes the slack; the toolbar column
+   hugs the right edge. */
+.box-layout > [class*="col-"]:first-child { flex: 1 1 auto; }
+.box-layout > [class*="col-"]:last-child { flex: 0 0 auto; margin-left: auto; }
+.box-layout > [class*="col-"]:only-child { flex: 1 1 100%; }
+
+.box-layout .pull-left,
+.box-layout .pull-right { float: none !important; }
+
+.va-m { vertical-align: middle; }
+
+.toolbar { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+.toolbar.text-right { text-align: right; }
+
+/* An empty spacer div sits between the title and the toolbar in several views */
+.box-layout .col-xs-2.text-right:empty { display: none; }
+.box-layout .clearfix { display: none; }
+
+/* ---- search input group ------------------------------------------------ */
+/* Bootstrap 3 renders `.input-group` as a table; the surrounding flex context
+   left the help button detached from the field. */
+.box-header .input-group,
+.box-layout .input-group {
+  display: flex;
+  align-items: stretch;
+  width: auto;
+  max-width: 100%;
+  float: none !important;
+  margin: 0 !important;
+}
+
+.box-header .input-group > .form-control,
+.box-layout .input-group > .form-control {
+  width: auto;
+  flex: 1 1 240px;
+  min-width: 160px;
+}
+
+.box-header .input-group .input-group-btn,
+.box-layout .input-group .input-group-btn {
+  display: flex;
+  width: auto;
+  font-size: inherit;
+  white-space: nowrap;
+}
+
+/* Keep the segments visually welded together */
+.box-header .input-group > .form-control,
+.box-header .input-group .input-group-btn > .btn {
+  margin: 0 !important;
+}
+.box-header .input-group .input-group-btn:not(:last-child) > .btn { margin-right: -1px !important; }
+.box-header .input-group .input-group-btn:not(:first-child) > .btn { margin-left: -1px !important; }
+
+.no-margin { margin: 0 !important; }
+
+/* Weld the search control into one unit. The generic `.btn` rule sets a
+   radius with !important, so the *inner* corners of each segment stayed
+   rounded and the group read as three separate pills — square them off
+   explicitly and only round the two outer ends. */
+.box-header .input-group > .form-control,
+.box-layout .input-group > .form-control {
+  border-radius: 0 !important;
+}
+.box-header .input-group .input-group-btn:first-child > .btn,
+.box-layout .input-group .input-group-btn:first-child > .btn {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: var(--r) !important;
+  border-bottom-left-radius: var(--r) !important;
+}
+.box-header .input-group .input-group-btn:last-child > .btn,
+.box-layout .input-group .input-group-btn:last-child > .btn {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: var(--r) !important;
+  border-bottom-right-radius: var(--r) !important;
+}
+/* When the field itself is the first/last element in the group */
+.box-header .input-group > .form-control:first-child {
+  border-top-left-radius: var(--r) !important;
+  border-bottom-left-radius: var(--r) !important;
+}
+.box-header .input-group > .form-control:last-child {
+  border-top-right-radius: var(--r) !important;
+  border-bottom-right-radius: var(--r) !important;
+}
+/* Share one continuous border colour across the welded segments.
+   Scoped to the neutral buttons only — applying it to every button in the
+   group blanked out .btn-primary search buttons (white icon on white). */
+.box-header .input-group .input-group-btn > .btn-default {
+  border-color: var(--border) !important;
+  background: #fff !important;
+}
+
+/* The category filter / select2 sitting next to the search box.
+   These four control types were rendering at 42 / 36 / 44 / 38px on four
+   different baselines; pin them to one height so the row reads as a row. */
+.box-header .form-inline .select2-container,
+.box-header .form-inline > .form-control {
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.box-header .input-group,
+.box-header .input-group > .form-control,
+.box-header .input-group .input-group-btn > .btn,
+.box-header .form-inline > .form-control,
+.box-header select.form-control,
+.box-header .select2-container .select2-selection--single,
+.box-header .btn-danger,
+.box-header .btn-delete-all {
+  height: 42px !important;
+  min-height: 42px !important;
+  align-self: center;
+}
+
+.box-header .select2-container { height: 42px !important; }
+.box-header .select2-container .select2-selection--single .select2-selection__rendered {
+  line-height: 40px !important;
+}
+.box-header .select2-container .select2-selection--single .select2-selection__arrow {
+  height: 40px !important;
+}
+
+/* Keep every control on the same baseline regardless of wrapper.
+   The category filter lives in a *nested* `col-md-6` inside the search
+   column, so it kept Bootstrap's float and gutters and sat 10px high. */
+.box-header .box-layout > [class*="col-"] {
+  align-items: center;
+}
+
+.box-header .form-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.box-header .form-inline > [class*="col-"],
+.box-header .form-inline > .form-group {
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  display: flex;
+  align-items: center;
+}
+
+.box-header .form-inline .form-group { min-width: 260px; flex: 1 1 260px; max-width: 420px; }
+.box-header .form-inline .select2-container { margin-left: 0; }
+
+/* ---- box header row ---------------------------------------------------- */
+.box-header.with-border .box-layout {
+  justify-content: space-between;
+  row-gap: 10px;
+}
+
+/* Bulk-delete and other trailing actions align right without floating */
+.box-header .box-layout .btn-delete-all,
+.box-header .box-layout .pull-right {
+  margin-left: auto;
+}
+
+/* ---- responsive -------------------------------------------------------- */
+@media (max-width: 767px) {
+  .box-layout { gap: 10px; }
+  .box-layout > [class*="col-"] { flex: 1 1 100% !important; margin-left: 0 !important; }
+  .toolbar { justify-content: flex-start; }
+  .box-header .input-group { width: 100%; }
+}
+
+/* ---- wide data tables ---------------------------------------------------
+   Admin list tables are far wider than a phone viewport (the circulars table
+   is ~2266px). Let them scroll inside the panel instead of forcing the whole
+   page to scroll sideways. */
+/* The content column is a flex item, so its default `min-width: auto` let it
+   grow to the widest table (2266px) instead of clamping it. */
+.modern-main-content {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.box-body { max-width: 100%; min-width: 0; }
+
+.box-body > .table,
+.box-body > form > .table,
+.box-body .table-responsive,
+#table-content {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767px) {
+  .content-wrapper,
+  .modern-content { overflow-x: hidden; }
+
+  .box-header .box-layout,
+  .box-header .form-inline { width: 100%; }
+
+  .box-header .form-inline > [class*="col-"],
+  .box-header .form-inline > .form-group,
+  .box-header .input-group { width: 100% !important; flex: 1 1 100% !important; }
+
+  .box-header .form-inline .form-group { min-width: 0; }
+
+  .page-header .box-layout > [class*="col-"]:last-child { margin-left: 0; }
+}
