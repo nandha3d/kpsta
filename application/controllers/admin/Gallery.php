@@ -225,54 +225,81 @@ Class Gallery extends MY_Controller {
         $this->load->view('admin/footer', $footer);
     }
 
-    public function singleGalleryUpload() {
+    /**
+     * Move the posted image into the originals folder. Shared by the upload and
+     * the edit-with-replacement paths so both accept the same file types and
+     * report failures the same way.
+     */
+    private function storeUpload() {
+        foreach (array(GALLERY_ORIGINAL, GALLERY_RESIZE, GALLERY_THUMB) as $dir) {
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+        }
 
-        //upload pdf
         $config['upload_path'] = './' . GALLERY_ORIGINAL;
         $config['allowed_types'] = 'jpg|jpeg|png';
         $config['max_size'] = 0;
         $config['encrypt_name'] = TRUE;
         $this->load->library('upload');
-            $this->upload->initialize($config);
-
-        if (!is_dir(GALLERY_ORIGINAL)) {
-            mkdir(GALLERY_ORIGINAL, 0777, true);
-        }
-
-        if (!is_dir(GALLERY_RESIZE)) {
-            mkdir(GALLERY_RESIZE, 0777, true);
-        }
-        if (!is_dir(GALLERY_THUMB)) {
-            mkdir(GALLERY_THUMB, 0777, true);
-        }
+        $this->upload->initialize($config);
 
         if (!$this->upload->do_upload('image')) {
-            $error_msg = $this->upload->display_errors();
-            $data['code'] = 'error';
-            $data['data'] = $error_msg;
-        } else {
-            $uploadData = $this->upload->data();
-
-
-            //save image details on database
-            $this->gallery_model->addImage([
-                'album_id' => $this->uri->segment(3),
-                'image' => $uploadData['file_name'],
-                'title' => $this->input->post('title')
-            ]);
-
-            $this->createThumbnail($uploadData['file_name']);
-
-
-            $data['content'] = $this->getSingleContent();
-            $data['code'] = 'success';
-            $data['data'] = $uploadData;
+            // display_errors() is markup; the caller puts this straight into a
+            // JS alert, so hand back plain text.
+            return array(
+                'code' => 'error',
+                'data' => trim(strip_tags($this->upload->display_errors())),
+            );
         }
+
+        $uploadData = $this->upload->data();
+        return array(
+            'code' => 'success',
+            'file_name' => $uploadData['file_name'],
+            'data' => $uploadData,
+        );
+    }
+
+    public function singleGalleryUpload() {
+        $upload = $this->storeUpload();
+
+        if ($upload['code'] !== 'success') {
+            $data['code'] = 'error';
+            $data['data'] = $upload['data'];
+            echo json_encode($data);
+            exit;
+        }
+
+        //save image details on database
+        $this->gallery_model->addImage([
+            'album_id' => $this->uri->segment(3),
+            'image' => $upload['file_name'],
+            'title' => $this->input->post('title')
+        ]);
+
+        $this->createThumbnail($upload['file_name']);
+
+        $data['content'] = $this->getSingleContent();
+        $data['code'] = 'success';
+        $data['data'] = $upload['data'];
+
         echo json_encode($data);
         exit;
     }
 
     function createThumbnail($fileName) {
+        // The cropping below calls copy(), getimagesize() and imagecreatefrom*()
+        // straight on the source path. If that file is missing, each of those
+        // raises a PHP warning, and CI renders warnings as an HTML block that
+        // gets echoed BEFORE the json_encode() further down -- which is what
+        // broke the save with "Unexpected token '<' ... is not valid JSON".
+        // Bail out cleanly instead and let the caller report a real message.
+        $source = GALLERY_ORIGINAL . '/' . $fileName;
+        if (empty($fileName) || !is_file($source)) {
+            return FALSE;
+        }
+
         $this->load->library('image_functions');
 
         //set form data in variables
@@ -296,7 +323,7 @@ Class Gallery extends MY_Controller {
         }
 
         $thumb_image_location = GALLERY_THUMB . '/' . $fileName;
-        $large_image_location = GALLERY_ORIGINAL . '/' . $fileName;
+        $large_image_location = $source;
         $resize_image_location = GALLERY_RESIZE . '/' . $fileName;
 
         //Resize Image
@@ -339,6 +366,7 @@ Class Gallery extends MY_Controller {
         $scale = $thumb_width / $w;
         $this->image_functions->resizeThumbnailImage($thumb_image_location, $large_image_location, $w, $h, $x1, $y1, $scale);
         //End of Thumbnail
+        return TRUE;
     }
 
     public function singleCreateForm($url, $formValues = false, $title = "Add") {
@@ -379,10 +407,45 @@ Class Gallery extends MY_Controller {
 
         $imageInfo = $this->gallery_model->getImage($albumId, $imageId);
 
-        if ($imageInfo) {
-            $this->createThumbnail($imageInfo['image']);
-            $data['code'] = 'success';
+        if (!$imageInfo) {
+            $data['data'] = 'Image not found.';
+            echo json_encode($data);
+            exit;
         }
+
+        $fileName = $imageInfo['image'];
+
+        // The edit dialog offers a file picker, so honour it: a newly chosen
+        // file replaces the stored one. Previously anything picked here was
+        // silently ignored and only the crop was re-run.
+        if (!empty($_FILES['image']['name'])) {
+            $replacement = $this->storeUpload();
+            if ($replacement['code'] !== 'success') {
+                $data['data'] = $replacement['data'];
+                echo json_encode($data);
+                exit;
+            }
+            $this->deleteFile(GALLERY_THUMB . '/' . $fileName);
+            $this->deleteFile(GALLERY_ORIGINAL . '/' . $fileName);
+            $fileName = $replacement['file_name'];
+        }
+
+        // The title field was never being saved either.
+        $this->gallery_model->updateImage($albumId, $imageId, array(
+            'image' => $fileName,
+            'title' => $this->input->post('title'),
+        ));
+
+        if (!$this->createThumbnail($fileName)) {
+            $data['data'] = 'The image file is missing from the server, so the '
+                          . 'thumbnail could not be rebuilt. Re-upload the image.';
+            $data['content'] = $this->getSingleContent();
+            echo json_encode($data);
+            exit;
+        }
+
+        $data['code'] = 'success';
+        $data['data'] = 'Saved Successfully';
         $data['content'] = $this->getSingleContent();
         echo json_encode($data);
         exit;

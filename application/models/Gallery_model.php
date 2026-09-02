@@ -49,6 +49,28 @@ class Gallery_model extends CI_Model {
         return array();
     }
 
+    /**
+     * Years that actually have a published album with at least one image --
+     * the same conditions getAllAlbum() applies. Drives the public gallery's
+     * year picker, which must be built independently of the year currently
+     * being viewed or it can only ever offer the year already on screen.
+     */
+    public function getAlbumYears() {
+        $sql = "SELECT DISTINCT YEAR(a.created_at) AS yr
+                FROM gallery_album a
+                JOIN gallery_images i ON a.gu_id = i.album_id
+                WHERE a.is_publish = 1 AND a.created_at IS NOT NULL
+                ORDER BY yr DESC";
+        $query = $this->db->query($sql);
+        $years = array();
+        foreach ($query->result() as $row) {
+            if (!empty($row->yr)) {
+                $years[] = (int) $row->yr;
+            }
+        }
+        return $years;
+    }
+
     public function getAllImages($param = false) {
         $this->db->select('a.name, a.id, a.description,a.gu_id as guId,  i.image, i.title ');
         $this->db->from('gallery_images i');
@@ -124,6 +146,11 @@ class Gallery_model extends CI_Model {
 
         $this->db->insert('gallery_images', $data);
         return $this->db->insert_id();
+    }
+
+    public function updateImage($albumId, $imageId, $data) {
+        $this->db->where(array("album_id" => $albumId, "id" => $imageId));
+        return $this->db->update('gallery_images', $data);
     }
 
     public function getImagesCount($albumId) {

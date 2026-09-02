@@ -156,8 +156,9 @@ Class News extends MY_Controller {
      * @return json_endcode  data
      */
     public function update() {
-        error_reporting(E_ALL);
-        ini_set('display_errors', 1);
+        // Debug leftovers removed: this endpoint returns JSON, and forcing
+        // display_errors on means any PHP notice is echoed as HTML ahead of it,
+        // which breaks the response the same way the gallery save was broken.
         $this->form_validation->set_rules('heading', 'Heading', 'trim|required');
         $this->form_validation->set_rules('content', 'Content', 'trim|required');
         $this->form_validation->set_rules('publish', 'Publish', 'trim|required');
@@ -249,18 +250,37 @@ Class News extends MY_Controller {
     public function delete() {
         $data['code'] = 'error';
         $id = $this->uri->segment(4);
-        $orderInfo = $this->news_model->getNews($id);
-        $delete = $this->news_model->delete($id);
-        if ($delete && $orderInfo) {
-            // Delete image file if exists
-            if (!empty($orderInfo['image']) && file_exists('./uploads/news/' . $orderInfo['image'])) {
-                unlink('./uploads/news/' . $orderInfo['image']);
-            }
+        if ($this->deleteOne($id)) {
             $data['code'] = 'success';
             $data['lastId'] = $id;
             $data['content'] = $this->getContent();
         }
         echo json_encode($data);
+        exit;
+    }
+
+
+    /**
+     * Remove one row plus its image. Shared by the row Delete button and the
+     * "Delete Selected" toolbar action.
+     */
+    protected function deleteOne($id) {
+        $orderInfo = $this->news_model->getNews($id);
+        if (!$orderInfo || !$this->news_model->delete($id)) {
+            return FALSE;
+        }
+        if (!empty($orderInfo['image']) && file_exists('./uploads/news/' . $orderInfo['image'])) {
+            unlink('./uploads/news/' . $orderInfo['image']);
+        }
+        return TRUE;
+    }
+
+    public function batchDelete() {
+        $result = $this->runBatchDelete(function ($id) {
+            return $this->deleteOne($id);
+        });
+        $result['content'] = $this->getContent();
+        echo json_encode($result);
         exit;
     }
 

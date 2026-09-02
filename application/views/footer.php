@@ -41,6 +41,6 @@
     </div>
   </footer>
 
-  <script src="<?php echo base_url('public/js/main.js'); ?>"></script>
+  <script src="<?php echo base_url('public/js/main.js?v=1.1'); ?>"></script>
 </body>
 </html>

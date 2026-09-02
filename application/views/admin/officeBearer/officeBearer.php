@@ -120,7 +120,7 @@
                                 <button type="button" class="btn btn-default" id="btn-reset-filters">
                                     <i class="fa fa-refresh"></i> Reset Filters
                                 </button>
-                                <a class="btn btn-danger" href="" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected items?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
+                                <a class="btn btn-danger" href="" data-href="<?php echo base_url('admin/office_bearer/batch_delete'); ?>" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected items?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
                                     <i class="fa fa-trash-o"></i> Delete Selected
                                 </a>
                             </div>

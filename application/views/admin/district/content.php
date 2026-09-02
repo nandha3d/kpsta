@@ -20,12 +20,7 @@
                             <tr  data-tr="<?php echo $row['id'] ?>"  >
 
                                 <td>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-addon sm">
-                                        </span>
-
-                                        
-                                    </div>
+                                    <div class="text-center"></div>
                                 </td>
 
 

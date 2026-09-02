@@ -103,12 +103,15 @@ $db['default'] = array(
 );
 
 
+// The membership module reads through its own connection group, but its
+// tables (school, teacher_details, ...) live alongside everything else, the
+// same way the original build had both groups pointing at one schema.
 $db['membership'] = array(
     'dsn' => '',
     'hostname' => 'localhost',
-    'username' => 'root',
-    'password' => 'admin',
-    'database' => 'kpsta_membership',
+    'username' => $db_user,
+    'password' => $db_pass,
+    'database' => $db_name,
     'dbdriver' => 'mysqli',
     'dbprefix' => '',
     'pconnect' => FALSE,

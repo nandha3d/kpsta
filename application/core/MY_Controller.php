@@ -136,6 +136,72 @@ class MY_Controller extends CI_Controller {
         $this->output->delete_cache($url);
     }
 
+    /**
+     * This function used to create Dropdown data
+     * @param type $data
+     * @param type $property
+     * @param type $defaultValue
+     * @return type
+     */
+    public function createSelectDropDown($data = array(), $property = '', $defaultValue = false, $exclude = []) {
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $return = [];
+        if ($defaultValue) {
+            $return['0'] = $defaultValue;
+        }
+        foreach ($data as $row) {
+            if(in_array($row['id'], $exclude)){
+                continue;
+            }
+            $return[$row['id']] = $row[$property];
+        }
+
+        return $return;
+    }
+
+    /**
+     * Shared plumbing for the "Delete Selected" toolbar button.
+     *
+     * The posted ids are handed one at a time to the caller's own single-row
+     * delete, so per-controller cleanup (uploaded files, thumbnails) stays in
+     * one place instead of being duplicated for the batch path.
+     *
+     * @param callable $deleteOne receives an id, returns TRUE when removed
+     * @return array counts plus a human readable message
+     */
+    protected function runBatchDelete($deleteOne) {
+        $ids = $this->input->post('ids');
+        if (!is_array($ids)) {
+            $ids = ($ids === NULL || $ids === '') ? array() : array($ids);
+        }
+        // ids arrive as strings from the form post
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+
+        $result = array('code' => 'error', 'deleted' => 0, 'failed' => 0);
+
+        if (empty($ids)) {
+            $result['message'] = 'No rows were selected.';
+            return $result;
+        }
+
+        foreach ($ids as $id) {
+            if (call_user_func($deleteOne, $id)) {
+                $result['deleted']++;
+            } else {
+                $result['failed']++;
+            }
+        }
+
+        $result['code'] = $result['deleted'] ? 'success' : 'error';
+        $result['message'] = $result['deleted'] . ' item(s) deleted'
+                . ($result['failed'] ? ', ' . $result['failed'] . ' could not be deleted' : '');
+
+        return $result;
+    }
+
 }
 
 class Public_Controller extends MY_Controller {
@@ -183,31 +249,6 @@ class Public_Controller extends MY_Controller {
         return $append . $link;
     }
 
-    /**
-     * This function used to create Dropdown data
-     * @param type $data
-     * @param type $property
-     * @param type $defaultValue
-     * @return type
-     */
-    public function createSelectDropDown($data = array(), $property = '', $defaultValue = false, $exclude = []) {
-        if (!is_array($data)) {
-            return $data;
-        }
-
-        $return = [];
-        if ($defaultValue) {
-            $return['0'] = $defaultValue;
-        }
-        foreach ($data as $row) {
-            if(in_array($row['id'], $exclude)){
-                continue;
-            }
-            $return[$row['id']] = $row[$property];
-        }
-
-        return $return;
-    }
 
 
 }

@@ -17,17 +17,6 @@
                             <a  class="btn btn-default" data-toggle="modal" data-target="#modal" data-id="new" data-title-new="Add Group">
                                 <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm">New</span>
                             </a>
-                            <div class="dropdown-toolbar btn-group">
-                                <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default btn-nospin  dropdown-toggle" type="button"><i class="fa fa-caret-down"></i></button>
-                                <ul role="menu" class="dropdown-menu dropdown-menu-right">
-                                    <li>
-                                        <a data-header="Quick Add" href="" data-target="#MauticSharedModal" data-toggle="ajaxmodal" class="  -nospin quickadd"><span><i class="fa fa-bolt"></i> Quick Add</span></a></li>
-                                    <li>
-                                        <a data-toggle="ajax" href=""><span><i class="fa fa-upload"></i> Import</span></a>
-                                    </li>
-
-                                </ul>
-                            </div>
                         </div>
 
 

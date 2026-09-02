@@ -19,6 +19,8 @@ vendor/
 *.txt
 *.sql
 *.mhtml
+*.zip
+database_bckp/
 debug*.php
 test*.php
 testdb.php

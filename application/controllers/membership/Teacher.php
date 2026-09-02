@@ -13,7 +13,10 @@ Class Teacher extends Membership_Controller {
         $this->load->helper(array('form', 'url', 'file'));
 // Load form validation library
         $this->load->library('form_validation');
-        $this->load->library('pdf');
+        // Pdf extends TCPDF; only the PDF-export methods instantiate it
+        // (new Pdf()). Include the class here without instantiating so
+        // ordinary teacher pages don't spin up TCPDF at all.
+        require_once APPPATH . 'libraries/Pdf.php';
         /* loding model */
 
 

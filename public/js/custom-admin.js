@@ -205,6 +205,10 @@ $('#modal').on('show.bs.modal', function (e) {
 });
 
 $('#delete').on('show.bs.modal', function (e) {
+    // opened by executeBatchAction, which has already filled the modal in
+    if (!e.relatedTarget) {
+        return;
+    }
     var $relatedTarget = $(e.relatedTarget);
     var message = $relatedTarget.data('message');
     var deleteUrl = $relatedTarget.data('href');
@@ -336,3 +340,150 @@ function getUrlParamByName(name, url) {
         return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+
+
+/* ------------------------------------------------------------------ *
+ * Multi-row ("Delete Selected") toolbar actions
+ *
+ * Rows carry <input class="list-checkbox" name="ids[]" value="<id>">, the
+ * header carries .list-checkbox-all, and the toolbar button carries
+ * data-href plus data-precheck / data-confirm-callback names that are
+ * resolved off window at click time.
+ * ------------------------------------------------------------------ */
+
+function batchSelectedIds() {
+    var ids = [];
+    $('#table-content input.list-checkbox:checked').each(function () {
+        var val = $(this).val();
+        if (val) {
+            ids.push(val);
+        }
+    });
+    return ids;
+}
+
+// header checkbox drives every row checkbox in the same table
+$('body').on('change', '.list-checkbox-all', function () {
+    $(this).closest('table').find('input.list-checkbox').prop('checked', $(this).prop('checked'));
+});
+
+// ...and clears itself as soon as one row is unticked
+$('body').on('change', 'input.list-checkbox', function () {
+    var $table = $(this).closest('table');
+    var total = $table.find('input.list-checkbox').length;
+    var checked = $table.find('input.list-checkbox:checked').length;
+    $table.find('.list-checkbox-all').prop('checked', total > 0 && total === checked);
+});
+
+window.batchActionPrecheck = function () {
+    if (batchSelectedIds().length === 0) {
+        alert('Select at least one row first.');
+        return false;
+    }
+    return true;
+};
+
+window.executeBatchAction = function (url) {
+    var ids = batchSelectedIds();
+    if (!url || ids.length === 0) {
+        return;
+    }
+    $.ajax({
+        url: url,
+        type: 'POST',
+        dataType: 'json',
+        data: {ids: ids},
+        success: function (response) {
+            if (response && response.content) {
+                $('#table-content').html(response.content);
+            }
+            if (!response || response.code !== 'success') {
+                alert((response && response.message) || 'Nothing was deleted.');
+            } else if (response.failed) {
+                alert(response.message);
+            }
+            if (response && !response.content) {
+                window.location.reload();
+            }
+            $('#delete').modal('hide');
+        },
+        error: function () {
+            alert('An error occurred. Please try again.');
+            $('#delete').modal('hide');
+        }
+    });
+};
+
+// the toolbar button is not a bootstrap modal trigger, so drive the shared
+// confirmation modal by hand after the precheck passes
+$('body').on('click', '[data-toggle="confirmation"]', function (e) {
+    e.preventDefault();
+
+    var $btn = $(this);
+    var precheck = $btn.data('precheck');
+    if (precheck && typeof window[precheck] === 'function' && window[precheck]($btn) === false) {
+        return;
+    }
+
+    var url = $btn.data('href');
+    if (!url) {
+        return;
+    }
+
+    var callback = $btn.data('confirm-callback') || 'executeAction';
+    var count = batchSelectedIds().length;
+    var message = $btn.data('message') || 'Are you sure?';
+    if (count) {
+        message += ' (' + count + ' selected)';
+    }
+
+    var $modal = $('#delete');
+    $modal.find('.modal-title').html(message);
+    $modal.find('.delete').attr('onclick', callback + '("' + url + '");');
+    $modal.modal('show');
+});
+
+
+/* ------------------------------------------------------------------ *
+ * File-upload popups: the Remove (X) button appears only when a file
+ * is actually present, uniformly across every Add/Edit modal.
+ *
+ * bootstrap-fileinput marks an empty picker with `.file-input-new`,
+ * which CSS uses to hide Remove. Forms ship that class hardcoded, so on
+ * open we clear it when an existing file is shown (Edit), and manage it
+ * on pick/clear. Runs alongside any per-form handlers (idempotent).
+ * ------------------------------------------------------------------ */
+function syncFileInput($fileInput) {
+    var $caption = $fileInput.find('.file-caption-name');
+    var hasFile = $.trim($caption.text()).length > 0 || $.trim($caption.attr('title') || '').length > 0;
+    $fileInput.toggleClass('file-input-new', !hasFile);
+}
+
+$(document).on('shown.bs.modal', '.modal', function () {
+    $(this).find('.file-input').each(function () {
+        syncFileInput($(this));
+    });
+});
+
+// picking a file reveals Remove; an emptied picker hides it again
+$('body').on('change', '.file-input input[type="file"]', function () {
+    var $fileInput = $(this).closest('.file-input');
+    var name = this.value ? this.value.split(/[\/]/).pop() : '';
+    if (name) {
+        $fileInput.removeClass('file-input-new');
+        var $cap = $fileInput.find('.file-caption-name');
+        if (!$.trim($cap.text()).length) {
+            $cap.html('<i class="glyphicon glyphicon-file"></i> ' + name).attr('title', name);
+        }
+    } else {
+        syncFileInput($fileInput);
+    }
+});
+
+// the X clears the picker and hides itself again
+$('body').on('click', '.fileinput-remove-button', function () {
+    var $fileInput = $(this).closest('.file-input');
+    $fileInput.find('input[type="file"]').val('');
+    $fileInput.find('.file-caption-name').html('').attr('title', '');
+    $fileInput.addClass('file-input-new');
+});

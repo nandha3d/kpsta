@@ -24,10 +24,13 @@
               <?php } ?>
               
               <div class="news-content">
+                <?php $newsDate = display_date($news['created_at'], 'F d, Y'); ?>
+                <?php if ($newsDate !== '') { ?>
                 <div class="news-date">
                   <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px; vertical-align: text-bottom;">calendar_month</span>
-                  <?php echo date('F d, Y', strtotime($news['created_at'])); ?>
+                  <?php echo $newsDate; ?>
                 </div>
+                <?php } ?>
                 
                 <h3 class="news-heading"><?php echo $news['heading']; ?></h3>
                 
@@ -56,7 +59,8 @@
 <style>
 .news-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    /* min() keeps the column from staying wider than a small phone screen */
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
     gap: 2.5rem;
 }
 
@@ -131,6 +135,8 @@
     margin-top: 0;
     margin-bottom: 1rem;
     line-height: 1.4;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .news-text {
@@ -138,7 +144,10 @@
     font-size: 1rem;
     line-height: 1.7;
     margin-bottom: 0;
-    /* Basic styling for rich text from summernote */
+    /* Basic styling for rich text from summernote — pasted content can carry
+       long unbroken strings, so wrap them instead of widening the card */
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .news-text p {

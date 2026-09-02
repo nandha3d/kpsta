@@ -7,8 +7,8 @@
   <meta name="description" content="Official website of Kerala Pradesh School Teachers' Association (KPSTA), the largest school teachers association in Kerala united for quality education.">
   <link rel="icon" href="<?php echo base_url('public/Page References/logo.png'); ?>" type="image/png">
   <link rel="shortcut icon" href="<?php echo base_url('public/Page References/logo.png'); ?>" type="image/png">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <link rel="stylesheet" href="<?php echo base_url('public/css/styles.css?v=2.3'); ?>">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0" />
+  <link rel="stylesheet" href="<?php echo base_url('public/css/styles.css?v=4.4'); ?>">
   <?php if (!empty($heading_bg_image)): ?>
   <style>
     /* The hero artwork is reused, heavily washed out, behind the welcome card and footer */
@@ -41,9 +41,15 @@
         </div>
       </div>
       <div class="top-bar-socials">
-        <a href="#" class="social-circle">f</a>
-        <a href="#" class="social-circle">𝕏</a>
-        <a href="#" class="social-circle">▶</a>
+        <a href="#" class="social-circle" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-8.2h2.8l.42-3.2H13.5V7.55c0-.93.26-1.56 1.6-1.56h1.7V3.13A23 23 0 0 0 14.31 3c-2.46 0-4.15 1.5-4.15 4.26V9.6H7.35v3.2h2.81V21h3.34Z"/></svg>
+        </a>
+        <a href="#" class="social-circle" aria-label="X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.53 3h3.02l-6.6 7.54L21.7 21h-6.07l-4.76-6.22L5.42 21H2.4l7.05-8.06L2.3 3h6.23l4.3 5.69L17.53 3Zm-1.06 16.2h1.67L7.6 4.71H5.81L16.47 19.2Z"/></svg>
+        </a>
+        <a href="#" class="social-circle" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.58 7.19a2.51 2.51 0 0 0-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.42a2.51 2.51 0 0 0-1.77 1.77A26.1 26.1 0 0 0 2 12a26.1 26.1 0 0 0 .42 4.81 2.51 2.51 0 0 0 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.42a2.51 2.51 0 0 0 1.77-1.77A26.1 26.1 0 0 0 22 12a26.1 26.1 0 0 0-.42-4.81ZM10.2 15V9l5.02 3-5.02 3Z"/></svg>
+        </a>
       </div>
     </div>
   </div>

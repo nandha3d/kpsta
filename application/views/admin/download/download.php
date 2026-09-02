@@ -74,7 +74,7 @@
 
 
                             <div class="col-xs-6 col-lg-4 va-m text-right">
-                                <a class="btn btn-sm btn-danger" href="" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected campaigns?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
+                                <a class="btn btn-sm btn-danger" href="" data-href="<?php echo base_url(in_array($this->uri->segment(2), ['notice_poster', 'melakal', 'official_outlook']) ? 'admin/' . $this->uri->segment(2) . '/batch_delete' : 'admin/download/' . $this->uri->segment(3) . '/batch_delete'); ?>" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected campaigns?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
                                     <span data-toggle="tooltip" title="" data-placement="left" data-original-title="Delete the selected items"><i class="fa fa-fw fa-trash-o"></i> <span class=""></span></span>
                                 </a>        
                             </div>

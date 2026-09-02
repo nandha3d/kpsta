@@ -31,14 +31,11 @@
     <div class="container">
 
       <?php
-        $galleryYears = array();
-        if(!empty($albums)) {
-          foreach($albums as $album) { $galleryYears[] = date('Y', strtotime($album['created_at'])); }
-        }
-        $galleryYears = array_values(array_unique($galleryYears));
-        rsort($galleryYears);
+        // Supplied by the controller from every year that has albums. Deriving
+        // it from $albums (which is already filtered to one year) meant the
+        // picker only ever listed the year on screen.
         if(empty($galleryYears)) { $galleryYears = array(date('Y')); }
-        $activeYear = $galleryYears[0];
+        if(empty($activeYear)) { $activeYear = $galleryYears[0]; }
       ?>
 
       <div class="gallery-head">
@@ -47,7 +44,7 @@
           <button type="button" class="year-nav" data-dir="-1" aria-label="Previous year"></button>
           <select class="year-select" id="galleryYearSelect">
             <?php foreach($galleryYears as $gy) { ?>
-              <option value="<?php echo $gy; ?>"><?php echo $gy; ?></option>
+              <option value="<?php echo $gy; ?>" <?php echo ((int)$gy === (int)$activeYear) ? 'selected' : ''; ?>><?php echo $gy; ?></option>
             <?php } ?>
           </select>
           <button type="button" class="year-nav next" data-dir="1" aria-label="Next year"></button>
@@ -79,27 +76,25 @@
   <script>
     (function () {
       var select = document.getElementById('galleryYearSelect');
-      var label = document.getElementById('galleryYearLabel');
-      var grid = document.getElementById('galleryGrid');
-      if (!select || !grid) return;
-      function apply() {
-        var year = select.value;
-        if (label) label.textContent = year;
-        grid.querySelectorAll('.gallery-item').forEach(function (item) {
-          item.style.display = (item.getAttribute('data-year') === year) ? '' : 'none';
-        });
+      if (!select) return;
+      // The albums for a year are fetched server-side, so changing the year has
+      // to reload rather than hide tiles already on the page -- the old
+      // client-side filter could only ever hide albums from the one year that
+      // had been loaded.
+      function go(year) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('year', year);
+        window.location.href = url.toString();
       }
-      select.addEventListener('change', apply);
+      select.addEventListener('change', function () { go(select.value); });
       document.querySelectorAll('.year-nav').forEach(function (btn) {
         btn.addEventListener('click', function () {
           var dir = parseInt(btn.getAttribute('data-dir'), 10);
           var next = select.selectedIndex + dir;
           if (next >= 0 && next < select.options.length) {
-            select.selectedIndex = next;
-            apply();
+            go(select.options[next].value);
           }
         });
       });
-      apply();
     })();
   </script>

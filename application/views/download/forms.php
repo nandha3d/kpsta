@@ -56,8 +56,9 @@
                     $url = "#";
                 }
           ?>
-            <div class="download-row">
+            <div class="download-row <?php echo !empty($showFileIcon) ? 'has-icon' : ''; ?>">
               <div class="download-info">
+                <?php if(!empty($showFileIcon)) { echo file_type_badge($item['path'], $item['upload_type']); } ?>
                 <span class="download-title"><?php echo htmlspecialchars($item['description']); ?></span>
               </div>
               <a href="<?php echo $url; ?>" target="_blank" class="btn-circle-download" title="Download">

@@ -49,7 +49,7 @@
         <input type="text" class="form-control" name="name" placeholder="Enter Name" value="<?php echo isset($formValues['name']) ? $formValues['name'] : '' ?>">
     </div>
 
-    <?php if (!in_array($formValues['group_id'], [5, 6])) { ?>
+    <?php if (!is_array($formValues) || !in_array($formValues['group_id'], [5, 6])) { ?>
         <?php $class = form_error('code') ? 'form-group has-error' : 'form-group' ?>
         <div class="<?php echo $class ?> " style="display:none">
             <label>Short Code<span class="text-danger"> *</span></label>

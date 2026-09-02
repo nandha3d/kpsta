@@ -93,8 +93,10 @@ class Home extends Public_Controller {
     }
 
     public function former_leaders() {
-        $active_term = $this->Settings_model->getActiveTerm();
-        $content['former_leaders'] = $this->OfficeBearer_model->getAll(array('isPublish' => TRUE, 'is_former' => 1, 'limit' => 500, 'active_term' => $active_term));
+        // Deliberately no active_term filter: former leaders belong to past
+        // terms by definition, so restricting to the current term would hide
+        // every one of them.
+        $content['former_leaders'] = $this->OfficeBearer_model->getAll(array('isPublish' => TRUE, 'is_former' => 1, 'limit' => 500));
         $this->load->view('header');
         $this->load->view('home/former_leaders', $content);
         $this->load->view('footer');

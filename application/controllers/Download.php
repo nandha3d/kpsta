@@ -17,6 +17,13 @@ class Download extends Public_Controller {
         }
     }
 
+    /**
+     * Page types whose reference design shows the file-type mark beside each
+     * row: Forms (4), Notices & Posters (5), Melakal (6), Academic Corner (8).
+     * Act & Rules, Software and Fonts are drawn as plain rows.
+     */
+    private $iconTypes = array(4, 5, 6, 8);
+
     public function index() {
         $this->load->view('header');
         $this->load->view('download/actRules');
@@ -28,6 +35,7 @@ class Download extends Public_Controller {
         $param['type'] = $segment['type'];
         $content['type'] = $segment['type'];
         $content['contentTitle'] = $segment['contentTitle'];
+        $content['showFileIcon'] = in_array($segment['type'], $this->iconTypes);
 
         $param['limit'] = 15;
         $param['offset'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
@@ -73,6 +81,7 @@ class Download extends Public_Controller {
 
         $content['contentTitle'] = $segment['contentTitle'];
         $content['route'] = isset($segment['route']) ? $segment['route'] : '';
+        $content['showFileIcon'] = in_array($segment['type'], $this->iconTypes);
 
         $param['category'] = $this->input->get('category');
         $param['search'] = $this->input->get('search');

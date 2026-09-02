@@ -106,11 +106,11 @@
   </section>
 
   <!-- Office Bearers Section -->
-  <section style="padding: 2rem 0 5rem;">
+  <section class="home-office-section">
     <div class="container">
       <div class="home-office-bearers-layout">
-        <div>
-          <h2 class="section-title">Office Bearers</h2>
+        <div class="home-bearers-block">
+          <h2 class="section-title office-bearers-title">Office Bearers</h2>
           <div class="home-office-bearers-grid">
             <?php if(!empty($officeBearer)) { foreach($officeBearer as $ob) { ?>
             <div class="bearer-card">
@@ -126,28 +126,30 @@
             </div>
             <?php } } ?>
           </div>
-          <div style="text-align: center;">
+          <div class="home-bearers-action">
             <a href="<?php echo base_url('office_bearer'); ?>" class="btn-green">More Office Bearers</a>
           </div>
         </div>
 
-        <div class="action-box-grid">
-          <a href="<?php echo base_url('membership'); ?>" class="action-card-link">
-            <div class="action-icon"><span class="material-symbols-outlined">badge</span></div>
-            <div class="action-title">Membership & Magazine</div>
-          </a>
-          <a href="<?php echo base_url('order-circular'); ?>" class="action-card-link">
-            <div class="action-icon"><span class="material-symbols-outlined">description</span></div>
-            <div class="action-title">Order & Circular</div>
-          </a>
-          <a href="<?php echo base_url('download/academic_corner'); ?>" class="action-card-link">
-            <div class="action-icon"><span class="material-symbols-outlined">school</span></div>
-            <div class="action-title">Academic Corner</div>
-          </a>
-          <a href="<?php echo base_url('Home/service_corner'); ?>" class="action-card-link">
-            <div class="action-icon"><span class="material-symbols-outlined">support_agent</span></div>
-            <div class="action-title">Service Corner</div>
-          </a>
+        <div class="home-actions-block">
+          <div class="action-box-grid">
+            <a href="<?php echo base_url('membership'); ?>" class="action-card-link">
+              <div class="action-icon"><span class="material-symbols-outlined">workspace_premium</span></div>
+              <div class="action-title">Membership & Magazine</div>
+            </a>
+            <a href="<?php echo base_url('order-circular'); ?>" class="action-card-link">
+              <div class="action-icon"><span class="material-symbols-outlined">description</span></div>
+              <div class="action-title">Order & Circular</div>
+            </a>
+            <a href="<?php echo base_url('download/academic_corner'); ?>" class="action-card-link">
+              <div class="action-icon"><span class="material-symbols-outlined">school</span></div>
+              <div class="action-title">Academic Corner</div>
+            </a>
+            <a href="<?php echo base_url('Home/service_corner'); ?>" class="action-card-link">
+              <div class="action-icon"><span class="material-symbols-outlined">support_agent</span></div>
+              <div class="action-title">Service Corner</div>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -171,7 +173,7 @@
              <?php } ?>
           </div>
           <div class="news-info">
-            <div class="news-date"><?php echo isset($newsItem['created_at']) ? date('M d, Y', strtotime($newsItem['created_at'])) : ''; ?></div>
+            <div class="news-date"><?php echo isset($newsItem['created_at']) ? display_date($newsItem['created_at']) : ''; ?></div>
             <div class="news-title"><?php echo isset($newsItem['heading']) ? $newsItem['heading'] : ''; ?></div>
             <!-- If news details exists, use its route, else point to news page -->
             <a href="<?php echo base_url('news'); ?>" class="news-readmore">Read More</a>
@@ -182,32 +184,28 @@
     </div>
 
     <div class="reaction-gallery-side">
-      <h2>Reaction Gallery</h2>
+      <div class="reaction-header">
+        <h2>Reaction Gallery</h2>
+      </div>
       <?php if(!empty($reactionGalleryImages)) { ?>
-        <div class="reaction-slider-container" style="position: relative; max-width: 473px; margin: 0 auto;">
+        <div class="reaction-slider-container">
           <?php foreach($reactionGalleryImages as $idx => $rg) { ?>
-            <div class="poster-card reaction-slide <?php echo empty($rg['description']) ? 'no-title' : ''; ?>" style="<?php echo $idx === 0 ? 'display: block;' : 'display: none;'; ?>">
+            <div class="poster-card reaction-slide no-title" style="<?php echo $idx === 0 ? 'display: block;' : 'display: none;'; ?>">
               <?php if(!empty($rg['image'])) { ?>
-                <a href="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" target="_blank" style="display: block; width: 100%;">
-                  <img src="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" alt="<?php echo htmlspecialchars($rg['description']); ?>" style="width:100%; object-fit: cover; max-height: 450px;">
+                <a href="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" target="_blank">
+                  <img src="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" alt="<?php echo htmlspecialchars($rg['description']); ?>">
                 </a>
-                <?php if(!empty($rg['description'])) { ?>
-                  <div class="poster-card-title">
-                    <img src="<?php echo base_url('public/Page References/logo.png'); ?>" alt="KPSTA" class="poster-logo">
-                    <span><?php echo htmlspecialchars($rg['description']); ?></span>
-                  </div>
-                <?php } ?>
               <?php } else { ?>
-                <div style="background: linear-gradient(135deg, #d97706, #ea580c); color:white; padding:1.5rem; border-radius:var(--radius-lg); font-weight:800; font-size:1.3rem; text-align:center;">
+                <div style="background: linear-gradient(135deg, #d97706, #ea580c); color:white; padding:1.5rem; border-radius:var(--radius-lg); font-weight:800; font-size:1.3rem; text-align:center; height: 100%; display: flex; align-items: center; justify-content: center;">
                   <?php echo htmlspecialchars($rg['description']); ?>
                 </div>
               <?php } ?>
             </div>
           <?php } ?>
           <?php if(count($reactionGalleryImages) > 1) { ?>
-            <div class="reaction-dots" style="margin-top: 1.25rem; display: flex; justify-content: center; gap: 0.5rem;">
+            <div class="reaction-dots">
               <?php foreach($reactionGalleryImages as $idx => $rg) { ?>
-                <span class="rg-dot <?php echo $idx === 0 ? 'active' : ''; ?>" onclick="showReactionSlide(<?php echo $idx; ?>)" style="width: 12px; height: 12px; border-radius: 50%; background: <?php echo $idx === 0 ? '#f97316' : 'rgba(255,255,255,0.4)'; ?>; cursor: pointer; display: inline-block; transition: background 0.3s;"></span>
+                <span class="rg-dot <?php echo $idx === 0 ? 'active' : ''; ?>" onclick="showReactionSlide(<?php echo $idx; ?>)"></span>
               <?php } ?>
             </div>
           <?php } ?>

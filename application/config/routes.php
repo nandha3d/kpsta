@@ -127,6 +127,7 @@ $route['admin/news/add'] = "admin/News/add";
 $route['admin/news/edit/?(:num)?'] = "admin/News/edit";
 $route['admin/news/update/?(:num)?'] = "admin/News/update";
 $route['admin/news/delete/?(:num)?'] = "admin/News/delete";
+$route['admin/news/batch_delete'] = "admin/News/batchDelete";
 $route['admin/news/publish'] = "admin/News/publish";
 $route['admin/news/search/?(:num)?'] = "admin/News/search";
 $route['admin/news/?(:num)?'] = "admin/News/index";
@@ -148,6 +149,7 @@ $route['admin/order-circular/(:any)/publish/?(:num)?'] = "admin/OrderCircular/pu
 $route['admin/order-circular/(:any)/edit/?(:num)?'] = "admin/OrderCircular/edit";
 $route['admin/order-circular/(:any)/update/?(:num)?'] = "admin/OrderCircular/update";
 $route['admin/order-circular/(:any)/delete/?(:num)?'] = "admin/OrderCircular/delete";
+$route['admin/order-circular/(:any)/batch_delete'] = "admin/OrderCircular/batchDelete";
 //#################################
 //Gallery
 $route['admin/gallery'] = "admin/Gallery/index";
@@ -168,6 +170,7 @@ $route['admin/adayapaka_sabham/edit/?(:num)?'] = "admin/AdayapakaSabham/edit";
 $route['admin/adayapaka_sabham/update/?(:num)?'] = "admin/AdayapakaSabham/update";
 $route['admin/adayapaka_sabham/publish/?(:num)?'] = "admin/AdayapakaSabham/publish";
 $route['admin/adayapaka_sabham/delete/?(:num)?'] = "admin/AdayapakaSabham/delete";
+$route['admin/adayapaka_sabham/batch_delete'] = "admin/AdayapakaSabham/batchDelete";
 //Download
 $route['admin/download/category'] = "admin/Download/category";
 $route['admin/download/category/add'] = "admin/Download/categoryAdd";
@@ -182,6 +185,7 @@ $route['admin/download/?(:any)?/publish/?(:num)?'] = "admin/Download/publish";
 $route['admin/download/?(:any)?/edit/?(:num)?'] = "admin/Download/edit";
 $route['admin/download/?(:any)?/update/?(:num)?'] = "admin/Download/update";
 $route['admin/download/?(:any)?/delete/?(:num)?'] = "admin/Download/delete";
+$route['admin/download/?(:any)?/batch_delete'] = "admin/Download/batchDelete";
 //Notice and Posters
 $route['admin/notice_poster/add'] = "admin/Download/add";
 $route['admin/notice_poster/fileupload'] = "admin/Download/fileUpload";
@@ -191,6 +195,7 @@ $route['admin/notice_poster/publish/?(:num)?'] = "admin/Download/publish";
 $route['admin/notice_poster/edit/?(:num)?'] = "admin/Download/edit";
 $route['admin/notice_poster/update/?(:num)?'] = "admin/Download/update";
 $route['admin/notice_poster/delete/?(:num)?'] = "admin/Download/delete";
+$route['admin/notice_poster/batch_delete'] = "admin/Download/batchDelete";
 
 //Melakal
 $route['admin/melakal'] = "admin/Download/index";
@@ -206,6 +211,7 @@ $route['admin/melakal/publish/?(:num)?'] = "admin/Download/publish";
 $route['admin/melakal/edit/?(:num)?'] = "admin/Download/edit";
 $route['admin/melakal/update/?(:num)?'] = "admin/Download/update";
 $route['admin/melakal/delete/?(:num)?'] = "admin/Download/delete";
+$route['admin/melakal/batch_delete'] = "admin/Download/batchDelete";
 
 
 
@@ -247,6 +253,7 @@ $route['admin/office_bearer/edit/?(:num)?'] = "admin/OfficeBearer/edit";
 $route['admin/office_bearer/update/?(:num)?'] = "admin/OfficeBearer/update";
 $route['admin/office_bearer/publish/?(:num)?'] = "admin/OfficeBearer/publish";
 $route['admin/office_bearer/delete/?(:num)?'] = "admin/OfficeBearer/delete";
+$route['admin/office_bearer/batch_delete'] = "admin/OfficeBearer/batchDelete";
 
 
 //slider
@@ -278,6 +285,7 @@ $route['admin/district/?(:num)?/edit/?(:num)?'] = "admin/District/editDistrictOf
 $route['admin/district/?(:num)?/update/?(:num)?'] = "admin/District/updateDistrictOfficeBearer";
 $route['admin/district/?(:num)?/publish/?(:num)?'] = "admin/District/publishDistrictOfficeBearer";
 $route['admin/district/?(:num)?/delete/?(:num)?'] = "admin/District/deleteDistrictOfficeBearer";
+$route['admin/district/?(:num)?/batch_delete'] = "admin/District/batchDeleteDistrictOfficeBearer";
 
 
 //membership

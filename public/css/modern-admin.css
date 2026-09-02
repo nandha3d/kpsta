@@ -551,10 +551,10 @@ a.modern-stat-card:hover { border-color: var(--primary); }
 .box {
   background: var(--card-bg) !important;
   border: 1px solid var(--border) !important;
-  border-top: none !important;
   border-radius: var(--r-lg) !important;
   box-shadow: var(--shadow) !important;
   margin-bottom: 20px !important;
+  overflow: hidden;            /* keep the rounded corners clipping the header */
 }
 .box-header {
   padding: 16px 24px !important;
@@ -1356,3 +1356,111 @@ html.pre-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
 
   .page-header .box-layout > [class*="col-"]:last-child { margin-left: 0; }
 }
+
+/* ------------------------------------------------------------------ *
+ * Row select checkbox (clean centered cell; the old input-group box
+ * rendered as a half-open rectangle)
+ * ------------------------------------------------------------------ */
+table .list-checkbox,
+table .list-checkbox-all { width: 16px; height: 16px; cursor: pointer; vertical-align: middle; }
+table td .text-center { min-width: 34px; }
+
+/* ------------------------------------------------------------------ *
+ * File upload field in the Add/Edit popups
+ *
+ * The kv-fileinput markup is a Bootstrap-3 table `.input-group`; inside a
+ * modal that table layout drifts, so the caption and Browse render as two
+ * detached boxes. Force a flat flex row so they weld into one control, and
+ * show Remove (as a compact X) only when a file is present.
+ * ------------------------------------------------------------------ */
+.file-caption-main {
+  display: flex !important;
+  align-items: stretch;
+  width: 100%;
+}
+.file-caption-main > .file-caption {
+  flex: 1 1 auto;
+  display: flex !important;
+  align-items: center;
+  min-width: 0;                                   /* let it shrink instead of overflowing */
+  height: 44px;
+  margin: 0 !important;
+  border: 1.5px solid var(--border) !important;
+  border-right: none !important;
+  border-radius: var(--r) 0 0 var(--r) !important;
+  background: #f8fafc !important;
+}
+.file-caption-main > .file-caption .file-caption-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  color: var(--text-body);
+}
+.file-caption-main > .input-group-btn {
+  display: flex !important;
+  flex: 0 0 auto;
+  width: auto !important;
+}
+.file-caption-main > .input-group-btn > .btn {
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+/* the last visible button (Browse, or Remove when Browse is somehow hidden)
+   closes the right edge */
+.file-caption-main > .input-group-btn > .btn-file {
+  border-radius: 0 var(--r) var(--r) 0 !important;
+}
+.file-caption-main .fileinput-remove-button .glyphicon-trash { margin: 0; }
+.file-caption-main .fileinput-remove-button span { display: none; }     /* keep the trash icon as a compact X, drop the word */
+.file-input-new .fileinput-remove-button { display: none !important; }  /* no file yet -> no Remove */
+
+/* ================================================================== *
+ * Global admin polish: identifiable card shadow, rounded + striped
+ * tables. Applies to every .box and every list table site-wide.
+ * ================================================================== */
+
+/* 1. Make the main card stand off the page background */
+.box {
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.08),
+              0 1px 3px rgba(16, 24, 40, 0.06) !important;
+}
+
+/* 2. Round the table itself (separate borders so the corners can clip) */
+.box-body .table,
+#table-content .table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-lg) !important;
+  overflow: hidden !important;
+}
+/* table-bordered draws left/right cell borders that double up under
+   separate-collapse; drop them, keep the horizontal row lines */
+.box-body .table.table-bordered > thead > tr > th,
+.box-body .table.table-bordered > tbody > tr > td,
+#table-content .table.table-bordered > thead > tr > th,
+#table-content .table.table-bordered > tbody > tr > td {
+  border-left: none !important;
+  border-right: none !important;
+}
+/* clip the four corners (header top, last row bottom) */
+.box-body .table > thead > tr:first-child > th:first-child,
+#table-content .table > thead > tr:first-child > th:first-child { border-top-left-radius: var(--r-lg) !important; }
+.box-body .table > thead > tr:first-child > th:last-child,
+#table-content .table > thead > tr:first-child > th:last-child { border-top-right-radius: var(--r-lg) !important; }
+.box-body .table > tbody > tr:last-child > td:first-child,
+#table-content .table > tbody > tr:last-child > td:first-child { border-bottom-left-radius: var(--r-lg) !important; }
+.box-body .table > tbody > tr:last-child > td:last-child,
+#table-content .table > tbody > tr:last-child > td:last-child { border-bottom-right-radius: var(--r-lg) !important; }
+
+/* 3. Zebra striping (hover still wins) */
+.box-body .table > tbody > tr:nth-child(even) > td,
+#table-content .table > tbody > tr:nth-child(even) > td { background: #f6f8fb !important; }
+.box-body .table > tbody > tr:nth-child(odd) > td,
+#table-content .table > tbody > tr:nth-child(odd) > td { background: #ffffff !important; }
+.box-body .table > tbody > tr:hover > td,
+#table-content .table > tbody > tr:hover > td { background: var(--primary-light) !important; }

@@ -65,7 +65,9 @@ class Download_model extends CI_Model {
 
     public function getFormsCategory($param) {
         $pageType = isset($param['type']) ? $param['type'] : 0;
-        $query = $this->db->query("SELECT  name, id FROM download_category WHERE id IN ( SELECT DISTINCT category FROM download WHERE is_publish = 1 AND type= '" . $pageType . "'  ) ");
+        // Without ORDER BY, MySQL returned the tabs in whatever order the join
+        // happened to produce, so the strip could reshuffle between requests.
+        $query = $this->db->query("SELECT  name, id FROM download_category WHERE id IN ( SELECT DISTINCT category FROM download WHERE is_publish = 1 AND type= '" . $pageType . "'  ) ORDER BY name ASC ");
         if ($query->num_rows() > 0) {
             return $query->result_array();
         }

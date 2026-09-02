@@ -19,13 +19,7 @@
                         <?php foreach ($orders as $row) { ?>
                             <tr  data-tr="<?php echo $row['id'] ?>"   >
                                 <td class="col-md-1">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-addon">
-                                            <?php echo ($row['position'] == 1000) ? 'DF':$row['position'] ?>
-                                        </span>
-
-                                        
-                                    </div>
+                                    <div class="text-center"><?php echo ($row['position'] == 1000) ? 'DF' : $row['position'] ?></div>
                                 </td>
 
 

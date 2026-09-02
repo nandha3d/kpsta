@@ -17,9 +17,6 @@
                             <a  class="btn btn-default" data-toggle="modal" data-target="#modal" data-id="new" data-title="Add New Album">
                                 <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm">New</span>
                             </a>
-                            <div class="dropdown-toolbar btn-group">
-                                <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default btn-nospin  dropdown-toggle" type="button"><i class="fa fa-caret-down"></i></button>
-                            </div>
                         </div>
 
 

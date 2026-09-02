@@ -409,12 +409,7 @@ Class Download extends MY_Controller {
     public function delete() {
         $data['code'] = 'error';
         $id = $this->getSegment5();
-        $orderInfo = $this->Download_model->getById($id);
-        $delete = $this->Download_model->delete($id);
-        if ($delete && $orderInfo) {
-            if ($orderInfo['upload_type'] == "file") {
-                $this->deleteFile(DOWNLOAD_PATH . '/' . $orderInfo['path']);
-            }
+        if ($this->deleteOne($id)) {
             $data['code'] = 'success';
             $data['lastId'] = $id;
             $data['content'] = $this->getContent();
@@ -598,6 +593,31 @@ Class Download extends MY_Controller {
                 break;
         }
         return $data;
+    }
+
+
+    /**
+     * Remove one row plus its uploaded file. Shared by the row Delete button
+     * and the "Delete Selected" toolbar action.
+     */
+    protected function deleteOne($id) {
+        $orderInfo = $this->Download_model->getById($id);
+        if (!$orderInfo || !$this->Download_model->delete($id)) {
+            return FALSE;
+        }
+        if ($orderInfo['upload_type'] == "file") {
+            $this->deleteFile(DOWNLOAD_PATH . '/' . $orderInfo['path']);
+        }
+        return TRUE;
+    }
+
+    public function batchDelete() {
+        $result = $this->runBatchDelete(function ($id) {
+            return $this->deleteOne($id);
+        });
+        $result['content'] = $this->getContent();
+        echo json_encode($result);
+        exit;
     }
 
 }

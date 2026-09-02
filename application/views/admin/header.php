@@ -40,7 +40,7 @@ if (!isset($page_title) || $page_title === '') {
         <script src="<?php echo base_url(); ?>public/plugins/jQuery/jquery-2.2.3.min.js"></script>
 
         <!-- New Modern Admin CSS (Overrides AdminLTE) -->
-        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>public/css/modern-admin.css"/>
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>public/css/modern-admin.css?v=<?php echo filemtime(FCPATH.'public/css/modern-admin.css'); ?>"/>
 
         <script>
             // Applied before first paint so a collapsed sidebar does not flash open.

@@ -15,13 +15,26 @@ class District_model extends CI_Model {
      * @return boolean
      */
     public function add($data) {
-        $data['created_at'] = date("Y-m-d H:i:s");
-        $data['created_by'] = $this->session->userdata('id');
-
-
-
-        $this->db->insert('office_bearer', $data);
+        $this->db->insert('district', $data);
         return $this->db->insert_id();
+    }
+
+    /**
+     * District office bearers live in `office_bearer` with level = 'District'.
+     * The district is held by name in section_heading, which is also what the
+     * public District page groups on, so admin and public read one table.
+     */
+    private function districtName($districtId) {
+        if (!$districtId) {
+            return FALSE;
+        }
+        $this->db->select('district');
+        $this->db->where('id', (int) $districtId);
+        $query = $this->db->get('district');
+        if ($query->num_rows() > 0) {
+            return $query->row()->district;
+        }
+        return FALSE;
     }
 
     public function getAllDesignation() {
@@ -89,9 +102,10 @@ class District_model extends CI_Model {
 
 
         $this->db->select('o.id, o.name,o.phone, o.email, o.is_publish, o.image, c.name as designation,d.district as districtName, d.website_url, o.year, o.is_former ');
-        $this->db->from('district_office_bearer o');
+        $this->db->from('office_bearer o');
         $this->db->join('office_bearer_designation c', 'o.designation = c.id', 'left');
-        $this->db->join('district d', 'o.district = d.id', 'left');
+        $this->db->join('district d', 'o.section_heading = d.district', 'left');
+        $this->db->where('o.level', 'District');
 
         if (isset($param['isPublish']) && $param['isPublish']) {
             $this->db->where(array("o.is_publish" => 1));
@@ -185,17 +199,9 @@ class District_model extends CI_Model {
         return false;
     }
 
-    public function publish($id, $publish) {
-        $this->db->where(array("id" => $id));
-        if ($this->db->update('office_bearer', array('is_publish' => $publish))) {
-            return true;
-        }
-        return false;
-    }
-
     public function delete($id) {
         $this->db->where(array("id" => $id));
-        if ($this->db->update('office_bearer', array('is_delete' => 1))) {
+        if ($this->db->delete('district')) {
             return true;
         }
         return false;
@@ -208,8 +214,9 @@ class District_model extends CI_Model {
         $query = $this->db->get('office_bearer_designation');
         if ($query->num_rows()) {
             $this->db->where(array("designation" => $designation));
-            $this->db->where(array("district" => $districtId));
-            $query = $this->db->get('district_office_bearer');
+            $this->db->where(array("section_heading" => $this->districtName($districtId)));
+            $this->db->where(array("level" => 'District'));
+            $query = $this->db->get('office_bearer');
             if ($query->num_rows()) {
                 return TRUE;
             }
@@ -223,8 +230,9 @@ class District_model extends CI_Model {
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;
         $param['search'] = isset($param['search']) ? $param['search'] : FALSE;
 
-        $this->db->select('o.id, o.name,o.phone, o.email, o.is_publish, o.image, c.name as designation, o.designation as designationId, o.year, o.is_former');
-        $this->db->from('district_office_bearer o');
+        $this->db->select('o.id, o.name,o.phone, o.email, o.is_publish, o.image, c.name as designation, o.designation as designationId, o.year, o.is_former, o.section_heading, o.position');
+        $this->db->from('office_bearer o');
+        $this->db->where('o.level', 'District');
         $this->db->join('office_bearer_designation c', 'o.designation = c.id', 'left');
 
         if (isset($param['isPublish']) && $param['isPublish']) {
@@ -260,7 +268,7 @@ class District_model extends CI_Model {
         }
         
         if (isset($param['district']) && $param['district']) {
-            $this->db->where(array("o.district" => $param['district']));
+            $this->db->where(array("o.section_heading" => $this->districtName($param['district'])));
         }
         if (isset($param['search']) && $param['search']) {
             $this->db->where("o.name LIKE ", '%' . $param['search'] . '%');
@@ -286,8 +294,9 @@ class District_model extends CI_Model {
         $param['search'] = isset($param['search']) ? $param['search'] : FALSE;
 
         $this->db->select('count(o.id) as count');
-        $this->db->from('district_office_bearer o');
+        $this->db->from('office_bearer o');
         $this->db->join('office_bearer_designation c', 'o.designation = c.id', 'left');
+        $this->db->where('o.level', 'District');
 
         if (isset($param['isPublish']) && $param['isPublish']) {
             $this->db->where(array("o.is_publish" => 1));
@@ -322,7 +331,7 @@ class District_model extends CI_Model {
         }
 
         if (isset($param['district']) && $param['district']) {
-            $this->db->where(array("o.district" => $param['district']));
+            $this->db->where(array("o.section_heading" => $this->districtName($param['district'])));
         }
         if (isset($param['search']) && $param['search']) {
             $this->db->where("o.name LIKE ", '%' . $param['search'] . '%');
@@ -341,15 +350,28 @@ class District_model extends CI_Model {
         $data['created_at'] = date("Y-m-d H:i:s");
         $data['created_by'] = $this->session->userdata('id');
 
+        // the controller passes the district id; store the name instead
+        $data['section_heading'] = $this->districtName(isset($data['district']) ? $data['district'] : FALSE);
+        unset($data['district']);
+        $data['level'] = 'District';
+        if (!isset($data['position'])) {
+            $data['position'] = $data['designation'];
+        }
+        if (!isset($data['is_publish'])) {
+            $data['is_publish'] = 1;
+        }
+        if (!isset($data['is_former'])) {
+            $data['is_former'] = 0;
+        }
 
-        $this->db->insert('district_office_bearer', $data);
+        $this->db->insert('office_bearer', $data);
         return $this->db->insert_id();
     }
 
     public function getByIdDistrictOfficeBearer($id) {
         $this->db->select('*');
         $this->db->where(array("id" => $id));
-        $query = $this->db->get('district_office_bearer');
+        $query = $this->db->get('office_bearer');
 
         if ($query->num_rows() > 0) {
             return $query->row(0, 'array');
@@ -360,7 +382,7 @@ class District_model extends CI_Model {
     public function updateDistrictOfficeBearer($id, $formValues) {
         unset($formValues['id']);
         $this->db->where(array("id" => $id));
-        if ($this->db->update('district_office_bearer', $formValues)) {
+        if ($this->db->update('office_bearer', $formValues)) {
             return true;
         }
         return false;
@@ -368,7 +390,7 @@ class District_model extends CI_Model {
 
     public function publishDistrictOfficeBearer($id, $publish) {
         $this->db->where(array("id" => $id));
-        if ($this->db->update('district_office_bearer', array('is_publish' => $publish))) {
+        if ($this->db->update('office_bearer', array('is_publish' => $publish))) {
             return true;
         }
         return false;
@@ -376,7 +398,7 @@ class District_model extends CI_Model {
 
     public function deleteDistrictOfficeBearer($id) {
         $this->db->where(array("id" => $id));
-        if ($this->db->delete('district_office_bearer')) {
+        if ($this->db->delete('office_bearer')) {
             return true;
         }
         return false;

@@ -7,7 +7,7 @@
                 <table class="table table-hover table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th style="width: 50px; text-align: center;"><input type="checkbox" class="list-checkbox-all" title="Select all on this page"></th>
                             <th>Description</th>
                             <?php if ($menuType['category']) { ?>
                                 <th>category</th>
@@ -24,13 +24,7 @@
                             <tr  data-tr="<?php echo $row['id'] ?>"  >
 
                                 <td>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-addon">
-                                            <input type="checkbox" data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="cb4" value="4">
-                                        </span>
-
-                                        
-                                    </div>
+                                    <div class="text-center"><input type="checkbox" data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="ids[]" value="<?php echo $row['id'] ?>"></div>
                                 </td>
 
 

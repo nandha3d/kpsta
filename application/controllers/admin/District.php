@@ -519,17 +519,35 @@ class District extends MY_Controller {
     public function deleteDistrictOfficeBearer() {
         $data['code'] = 'error';
         $id = $this->uri->segment(5);
-        $info = $this->District_model->getByIdDistrictOfficeBearer($id);
-        $delete = $this->District_model->deleteDistrictOfficeBearer($id);
-        if ($delete && $info) {
-
-            $this->deleteFile(OFFICE_BEARER . '/' . $info['image']);
-
+        if ($this->deleteOneDistrictOfficeBearer($id)) {
             $data['content'] = $this->getContentDistrictOfficeBearer();
             $data['code'] = 'success';
             $data['lastId'] = $id;
         }
         echo json_encode($data);
+        exit;
+    }
+
+
+    /**
+     * Remove one district office bearer plus their photo. Shared by the row
+     * Delete button and the "Delete Selected" toolbar action.
+     */
+    protected function deleteOneDistrictOfficeBearer($id) {
+        $info = $this->District_model->getByIdDistrictOfficeBearer($id);
+        if (!$info || !$this->District_model->deleteDistrictOfficeBearer($id)) {
+            return FALSE;
+        }
+        $this->deleteFile(OFFICE_BEARER . '/' . $info['image']);
+        return TRUE;
+    }
+
+    public function batchDeleteDistrictOfficeBearer() {
+        $result = $this->runBatchDelete(function ($id) {
+            return $this->deleteOneDistrictOfficeBearer($id);
+        });
+        $result['content'] = $this->getContentDistrictOfficeBearer();
+        echo json_encode($result);
         exit;
     }
 

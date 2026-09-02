@@ -7,7 +7,7 @@
                 <table class="table table-hover table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th style="width: 50px; text-align: center;"><input type="checkbox" class="list-checkbox-all" title="Select all on this page"></th>
                             <th>Name</th>
                             <th>Category</th>
                             <th>Designation</th>
@@ -25,7 +25,7 @@
                             <tr data-tr="<?php echo $row['id'] ?>">
                                 <!-- Modern Standalone Checkbox -->
                                 <td style="width: 50px; text-align: center; vertical-align: middle;">
-                                    <input type="checkbox" data-target="tbody" data-toggle="selectrow" class="list-checkbox modern-table-checkbox" name="cb4" value="4">
+                                    <input type="checkbox" data-target="tbody" data-toggle="selectrow" class="list-checkbox modern-table-checkbox" name="ids[]" value="<?php echo $row['id'] ?>">
                                 </td>
 
                                 <!-- Modern Avatar inline with Name -->

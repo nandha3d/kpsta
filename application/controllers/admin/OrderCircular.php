@@ -403,13 +403,7 @@ Class OrderCircular extends MY_Controller {
     public function delete() {
         $data['code'] = 'error';
         $id = $this->uri->segment(5);
-        $orderInfo = $this->OrderCircular_model->getById($id);
-        $delete = $this->OrderCircular_model->delete($id);
-        if ($delete && $orderInfo) {
-
-            if ($orderInfo['upload_type'] == "file") {
-                $this->deleteFile(ORDER_CIRCULAR_PATH . '/' . $orderInfo['path']);
-            }
+        if ($this->deleteOne($id)) {
             $data['content'] = $this->getContent();
             $data['code'] = 'success';
             $data['lastId'] = $id;
@@ -532,6 +526,31 @@ Class OrderCircular extends MY_Controller {
         $data['message'] = 'Saved Successfully';
 
         echo json_encode($data);
+        exit;
+    }
+
+
+    /**
+     * Remove one row plus its uploaded file. Shared by the row Delete button
+     * and the "Delete Selected" toolbar action.
+     */
+    protected function deleteOne($id) {
+        $orderInfo = $this->OrderCircular_model->getById($id);
+        if (!$orderInfo || !$this->OrderCircular_model->delete($id)) {
+            return FALSE;
+        }
+        if ($orderInfo['upload_type'] == "file") {
+            $this->deleteFile(ORDER_CIRCULAR_PATH . '/' . $orderInfo['path']);
+        }
+        return TRUE;
+    }
+
+    public function batchDelete() {
+        $result = $this->runBatchDelete(function ($id) {
+            return $this->deleteOne($id);
+        });
+        $result['content'] = $this->getContent();
+        echo json_encode($result);
         exit;
     }
 

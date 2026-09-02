@@ -18,11 +18,7 @@
 
 <!--                    <tr>
                         <td class="col-sm-1">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-addon">
-                                    <input data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="cb4" value="4" type="checkbox">
-                                </span>
-                            </div>
+                            <div class="text-center"><input data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="cb4" value="4" type="checkbox"></div>
                         </td>
 
                         <td>Website Files</td>
@@ -31,11 +27,7 @@
 
                     <tr>
                         <td class="col-sm-1">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-addon">
-                                    <input data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="cb4" value="4" type="checkbox">
-                                </span>
-                            </div>
+                            <div class="text-center"><input data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="cb4" value="4" type="checkbox"></div>
                         </td>
 
                         <td>Membership DB</td>
@@ -43,11 +35,7 @@
                     </tr>
                     <tr>
                         <td class="col-sm-1">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-addon">
-                                    <input data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="cb4" value="4" type="checkbox">
-                                </span>
-                            </div>
+                            <div class="text-center"><input data-target="tbody" data-toggle="selectrow" class="list-checkbox" name="cb4" value="4" type="checkbox"></div>
                         </td>
 
                         <td>Kpsta DB</td>

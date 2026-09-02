@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0');
 
 /* Gilroy — the typeface used in the Page References mockups.
    Drop the .woff2 files into public/fonts/gilroy/ and they take over automatically;
@@ -223,6 +223,12 @@ img {
   line-height: 1;
   color: var(--color-white);
   flex-shrink: 0;
+}
+
+.social-circle svg {
+  width: 17px;
+  height: 17px;
+  display: block;
 }
 
 .social-circle:hover {
@@ -589,14 +595,19 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   flex-grow: 1;
   padding: 0 0 0 40px;
   align-self: center;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 15px;
   color: #0f0f0f;
 }
 
+.ticker-content a {
+  font-weight: 600;
+}
+
 /* WELCOME CARD SECTION */
 .welcome-section {
-  padding: 147px 0 0;
+  padding: 40px 0 0;
+  isolation: isolate;
 }
 
 .welcome-card {
@@ -609,76 +620,77 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   background-blend-mode: normal, luminosity;
   color: var(--color-white);
   border-radius: 14px;
-  padding: 83px 60px 0;
+  padding: 40px 60px 36px;
   text-align: center;
   box-shadow: none;
   border: none;
-  height: 477px;
-  max-width: none;
+  height: auto;
+  min-height: 0;
+  width: 100%;
   margin: 0;
 }
 
 .welcome-card::before {
   content: '';
   position: absolute;
-  inset: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.30);
+  inset: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 8px;
   pointer-events: none;
 }
 
-/* Lavender plate behind the card: 17/18px wider on each side, 14px shorter
-   top and bottom, so it only peeks out at the left and right edges. */
-.welcome-section {
-  isolation: isolate;
-}
-
+/* Lavender plate behind the card */
 .welcome-card::after {
   content: '';
   position: absolute;
-  top: 14px;
-  right: -18px;
-  bottom: 14px;
-  left: -17px;
+  top: 12px;
+  right: -16px;
+  bottom: 12px;
+  left: -16px;
   background-color: #a8a8c5;
   border-radius: 14px;
   z-index: -1;
 }
 
 .welcome-card h2 {
-  font-size: 38px;
-  line-height: 1;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
   color: var(--color-white);
-  margin-bottom: 40px;
+  margin-bottom: 18px;
+  text-align: center;
 }
 
 .welcome-card p {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   color: #ffffff;
-  max-width: 1160px;
-  margin: 0 auto 36px;
+  max-width: 1180px;
+  margin: 0 auto 24px;
   line-height: 27px;
+  text-align: center;
 }
 
 .btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 179px;
-  height: 60px;
+  width: 150px;
+  height: 46px;
   padding: 0;
   border: 2px solid var(--color-white);
   color: var(--color-white);
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 500;
-  font-size: 21px;
+  font-size: 18px;
+  text-decoration: none;
+  transition: var(--transition);
 }
 
 .btn-outline:hover {
   background-color: var(--color-white);
   color: var(--color-primary-dark);
-  transform: scale(1.05);
+  transform: translateY(-2px);
 }
 
 /* PAGE SHELL SPACING (reference: ticker -> action row -> first ribbon) */
@@ -736,8 +748,12 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   margin-bottom: 30px;
 }
 
-/* RIBBON SECTION HEADERS */
+/* RIBBON SECTION HEADERS
+   Badge, diagonal tail and rule read as one continuous shape: the rule is
+   pulled back under the tail so the two can never show a seam, and the badge
+   paints over it. */
 .ribbon-section-header {
+  position: relative;
   display: flex;
   align-items: flex-end;
   margin: 110px 0 0;
@@ -751,19 +767,68 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   margin-top: 0;
 }
 
+/* The notch is drawn as a masked tail rather than a clip-path on the badge.
+   A clip-path polygon can only produce sharp vertices, so both corners of the
+   diagonal -- the top, where the flat edge turns into the slope, and the tip
+   where it lands on the rule -- came out as points.
+
+   The mask is a 96x60 wedge: 12 units of flat top edge, a 26-unit arc into the
+   diagonal, then a 6-unit arc onto the vertical face that meets the rule. That
+   first 12 units is a lead-in overlapping the badge, because the top corner
+   straddles the boundary between the badge box and this tail. The arc's
+   tangent point must land EXACTLY on that boundary (x = 12): put the corner
+   vertex on the boundary instead and the arc begins inside the badge, leaving
+   the badge's square corner sticking out above the curve as a shoulder -- the
+   shape reads sharp no matter how large the radius is. So the vertex sits one
+   tangent-length past the boundary, which makes the vertex position depend on
+   the diagonal's angle, which depends on the vertex -- solved by iteration,
+   not by hand.
+
+   Tail widths elsewhere keep the 96:12 ratio, i.e. width = tail x 8/7 and the
+   left offset = tail / 7. */
+:root {
+  --ribbon-tail-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 60' preserveAspectRatio='none'%3E%3Cpath d='M0 0L12 0A26 26 0 0 1 27.5 5.13L93.58 54.2A6 6 0 0 1 96 59.02L96 60L0 60Z' fill='%23fff'/%3E%3C/svg%3E");
+
+  /* Melakal tab tail: 14px lead-in + 90px tail, 78px tall. 16px curve into the
+     diagonal, 8px where it lands on the rule. */
+  --tab-tail-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 104 78' preserveAspectRatio='none'%3E%3Cpath d='M0 0L14 0A26 26 0 0 1 31.68 6.94L101.44 71.63A8 8 0 0 1 104 77.49L104 78L0 78Z' fill='%23fff'/%3E%3C/svg%3E");
+
+  /* Top-right notch of the plain category card (Academic Corner, Forms).
+     A fixed 48x58 patch anchored to that corner, so it never stretches with
+     the card's width; the other three corners stay on border-radius. */
+  --tab-corner-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 58' preserveAspectRatio='none'%3E%3Cpath d='M0 0L14 0A14 14 0 0 1 26.21 7.15L46.98 44.18A8 8 0 0 1 48 48.09L48 58L0 58Z' fill='%23fff'/%3E%3C/svg%3E");
+}
+
 .ribbon-badge {
+  position: relative;
+  z-index: 1;
   background-color: var(--color-primary);
   color: var(--color-white);
   font-size: 23px;
   font-weight: 700;
   line-height: 60px;
   height: 60px;
-  padding: 0 100px 0 32px;
+  /* Right padding is the text inset only -- the 84px tail now lives outside
+     the badge box, overlapping the rule. */
+  padding: 0 32px;
   border-radius: 8px 0 0 0;
-  clip-path: polygon(0 0, calc(100% - 84px) 0, 100% 100%, 0% 100%);
   text-transform: none;
   letter-spacing: 0;
   white-space: nowrap;
+}
+
+.ribbon-badge::after {
+  content: '';
+  position: absolute;
+  /* 84px of tail + 12px of lead-in overlapping the badge (see the mask above) */
+  left: calc(100% - 12px);
+  top: 0;
+  width: 96px;
+  height: 100%;
+  /* inherit keeps the .navy variant working without a second rule */
+  background-color: inherit;
+  -webkit-mask: var(--ribbon-tail-mask) no-repeat center / 100% 100%;
+          mask: var(--ribbon-tail-mask) no-repeat center / 100% 100%;
 }
 
 .ribbon-badge.navy {
@@ -774,7 +839,9 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   flex-grow: 1;
   height: 4px;
   background-color: var(--color-primary);
-  margin-left: -1px;
+  /* Starts at the badge box edge, which is where the tail begins -- the tail
+     overlays its first 84px, so the joint is a continuous fill. */
+  margin-left: 0;
 }
 
 .ribbon-badge.navy + .ribbon-line {
@@ -828,7 +895,8 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   background: var(--color-white);
   padding: 7px;
   display: block;
-  overflow: visible;
+  /* Clipped so a missing photo's alt text can't spill out of the frame */
+  overflow: hidden;
   margin-bottom: 0;
   border-radius: 79px 20px 20px 20px;
   box-shadow: 6px 8px 22px rgba(31, 27, 22, 0.13);
@@ -871,6 +939,12 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   line-height: 27px;
   color: #111111;
   margin: 12px 0 0;
+  /* Names come from the DB and a long one wraps to a second line. Without a
+     reserved two-line block, that one card pushes its own role and phone down
+     and the whole row stops lining up. */
+  min-height: 54px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .bearer-role {
@@ -880,6 +954,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   color: #111111;
   text-transform: none;
   margin: 1px 0 0;
+  /* Same reasoning as the name -- holds the phone row on one baseline */
+  min-height: 23px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .bearer-phone {
@@ -959,42 +1037,45 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 /* HOME ACTION BOXES */
 .action-box-grid {
   background-color: var(--color-primary);
-  border-radius: 8px;
-  padding: 15px;
+  border-radius: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 8px 24px rgba(1, 109, 119, 0.20);
 }
 
 .action-card-link {
   background-color: transparent;
   border: none;
-  border-radius: 0;
+  border-radius: 6px;
   padding: 0;
   display: flex;
   align-items: stretch;
   gap: 1px;
-  height: 97px;
+  height: 100%;
+  min-height: 58px;
   color: #111111;
+  text-decoration: none;
   transition: var(--transition);
   overflow: hidden;
-  border-radius: 4px;
 }
 
 .action-card-link:hover .action-icon {
   background-color: var(--color-orange-hover);
 }
 
-.action-card-link:hover {
-  background-color: transparent;
-  transform: none;
+.action-card-link:hover .action-title {
+  background-color: #83ccc5;
 }
 
 .action-icon {
-  width: 108px;
-  height: 97px;
+  width: 68px;
   background-color: var(--color-orange);
-  border-radius: 0;
+  border-radius: 6px 0 0 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1003,25 +1084,26 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .action-icon .material-symbols-outlined {
-  font-size: 46px;
+  font-size: 28px;
   color: var(--color-white);
+  font-variation-settings: 'FILL' 1, 'wght' 500;
 }
 
 .action-title {
   flex: 1;
-  background-color: #83c4be;
+  background-color: #72b9b2;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  font-size: 18px;
+  padding: 0 16px;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 24px;
+  line-height: 1.25;
   color: #111111;
+  border-radius: 0 6px 6px 0;
+  transition: var(--transition);
 }
 
-/* SPLIT NEWS & REACTION SECTION
-   The two colour panels bleed to the viewport edges, but everything inside
-   them lines up with the 1425px content grid. */
+/* SPLIT NEWS & REACTION SECTION */
 .split-section {
   --grid-gutter-outer: max(24px, calc((100vw - var(--container-width)) / 2));
   display: grid;
@@ -1031,34 +1113,44 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 
 .news-window-side {
   background-color: #83c4be;
-  padding: 147px 89px 90px var(--grid-gutter-outer);
+  padding: 50px 60px 50px var(--grid-gutter-outer);
+  display: flex;
+  flex-direction: column;
 }
 
 .news-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 50px;
+  height: 52px;
+  margin-bottom: 24px;
 }
 
 .news-header h2 {
   font-size: 32px;
-  line-height: 1.15;
+  font-weight: 700;
+  line-height: 1;
   color: #111111;
+  margin: 0;
 }
 
 .btn-view-all {
   border: 2px solid #111111;
-  width: 171px;
-  height: 60px;
-  line-height: 56px;
+  width: 135px;
+  height: 42px;
+  line-height: 38px;
   padding: 0;
   text-align: center;
   border-radius: 6px;
-  font-weight: 500;
-  font-size: 19px;
+  font-weight: 600;
+  font-size: 16px;
   color: #111111;
   flex-shrink: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
 }
 
 .btn-view-all:hover {
@@ -1069,24 +1161,26 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 .news-list {
   display: flex;
   flex-direction: column;
-  gap: 38px;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 1;
 }
 
 .news-item-card {
   background-color: var(--color-white);
-  border-radius: 6px;
-  padding: 12px;
-  min-height: 197px;
+  border-radius: 8px;
+  padding: 12px 16px;
   display: flex;
-  gap: 43px;
+  gap: 24px;
   align-items: center;
-  box-shadow: 0 3px 10px rgba(30, 60, 58, 0.12);
+  box-shadow: 0 4px 14px rgba(30, 60, 58, 0.10);
+  flex: 1;
 }
 
 .news-thumb {
-  width: 253px;
-  height: 173px;
-  border-radius: 4px;
+  width: 220px;
+  height: 140px;
+  border-radius: 6px;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -1095,94 +1189,119 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .news-info {
   flex-grow: 1;
+  min-width: 0;
 }
 
 .news-date {
-  font-size: 17px;
-  color: #4a5a5a;
-  font-weight: 400;
-  margin-bottom: 12px;
+  font-size: 13px;
+  color: #667;
+  font-weight: 500;
+  margin-bottom: 6px;
 }
 
 .news-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
-  line-height: 23px;
+  line-height: 22px;
   color: #111111;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .news-readmore {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: #ee6a2a;
+  text-decoration: none;
 }
 
 .reaction-gallery-side {
   background-color: #187f84;
-  padding: 147px var(--grid-gutter-outer) 90px 84px;
+  padding: 50px var(--grid-gutter-outer) 50px 60px;
+  display: flex;
+  flex-direction: column;
   text-align: center;
   color: var(--color-white);
 }
 
-.reaction-gallery-side h2 {
+.reaction-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 52px;
+  margin-bottom: 24px;
+}
+
+.reaction-header h2 {
   font-size: 32px;
-  line-height: 1.15;
+  font-weight: 700;
+  line-height: 1;
   color: var(--color-white);
-  margin-bottom: 36px;
+  margin: 0;
+}
+
+.reaction-slider-container {
+  height: 100%;
+  flex: 1;
+  max-width: 440px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reaction-slide {
+  width: 100%;
+  height: 100%;
+  flex: 1;
 }
 
 .poster-card {
   background-color: var(--color-white);
-  border-radius: var(--radius-xl);
+  border-radius: 14px;
   padding: 6px;
-  box-shadow: var(--shadow-xl);
-  max-width: 360px;
-  margin: 0 auto;
-  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.poster-card a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  flex: 1;
 }
 
 .poster-card img {
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   width: 100%;
+  height: 100%;
+  object-fit: fill;
+  border-radius: 9px;
   display: block;
 }
 
 .poster-card.no-title img {
-  border-radius: var(--radius-lg);
+  border-radius: 9px;
 }
 
-.poster-card-title {
-  background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
-  color: #ffffff;
-  padding: 0.65rem 0.85rem;
-  font-weight: 700;
-  font-size: 1rem;
-  text-align: center;
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  margin-top: 4px;
+.reaction-dots {
+  margin-top: 14px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  line-height: 1.35;
-}
-
-.poster-card-title .poster-logo {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #ffffff;
-  padding: 2px;
-  flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  gap: 8px;
 }
 
 /* TABS (MELAKAL) */
@@ -1207,32 +1326,77 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   font-weight: 600;
   line-height: 27px;
   color: var(--color-white) !important;
-  background-color: var(--color-primary);
-  border-radius: 12px;
-  clip-path: polygon(0 0, calc(100% - 34px) 0, 100% 46px, 100% 100%, 0 100%);
+  /* Fill and notch live on ::before, not here. The white keyline is the
+     drop-shadow chain at the end of this rule, and a mask on the element
+     itself would clip that keyline away along with everything else outside
+     the box — so the shape has to be one level down, inside the filter. */
+  --tab-bg: var(--color-primary);
+  background-color: transparent;
   transition: background-color 0.25s ease;
   text-decoration: none !important;
   cursor: pointer;
-  /* Chained white drop-shadows draw the 6px keyline that sits outside the card */
-  filter:
-    drop-shadow(6px 0 0 #ffffff)
-    drop-shadow(-6px 0 0 #ffffff)
-    drop-shadow(0 6px 0 #ffffff)
-    drop-shadow(0 -6px 0 #ffffff)
-    drop-shadow(3px 6px 9px rgba(60, 45, 25, 0.16));
+  /* Soft cast shadow only. The white keyline used to be four chained white
+     drop-shadows offset ±6px, but that draws the union of four translated
+     copies -- which squares off every rounded corner and reads far too thick
+     on the diagonal. It is now a real outline on ::after that follows the
+     notch. */
+  filter: drop-shadow(3px 6px 9px rgba(60, 45, 25, 0.16));
+}
+
+/* The card's fill and its notched silhouette. Three mask layers unioned: the
+   card minus its right 34px, the right strip below the notch, and a fixed-size
+   rounded patch pinned to the top-right corner. Keeping that patch at a fixed
+   px size is what stops the curve distorting as the grid column width changes
+   — a single stretched mask would flatten it into an ellipse. */
+.tab-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: var(--tab-bg);
+  border-radius: 12px;
+  -webkit-mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000), var(--tab-corner-mask);
+          mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000), var(--tab-corner-mask);
+  -webkit-mask-size: calc(100% - 34px) 100%, 34px calc(100% - 46px), 48px 58px;
+          mask-size: calc(100% - 34px) 100%, 34px calc(100% - 46px), 48px 58px;
+  -webkit-mask-position: left top, right bottom, right top;
+          mask-position: left top, right bottom, right top;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  transition: background-color 0.25s ease;
+}
+
+/* The white keyline: the same silhouette, 3px larger on every side, sitting
+   behind the fill. Because it is the shape rather than an offset copy of it,
+   the outline keeps an even thickness around the rounded notch corners. */
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  z-index: 0;
+  background-color: var(--color-white);
+  border-radius: 15px;
+  -webkit-mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000), var(--tab-corner-mask);
+          mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000), var(--tab-corner-mask);
+  -webkit-mask-size: calc(100% - 34px) 100%, 34px calc(100% - 46px), 48px 58px;
+          mask-size: calc(100% - 34px) 100%, 34px calc(100% - 46px), 48px 58px;
+  -webkit-mask-position: left top, right bottom, right top;
+          mask-position: left top, right bottom, right top;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
 }
 
 .tab-btn-label {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .tab-btn:hover {
-  background-color: #087f85;
+  --tab-bg: #087f85;
 }
 
 .tab-btn.active {
-  background-color: var(--color-primary);
+  --tab-bg: var(--color-primary);
 }
 
 /* DOWNLOAD ROWS */
@@ -1271,6 +1435,9 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   align-items: center;
   gap: 24px;
   flex: 1;
+  /* Titles come from uploads and can be one unbroken string (file names,
+     URLs) -- without these the row runs past the page edge on a phone. */
+  min-width: 0;
 }
 
 /* Red PDF document mark used on the memorandum / notice rows */
@@ -1294,6 +1461,15 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   clip-path: polygon(0 0, 66% 0, 100% 24%, 100% 100%, 0 100%);
 }
 
+/* Same mark, recoloured for the other file types a download row can carry */
+.pdf-icon-badge--doc { background-color: #2b5797; }
+.pdf-icon-badge--xls { background-color: #1f7244; }
+.pdf-icon-badge--ppt { background-color: #d24726; }
+.pdf-icon-badge--zip { background-color: #b7791f; }
+.pdf-icon-badge--img { background-color: #6b46c1; }
+.pdf-icon-badge--font { background-color: #475569; }
+.pdf-icon-badge--link { background-color: #64748b; }
+
 .pdf-icon-badge::after {
   content: '';
   position: absolute;
@@ -1311,6 +1487,9 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   color: #111111;
   line-height: 27px;
   flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .btn-circle-download {
@@ -1471,12 +1650,54 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 /* PAGINATION */
+/* The pager is a CI-generated <ul class="pagination"> inside a
+   <div class="pagination"> wrapper, so both levels answer to this class. The
+   list markers and the unstyled anchors were what showed as bullets sitting on
+   top of the page numbers. */
 .pagination {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px;
   margin: 3.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pagination li {
+  list-style: none;
+  display: block;
+}
+
+.pagination li > a,
+.pagination li > strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.pagination li > a:hover {
+  background-color: var(--color-bg-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pagination li.active > a,
+.pagination li > strong {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 800;
 }
 
 .page-btn {
@@ -1983,25 +2204,147 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   z-index: 10;
 }
 
+.home-office-section {
+  padding: 75px 0 60px;
+}
+
 .home-office-bearers-layout {
-  display: grid;
-  grid-template-columns: 928px 427px;
-  gap: 70px;
-  align-items: start;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 50px;
+  width: 100%;
+}
+
+.home-bearers-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1 1 auto;
+}
+
+.office-bearers-title {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 34px;
+  font-weight: 700;
+  color: #111111;
+  width: 100%;
 }
 
 .home-office-bearers-grid {
   display: grid;
-  grid-template-columns: repeat(3, 300px);
-  gap: 14px;
-  margin-bottom: 34px;
+  grid-template-columns: repeat(3, 260px);
+  gap: 24px;
+  justify-content: center;
+}
+
+.home-office-bearers-grid .bearer-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.home-office-bearers-grid .bearer-photo-wrapper {
+  width: 260px;
+  height: 275px;
+  background: var(--color-white);
+  padding: 7px;
+  border-radius: 64px 16px 16px 16px;
+  box-shadow: 0 8px 22px rgba(31, 27, 22, 0.12);
+  overflow: hidden;
+  display: block;
+  flex-shrink: 0;
+}
+
+.home-office-bearers-grid .bearer-photo-wrapper img,
+.home-office-bearers-grid .bearer-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 57px 10px 10px 10px;
+  display: block;
+}
+
+.home-office-bearers-grid .bearer-placeholder {
+  background-color: var(--color-placeholder-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-office-bearers-grid .bearer-placeholder .material-symbols-outlined {
+  font-size: 110px;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.home-office-bearers-grid .bearer-name {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 22px;
+  color: #111111;
+  margin: 12px 0 0;
+  min-height: 22px;
+  text-align: center;
+}
+
+.home-office-bearers-grid .bearer-role {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  color: #444444;
+  margin: 3px 0 0;
+  min-height: 18px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.home-bearers-action {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.home-bearers-action .btn-green {
+  background-color: #249902;
+  color: #ffffff;
+  height: 44px;
+  line-height: 44px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0 28px;
+  border-radius: 6px;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  min-width: 0;
+  transition: var(--transition);
+}
+
+.home-bearers-action .btn-green:hover {
+  background-color: #1d7e01;
+  transform: translateY(-2px);
+}
+
+.home-actions-block {
+  width: 420px;
+  flex-shrink: 0;
+  display: flex;
+  margin-top: 60px;
 }
 
 .home-gallery-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  column-gap: 23px;
+  column-gap: 12px;
   row-gap: 40px;
+  /* break out of .container so the strip runs the full viewport width */
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: 28px;
+  padding-right: 28px;
 }
 
 /* Home gallery card: picture then caption, no white plate underneath */
@@ -2012,7 +2355,7 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .home-gallery-thumb {
-  border-radius: 6px;
+  border-radius: 14px;
   overflow: hidden;
 }
 
@@ -2029,10 +2372,10 @@ img.emblem-circle, .brand-logo img.emblem-circle {
 }
 
 .home-gallery-caption {
-  margin-top: 26px;
-  font-size: 22px;
+  margin-top: 20px;
+  font-size: 17px;
   font-weight: 700;
-  line-height: 27px;
+  line-height: 22px;
   color: #111111;
   text-align: center;
 }
@@ -2223,12 +2566,17 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   margin-bottom: 33px;
 }
 
+/* Reserved two-line name / one-line role, so a long third name can't drop that
+   column's designation and phone badge below its neighbours' */
 .mini-bearer-item h4 {
   font-size: 21px;
   font-weight: 700;
   line-height: 25px;
   color: #ffffff;
   margin-bottom: 4px;
+  min-height: 50px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .mini-bearer-item p {
@@ -2239,6 +2587,9 @@ img.emblem-circle, .brand-logo img.emblem-circle {
   letter-spacing: 0;
   line-height: 21px;
   margin-bottom: 10px;
+  min-height: 21px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .phone-badge-orange {
@@ -2564,10 +2915,10 @@ textarea:focus {
 }
 
 .gallery-caption {
-  margin-top: 22px;
-  font-size: 19px;
+  margin-top: 18px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 24px;
+  line-height: 21px;
   color: #111111;
   text-align: center;
 }
@@ -2582,27 +2933,74 @@ textarea:focus {
    active tab orange, all tabs sharing a continuous bottom edge.
    ========================================================================== */
 .tab-header--joined {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
+  /* No gap -- each tab's tail tip lands exactly on the next tab's leading edge */
+  gap: 0;
   margin-bottom: 30px;
 }
 
+/* The continuous bottom edge the tabs sit on. Drawn on the strip rather than
+   per tab so it runs unbroken from edge to edge. It sits in FRONT of the tabs
+   (z-index above them) so it reads as one rule crossing the whole strip rather
+   than something the tabs interrupt -- including across the active tab. */
+.tab-header--joined::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background-color: var(--color-primary);
+  z-index: 2;
+}
+
 .tab-header--joined .tab-btn {
+  z-index: 1;
   /* Fixed width per the reference — stays this size regardless of how many
-     categories exist, so a single category doesn't stretch across the row. */
-  flex: 0 0 348px;
-  width: 348px;
-  height: 97px;
-  filter: none;
-  padding: 0 90px 0 34px;
+     categories exist, so a single category doesn't stretch across the row.
+     The box is the flat part only; the 90px notched tail is the ::after
+     below, and margin-right reserves its width so the 9px strip gap still
+     falls between one tab's tip and the next tab's edge. */
+  flex: 0 0 258px;
+  width: 258px;
+  margin-right: 90px;
+  height: 78px;
+  padding: 0 0 0 34px;
   font-size: 26px;
   font-weight: 600;
   line-height: 32px;
   background-color: var(--color-primary);
-  border-radius: 0;
-  clip-path: polygon(0 0, calc(100% - 90px) 0, 100% 100%, 0 100%);
+  /* Rounded on the top-left only; the other three corners are the notch and
+     the two edges that sit flush on the rule. */
+  border-radius: 8px 0 0 0;
+  /* Undo the base .tab-btn notch — this variant draws its own on the ::after,
+     and the base corner mask would cut this tab's square top-right off. */
+  clip-path: none;
+  -webkit-mask-image: none;
+          mask-image: none;
   filter: none;
+}
+
+/* Own wedge rather than the ribbon's: a deeper 16px curve into the diagonal,
+   and the viewBox is drawn at this tab's exact 104x78 so nothing is stretched.
+   14px of that width is the lead-in overlapping the tab (see the ribbon mask
+   for why the top corner has to straddle the boundary). */
+.tab-header--joined .tab-btn::after {
+  content: '';
+  position: absolute;
+  /* This variant has no keyline, so ::after is free to be the tail. Reset the
+     base rule's inset/radius before repositioning it. */
+  inset: auto;
+  border-radius: 0;
+  left: calc(100% - 14px);
+  top: 0;
+  width: 104px;
+  height: 100%;
+  background-color: inherit;
+  -webkit-mask: var(--tab-tail-mask) no-repeat center / 100% 100%;
+          mask: var(--tab-tail-mask) no-repeat center / 100% 100%;
 }
 
 .tab-header--joined .tab-btn::before {
@@ -2662,6 +3060,72 @@ textarea:focus {
   .top-bar-item + .top-bar-item + .top-bar-item { margin-left: 20px; }
 }
 
+/* ==========================================================================
+   LAPTOP / SMALL DESKTOP (1025px - 1472px)
+   The page layouts are drawn on the reference's fixed 1425px grid
+   (4 x 300px cards + 75px gutters). Below 1473px the container is narrower
+   than that grid, so every fixed-px layout ran past the page edge and forced
+   a horizontal scrollbar -- 1366x768 laptops got it worst. This range keeps
+   the same composition but rebuilds it on fractional columns.
+   ========================================================================== */
+@media (min-width: 1025px) and (max-width: 1472px) {
+  /* Gutter tracks the viewport instead of staying at the reference 75px */
+  :root { --grid-gutter: clamp(24px, 5.2vw, 75px); }
+
+  /* Office bearers / district / former leaders card grids */
+  .grid-bearers {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--grid-gutter);
+    justify-content: stretch;
+  }
+
+  .bearer-photo-wrapper {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    aspect-ratio: 300 / 317;
+    margin: 0 auto;
+  }
+
+  /* Home: bearers strip + action panel */
+  .home-office-bearers-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .home-actions-block {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .home-office-bearers-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Contact: info column + teal panel */
+  .contact-v2-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(28px, 3.5vw, 60px);
+  }
+
+  /* Melakal / academic corner tabs still sit four to a row, just narrower */
+  .tab-header--joined .tab-btn {
+    flex: 0 0 clamp(170px, 17.5vw, 258px);
+    width: auto;
+    margin-right: 76px;
+    padding-right: 0;
+    font-size: 23px;
+  }
+  .tab-header--joined .tab-btn::after { left: calc(100% - 11.8px); width: 87.8px; }
+
+  /* Split news / poster band */
+  .news-window-side { padding: 40px 24px var(--grid-gutter-outer); }
+  .reaction-gallery-side { padding: 40px var(--grid-gutter-outer) 40px 24px; }
+  .news-item-card { gap: 18px; }
+  .news-thumb { width: 180px; height: 120px; }
+}
+
 /* Legacy sub-pages still get the page wash and the green tint above the footer */
 .page-legacy {
   padding: 40px 0 90px;
@@ -2669,20 +3133,14 @@ textarea:focus {
 
 /* ==========================================================================
    MOBILE / RESPONSIVE -- consolidated
-   ==========================================================================
-   Almost every measurement above this point comes straight from a 1920px
-   reference mockup (fixed grid columns, fixed card widths, fixed heights).
-   None of that collapses gracefully below ~1000px, so this section rebuilds
-   every section explicitly for tablet and phone instead of patching gaps.
    ========================================================================== */
 
-/* ---------- TABLET (<=1024px) ----------
-   Everything else at this width is handled by the phone/tablet-portrait
-   block below, which shares this breakpoint. */
+/* ---------- TABLET (<=1024px) ---------- */
 @media (max-width: 1024px) {
   .split-section { grid-template-columns: 1fr; min-height: 0; }
   .grid-contact { grid-template-columns: 1fr; }
-  .home-office-bearers-layout { grid-template-columns: 1fr; gap: 40px; }
+  .home-office-bearers-layout { flex-direction: column; align-items: center; gap: 32px; }
+  .home-actions-block { width: 100%; max-width: 480px; }
 }
 
 /* ---------- PHONE / TABLET-PORTRAIT (<=1024px) ---------- */
@@ -2695,7 +3153,7 @@ textarea:focus {
   /* Header */
   .header-container { height: 68px; }
   .main-header .container { padding: 0 16px; }
-  .brand-lockup { width: 190px; }
+  .brand-lockup { width: 240px; }
   .mobile-toggle {
     display: flex;
     align-items: center;
@@ -2795,24 +3253,36 @@ textarea:focus {
   }
   .page-actions { margin-bottom: 20px; }
 
-  /* Ribbon headers -- the diagonal notch is a fixed-px cut that breaks once
-     text wraps, so mobile drops it for a plain rounded label */
-  .ribbon-section-header { margin: 36px 0 0; flex-wrap: wrap; row-gap: 8px; }
+  /* Ribbon headers -- keep the badge and the rule on one row so they stay a
+     single joined shape. The notch is scaled down and sits entirely inside the
+     right padding, so it survives a wrapped district name. */
+  .ribbon-section-header { margin: 36px 0 0; flex-wrap: nowrap; align-items: flex-end; }
   .ribbon-badge {
     font-size: 15px;
     height: auto;
     line-height: 1.3;
     padding: 9px 16px;
+    max-width: 66%;
     white-space: normal;
-    clip-path: none;
-    border-radius: 6px;
+    border-radius: 6px 0 0 0;
   }
-  .ribbon-line { flex-basis: 100%; height: 2px; margin-left: 0; }
+  .ribbon-badge::after { left: calc(100% - 4.29px); width: 34.29px; }
+  .ribbon-line { flex-basis: auto; height: 3px; margin-left: 0; }
   .section-title { font-size: 26px; margin-bottom: 20px; }
 
   /* Bearer card grids (Office Bearers, District, Former Leaders, Home strip) */
   .grid-bearers { grid-template-columns: repeat(auto-fit, minmax(240px, 300px)); column-gap: 16px; row-gap: 30px; padding-top: 20px; justify-content: center; }
-  .home-office-bearers-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  /* Home strip keeps its three bearers on a single row down to the smallest
+     phone -- minmax(0,…) so a long name can't push the row past the screen */
+  .home-office-bearers-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .home-office-bearers-grid .bearer-name,
+  .home-office-bearers-grid .bearer-role { overflow-wrap: break-word; word-break: break-word; }
+  .home-office-bearers-grid .bearer-photo-wrapper { max-width: 100%; border-radius: 32px 12px 12px 12px; }
+  .home-office-bearers-grid .bearer-photo-wrapper img,
+  .home-office-bearers-grid .bearer-placeholder { border-radius: 28px 9px 9px 9px; }
+  .home-office-bearers-grid .bearer-placeholder .material-symbols-outlined { font-size: 48px; }
+  .home-office-bearers-grid .bearer-name { font-size: 14px; line-height: 18px; }
+  .home-office-bearers-grid .bearer-role { font-size: 12px; line-height: 15px; }
   .bearer-photo-wrapper {
     width: 100%;
     max-width: 220px;
@@ -2823,8 +3293,10 @@ textarea:focus {
   }
   .bearer-photo-wrapper img, .bearer-placeholder { border-radius: 42px 10px 10px 10px; }
   .bearer-placeholder .material-symbols-outlined { font-size: 80px; }
-  .bearer-name { font-size: 16px; line-height: 20px; margin-top: 10px; }
-  .bearer-role { font-size: 13px; line-height: 17px; }
+  .bearer-name { font-size: 16px; line-height: 20px; margin-top: 10px; min-height: 40px; }
+  .bearer-role { font-size: 13px; line-height: 17px; min-height: 17px; }
+  .mini-bearer-item h4 { min-height: 0; }
+  .mini-bearer-item p { min-height: 0; }
   .bearer-phone { font-size: 13px; gap: 8px; }
   .bearer-phone .material-symbols-outlined { width: 20px; height: 20px; font-size: 12px !important; }
   .btn-green { min-width: 0; width: 100%; max-width: 260px; margin: 0 auto; display: block; font-size: 16px; height: 46px; line-height: 46px; }
@@ -2844,17 +3316,17 @@ textarea:focus {
   .news-list { gap: 14px; }
   .news-item-card { padding: 8px; gap: 12px; min-height: 0; }
   .news-thumb { width: 80px; height: 80px; }
-  .news-date { font-size: 11px; margin-bottom: 4px; }
+  .news-date { font-size: 10px; margin-bottom: 4px; }
   .news-title {
-    font-size: 14px;
-    line-height: 18px;
+    font-size: 13px;
+    line-height: 17px;
     margin-bottom: 6px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .news-readmore { font-size: 12px; }
+  .news-readmore { font-size: 11px; }
   .poster-card { max-width: 260px; }
 
   /* Home gallery strip */
@@ -2892,15 +3364,27 @@ textarea:focus {
     filter: none;
     box-shadow: 0 2px 6px rgba(60, 45, 25, 0.12);
   }
+  /* Stacked full-width cards drop the notch and the keyline entirely */
+  .tab-btn::before {
+    -webkit-mask-image: none;
+            mask-image: none;
+    border-radius: 8px;
+  }
+  .tab-btn::after { content: none; }
 
   /* Joined tab bar (Melakal) -- the fixed 348px width is correct for desktop
      (see .tab-header--joined .tab-btn above) but has to give way to a full
      width stack once the viewport can't fit even one at that size. */
   .tab-header--joined { gap: 10px; }
+  /* Stacked full-width tabs have no shared bottom edge to sit on, and no notch
+     to carry a tail */
+  .tab-header--joined::after { content: none; }
+  .tab-header--joined .tab-btn::after { content: none; }
   .tab-header--joined .tab-btn {
     flex: 1 1 100%;
     width: 100%;
     max-width: 100%;
+    margin-right: 0;
     height: auto;
     min-height: 52px;
     padding: 12px 40px 12px 18px;
@@ -2934,10 +3418,15 @@ textarea:focus {
   }
   .page-list .ribbon-section-header { margin-top: 32px; }
   .circular-list { margin-top: 16px; }
-  .circular-item { height: auto; flex-wrap: wrap; }
-  .circular-date { width: 56px; font-size: 22px; align-self: stretch; }
-  .circular-content { flex-wrap: wrap; gap: 8px; padding: 12px 14px; }
-  .circular-title { font-size: 15px; }
+  /* nowrap: with wrapping on, a title wide enough to not fit beside the date
+     pushed itself onto a second line, leaving the date badge stranded alone
+     above it -- so rows in the same list lined up differently depending on how
+     long their title was. The date stays a fixed left column; only the title
+     and its tag wrap, inside .circular-content. */
+  .circular-item { height: auto; flex-wrap: nowrap; align-items: stretch; }
+  .circular-date { width: 56px; font-size: 22px; align-self: auto; flex-shrink: 0; }
+  .circular-content { flex-wrap: wrap; gap: 8px; padding: 12px 14px; min-width: 0; }
+  .circular-title { font-size: 15px; overflow-wrap: break-word; word-break: break-word; min-width: 0; }
   .tag-pill { font-size: 13px; height: 28px; line-height: 28px; padding: 0 10px; }
 
   /* Quick Links */
@@ -2972,31 +3461,54 @@ textarea:focus {
   .contact-circle-icon { width: 30px; height: 30px; }
   .contact-circle-icon .material-symbols-outlined { font-size: 16px !important; }
   .dark-teal-card, .editorial-card { padding: 24px 16px; }
-  .office-bearers-mini-grid { grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px; }
-  .mini-bearer-item h4 { font-size: 18px; }
-  .mini-bearer-item p { font-size: 13px; }
+  /* Keep all three bearers on one row; shrink type instead of stacking */
+  .office-bearers-mini-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 24px; }
+  .mini-bearer-item h4 { font-size: 14px; line-height: 17px; margin-bottom: 3px; }
+  .mini-bearer-item p { font-size: 11px; line-height: 14px; margin-bottom: 6px; }
+  .phone-badge-orange { font-size: 12px; gap: 4px; justify-content: center; }
+  .phone-circle-icon { width: 20px; height: 20px; }
+  .phone-circle-icon .material-symbols-outlined { font-size: 12px !important; }
   .btn-more-bearers { width: 100%; max-width: 240px; height: 46px; line-height: 46px; font-size: 16px; }
   .editorial-board-title { font-size: 20px; margin: 32px 0 16px; }
+  /* Designation and name stay on one line */
   .editorial-row {
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
+    justify-content: space-between;
     line-height: normal;
     padding: 12px 0;
-    gap: 6px;
-    font-size: 14px;
+    gap: 10px;
+    font-size: 13px;
   }
+  .editorial-left { gap: 10px; min-width: 0; flex: 1 1 auto; }
+  .editorial-left span { overflow-wrap: anywhere; }
+  .quill-circle { width: 28px; height: 28px; }
+  .quill-circle .material-symbols-outlined { font-size: 15px !important; }
   .editorial-line { display: none; }
-  .editorial-name { min-width: 0; width: 100%; text-align: left; padding-left: 48px; font-weight: 600; }
+  .editorial-name { min-width: 0; width: auto; text-align: right; padding-left: 0; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
 }
 
 /* ---------- SMALL PHONE (<=480px) ---------- */
 @media (max-width: 480px) {
-  .brand-lockup { width: 160px; }
+  .brand-lockup { width: 205px; }
   .hero-title, .home-hero .hero-title { font-size: 28px; }
   .hero-subtitle { font-size: 16px; }
-  .grid-bearers, .home-office-bearers-grid,
+  .grid-bearers,
   .home-gallery-grid, .gallery-grid {
     grid-template-columns: 1fr;
   }
   .bearer-photo-wrapper { max-width: 240px; }
+  /* Home strip stays three-up; only the type and gutters shrink */
+  .home-office-bearers-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .home-office-bearers-grid .bearer-photo-wrapper { max-width: 100%; }
+  .home-office-bearers-grid .bearer-name { font-size: 12px; line-height: 15px; margin-top: 8px; }
+  .home-office-bearers-grid .bearer-role { font-size: 10px; line-height: 13px; }
+  /* Contact bearer strip + editorial: shrink further on small phones, stay inline */
+  .office-bearers-mini-grid { gap: 6px; }
+  .mini-bearer-item h4 { font-size: 12px; line-height: 15px; }
+  .mini-bearer-item p { font-size: 10px; }
+  .phone-badge-orange { font-size: 11px; gap: 3px; }
+  .editorial-row { font-size: 11px; gap: 6px; }
+  .editorial-left { gap: 7px; }
+  .quill-circle { width: 24px; height: 24px; }
+  .quill-circle .material-symbols-outlined { font-size: 13px !important; }
 }

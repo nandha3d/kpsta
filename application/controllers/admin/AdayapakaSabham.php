@@ -392,21 +392,38 @@ Class AdayapakaSabham extends MY_Controller {
     public function delete() {
         $data['code'] = 'error';
         $id = $this->uri->segment(4);
-        $info = $this->adayapakaSabham_model->getById($id);
-        $delete = $this->adayapakaSabham_model->delete($id);
-        if ($delete && $info) {
-
-            if ($info['upload_type'] == "file") {
-                $this->deleteFile(ADAYAPAKA_SABHAM_FILE . '/' . $info['path']);
-            }
-
-            $this->deleteFile(ADAYAPAKA_SABHAM_IMAGE . '/' . $info['image']);
-
+        if ($this->deleteOne($id)) {
             $data['content'] = $this->getContent();
             $data['code'] = 'success';
             $data['lastId'] = $id;
         }
         echo json_encode($data);
+        exit;
+    }
+
+
+    /**
+     * Remove one row plus its file and image. Shared by the row Delete button
+     * and the "Delete Selected" toolbar action.
+     */
+    protected function deleteOne($id) {
+        $info = $this->adayapakaSabham_model->getById($id);
+        if (!$info || !$this->adayapakaSabham_model->delete($id)) {
+            return FALSE;
+        }
+        if ($info['upload_type'] == "file") {
+            $this->deleteFile(ADAYAPAKA_SABHAM_FILE . '/' . $info['path']);
+        }
+        $this->deleteFile(ADAYAPAKA_SABHAM_IMAGE . '/' . $info['image']);
+        return TRUE;
+    }
+
+    public function batchDelete() {
+        $result = $this->runBatchDelete(function ($id) {
+            return $this->deleteOne($id);
+        });
+        $result['content'] = $this->getContent();
+        echo json_encode($result);
         exit;
     }
 

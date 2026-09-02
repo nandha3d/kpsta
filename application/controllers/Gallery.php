@@ -12,11 +12,23 @@ class Gallery extends Public_Controller {
     public function index() {
         $album['limit'] = 20;
         $album['isPublish'] = TRUE;
+
+        // Every year that has albums, not just the one being viewed -- the
+        // picker is built from this.
+        $content['galleryYears'] = $this->gallery_model->getAlbumYears();
+
         $album['year'] = $this->input->get('year');
-        if (empty($album['year'])) {
-            $album['year'] = date('Y');
+        if (empty($album['year']) || !in_array((int) $album['year'], $content['galleryYears'], TRUE)) {
+            // Default to the most recent year that actually has albums. Falling
+            // back to the current year showed an empty gallery whenever nothing
+            // had been published this calendar year, with no way to reach the
+            // years that did have albums.
+            $album['year'] = !empty($content['galleryYears'])
+                ? $content['galleryYears'][0]
+                : date('Y');
         }
 
+        $content['activeYear'] = $album['year'];
         $content['albums'] = $this->gallery_model->getAllAlbum($album);
 
         $this->load->view('header');

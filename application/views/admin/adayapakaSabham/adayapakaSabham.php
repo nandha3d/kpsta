@@ -17,9 +17,6 @@
                             <a  class="btn btn-default" data-toggle="modal" data-target="#modal" data-id="new" data-title="Add order & circular">
                                 <i class="fa fa-plus"></i> <span class="hidden-xs hidden-sm">New</span>
                             </a>
-                            <div class="dropdown-toolbar btn-group">
-                                <button aria-expanded="false" data-toggle="dropdown" class="btn btn-default btn-nospin  dropdown-toggle" type="button"><i class="fa fa-caret-down"></i></button>
-                            </div>
                         </div>
 
 
@@ -64,7 +61,7 @@
                             </div>
 
                             <div class="col-xs-6 col-lg-4 va-m text-right">
-                                <a class="btn btn-sm btn-danger" href="" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected campaigns?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
+                                <a class="btn btn-sm btn-danger" href="" data-href="<?php echo base_url('admin/adayapaka_sabham/batch_delete'); ?>" data-toggle="confirmation" data-precheck="batchActionPrecheck" data-message="Delete the selected campaigns?" data-confirm-text="Delete" data-confirm-callback="executeBatchAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation">
                                     <span data-toggle="tooltip" title="" data-placement="left" data-original-title="Delete the selected items"><i class="fa fa-fw fa-trash-o"></i> <span class=""></span></span>
                                 </a>        
                             </div>
