@@ -234,21 +234,21 @@ Class Download extends MY_Controller {
             mkdir(DOWNLOAD_PATH, 0777, true);
         }
         //check if exits already . then remove the file
-        $file = FILE_UPLOAD_PATH_TEMP . $_POST['pdfName'];
-        if ($_POST['pdfName'] && is_file($file)) {
-            unlink($file);
-        }
+        $pdfName = posted_filename('pdfName');
 
-        if (is_file(DOWNLOAD_PATH . $_POST['pdfName'])) {
-            unlink(DOWNLOAD_PATH . $_POST['pdfName']);
-        }
-
-        $file = DOWNLOAD_PATH . $_POST['pdfName'];
-        if ($_POST['pdfName'] && is_file($file)) {
-            try {
+        if ($pdfName !== '') {
+            $file = FILE_UPLOAD_PATH_TEMP . $pdfName;
+            if (is_file($file)) {
                 unlink($file);
-            } catch (\Exception $exc) {
-                
+            }
+
+            $file = DOWNLOAD_PATH . $pdfName;
+            if (is_file($file)) {
+                try {
+                    unlink($file);
+                } catch (\Exception $exc) {
+
+                }
             }
         }
 

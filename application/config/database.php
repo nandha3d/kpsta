@@ -74,14 +74,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
-$is_prod = isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'animazon.in') !== false);
-$db_user = $is_prod ? 'u362580417_kpsta' : 'root';
-$db_pass = $is_prod ? 'Kpsta987' : 'admin';
-$db_name = $is_prod ? 'u362580417_kpsta' : 'kpsta';
+/*
+ | Credentials come from the environment.
+ |
+ | They used to be written here and selected by sniffing HTTP_HOST, which meant
+ | the production password lived in version control and the host header (client
+ | controlled) chose which database to open. Set these on the server instead --
+ | in cPanel under "Environment Variables", or with SetEnv in .htaccess/vhost:
+ |
+ |   DB_HOSTNAME, DB_USERNAME, DB_PASSWORD, DB_DATABASE
+ |
+ | The defaults below are local development values only.
+ */
+$db_host = getenv('DB_HOSTNAME') ?: 'localhost';
+$db_user = getenv('DB_USERNAME') ?: 'root';
+$db_pass = getenv('DB_PASSWORD') ?: 'admin';
+$db_name = getenv('DB_DATABASE') ?: 'kpsta';
 
 $db['default'] = array(
     'dsn' => '',
-    'hostname' => 'localhost',
+    'hostname' => $db_host,
     'username' => $db_user,
     'password' => $db_pass,
     'database' => $db_name,
@@ -108,7 +120,7 @@ $db['default'] = array(
 // same way the original build had both groups pointing at one schema.
 $db['membership'] = array(
     'dsn' => '',
-    'hostname' => 'localhost',
+    'hostname' => $db_host,
     'username' => $db_user,
     'password' => $db_pass,
     'database' => $db_name,

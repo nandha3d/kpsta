@@ -60,8 +60,16 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-//	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
-	define('ENVIRONMENT', 'development');
+/*
+ * Driven by the environment, defaulting to 'production'.
+ *
+ * This used to be hardcoded to 'development' here, with a second front
+ * controller (index_prod.php) carrying the production value. That file was
+ * never actually the entry point, so the deployed site ran with development
+ * error reporting. Set CI_ENV=development locally; leave it unset on the
+ * server so the safe default applies.
+ */
+	define('ENVIRONMENT', getenv('CI_ENV') ?: ($_SERVER['CI_ENV'] ?? 'production'));
 
 /*
  *---------------------------------------------------------------

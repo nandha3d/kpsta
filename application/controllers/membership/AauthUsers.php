@@ -153,7 +153,7 @@ Class AauthUsers extends Membership_Controller {
             $data['form'] = $this->createForm(base_url('membership/aauth/add'), $formValues);
         } else {
             $data['code'] = 'success';
-            $data['content'] = $this->getContent($_POST['group_id']);
+            $data['content'] = $this->getContent($this->input->post('group_id'));
             $data['lastId'] = $newUser;
         }
 
@@ -253,7 +253,7 @@ Class AauthUsers extends Membership_Controller {
         } else {
             $data['code'] = 'success';
             $data['data'] = 'Changes updated';
-            $data['content'] = $this->getContent($_POST['group_id'], $_POST['office_id']);
+            $data['content'] = $this->getContent($this->input->post('group_id'), $this->input->post('office_id'));
             $data['lastId'] = $id;
         }
 

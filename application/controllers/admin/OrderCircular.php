@@ -219,10 +219,11 @@ Class OrderCircular extends MY_Controller {
             mkdir(ORDER_CIRCULAR_PATH, 0777, true);
         }
         //check if exits already . then remove the file
-        if ($_POST['pdfName']) {
-//            $this->deleteFile(FILE_UPLOAD_PATH_TEMP . $_POST['pdfName']);
+        $pdfName = posted_filename('pdfName');
+        if ($pdfName !== '') {
+//            $this->deleteFile(FILE_UPLOAD_PATH_TEMP . $pdfName);
 
-            $this->deleteFile(ORDER_CIRCULAR_PATH . $_POST['pdfName']);
+            $this->deleteFile(ORDER_CIRCULAR_PATH . $pdfName);
         }
 
 

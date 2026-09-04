@@ -33,3 +33,6 @@ git_data/
 LocalValetDriver.php
 public/downloads/
 
+
+# local test harness
+/_router.php

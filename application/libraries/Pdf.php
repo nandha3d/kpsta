@@ -1,13 +1,37 @@
 <?php
 
-require_once dirname(__FILE__) . '/Tcpdf/tcpdf.php';
+require_once APPPATH . '../vendor/autoload.php';
 
 class Pdf extends TCPDF {
 
     public $viewName = '';
 
-    function __construct() {
-        parent::__construct();
+    /**
+     * Declared explicitly: PHP 8.2 deprecates creating properties dynamically,
+     * and Footer() assigns to this.
+     *
+     * @var CI_Controller|null
+     */
+    public $CI = NULL;
+
+    /**
+     * Forward the page setup through to TCPDF.
+     *
+     * The previous version accepted no arguments, so the format/orientation
+     * passed by callers was silently dropped and TCPDF's defaults were used.
+     * The defaults happened to match what callers passed, but the arguments
+     * are honoured now so they behave as written.
+     */
+    public function __construct(
+        $orientation = 'P',
+        $unit = 'mm',
+        $format = 'A4',
+        $unicode = TRUE,
+        $encoding = 'UTF-8',
+        $diskcache = FALSE,
+        $pdfa = FALSE
+    ) {
+        parent::__construct($orientation, $unit, $format, $unicode, $encoding, $diskcache, $pdfa);
     }
 
     public function Header() {

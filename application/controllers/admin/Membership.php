@@ -287,17 +287,19 @@ Class Membership extends MY_Controller {
             mkdir(MEMBERSHIP_PATH, 0777, true);
         }
         //check if exits already . then remove the file
-        $file = FILE_UPLOAD_PATH_TEMP . $_POST['pdfName'];
-        if ($_POST['pdfName'] && is_file($file)) {
+        $pdfName = posted_filename('pdfName');
+
+        $file = FILE_UPLOAD_PATH_TEMP . $pdfName;
+        if ($pdfName !== '' && is_file($file)) {
             unlink($file);
         }
 
-        if (is_file(MEMBERSHIP_PATH . $_POST['pdfName'])) {
-            unlink(MEMBERSHIP_PATH . $_POST['pdfName']);
+        if ($pdfName !== '' && is_file(MEMBERSHIP_PATH . $pdfName)) {
+            unlink(MEMBERSHIP_PATH . $pdfName);
         }
 
-        $file = MEMBERSHIP_PATH . $_POST['pdfName'];
-        if ($_POST['pdfName'] && is_file($file)) {
+        $file = MEMBERSHIP_PATH . $pdfName;
+        if ($pdfName !== '' && is_file($file)) {
             try {
                 unlink($file);
             } catch (\Exception $exc) {
