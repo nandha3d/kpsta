@@ -9,19 +9,23 @@ what to check before it goes live, and what was deliberately left alone.
 
 ## 1. TL;DR
 
-Two things happened, as two commits on this branch:
+Four commits on this branch:
 
 | Commit | What |
 |---|---|
 | `Make the CodeIgniter 3 app run on PHP 8` | The CI3 app, fixed to run on PHP 8.2+. Kept as a working fallback in history. |
 | `Migrate the application from CodeIgniter 3 to CodeIgniter 4` | The CI4 migration. `application/` and `system/` are gone. |
+| `Add developer handover README...` | This file, plus removal of stale CI3 files. |
+| `Replace the cp-based deploy...` | `deploy.sh`, because the old deploy cannot ship a CI4 site. |
 
 The first commit is a complete, deployable state on its own. If CI4 needs more
 soak time than you have, you can ship that commit and keep the site on CI3
 while it runs on a supported PHP.
 
-**Before you deploy this branch, read [§6 Deployment](#6-deployment). The current
-`.cpanel.yml` will not deploy a working CI4 site.**
+**Two things need you before this goes live:** rotate the credentials in
+[§7](#7-security-actions-you-still-need-to-take) — they are still in git history
+— and verify against a real database copy, [§8](#8-what-to-check-before-this-goes-live).
+Deployment itself is now handled by `deploy.sh`; see [§6](#6-deployment).
 
 ---
 
@@ -46,6 +50,13 @@ while it runs on a supported PHP.
 - **224** CI3 routes became **349** explicit CI4 routes.
 - Config moved to `.env`. `env.example` is the template.
 - Aauth ported into `app/Libraries/Aauth.php` (see [§5](#5-authentication-aauth)).
+
+### Deployment (fourth commit)
+
+- `deploy.sh` replaces `cp * $DEPLOYPATH`, which cannot ship a CI4 site and
+  whose obvious fixes would either publish `.git` under the document root or
+  delete `uploads/`. See [§6](#6-deployment).
+- `.htaccess` additionally denies `.git`, `.env` and the dependency manifests.
 
 ---
 
@@ -189,56 +200,68 @@ Config lives in `app/Config/Ci3/aauth.php` (CI3 format, read through the
 
 ## 6. Deployment
 
-### This is the blocker — read it
+Deployment is handled by **`deploy.sh`**, invoked from `.cpanel.yml`. Run it by
+hand or from any CI with `DEPLOYPATH` set:
 
-Under CI3, `system/` was **committed**, so `cp * $DEPLOYPATH` shipped the
-framework with the app. **Under CI4 the framework lives in `vendor/`, which is
-gitignored and untracked.** Deploy this branch with the current `.cpanel.yml`
-and the server gets an application with no framework — a dead site.
-
-Two more problems on the same line:
-
-- `cp *` (a glob) **does not match dotfiles**, so `.htaccess` and `.env` never transfer.
-- `cp` without `-r` **does not copy directories at all**, so `app/` would not land either.
-
-I left `.cpanel.yml` untouched, because the right fix depends on infrastructure
-I can't see from here — specifically whether that host gives you SSH/Composer or
-only cPanel's Git deploy. Pick the one that matches:
-
-**If you have SSH / Composer on the host:**
-
-```yaml
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home1/credaqwv/public_html/kpsta/kpsta.in
-    - /bin/cp -r . $DEPLOYPATH          # -r, and '.' so dotfiles come too
-    - cd $DEPLOYPATH && composer install --no-dev --optimize-autoloader
+```bash
+DEPLOYPATH=/home1/credaqwv/public_html/kpsta/kpsta.in ./deploy.sh
 ```
 
-**If you only have cPanel Git deploy and no Composer**: run
-`composer install --no-dev --optimize-autoloader` locally and upload `vendor/`
-once by hand (re-upload whenever `composer.lock` changes). Do **not** commit
-`vendor/` — it is ~15 MB of third-party code and makes every future diff noisy.
+### Why the old one-liner had to go
 
-### Either way
+The previous task was `cp * $DEPLOYPATH`. That worked under CI3, where the
+framework was committed under `system/`. It cannot work now, and the obvious
+fixes are worse:
 
-- Create `.env` on the server, once, by hand. It holds the credentials, which is
-  why it is gitignored. Set `CI_ENVIRONMENT = production`.
-- `writable/` must exist and be writable by the web user (cache, logs, sessions).
-- `.htaccess` must be present — it denies direct HTTP access to `app/`,
-  `writable/`, `vendor/` and `tests/`.
+| Problem | Consequence |
+|---|---|
+| **CI4 lives in `vendor/`, which is gitignored and untracked** | The server gets an application with no framework — a dead site. |
+| `cp` without `-r` does not recurse | `app/`, `public/`, `css/` never transfer. |
+| `cp *` is a glob, so it skips dotfiles | `.htaccess` and `.env` never transfer. |
+| "Just use `cp -r .`" | **Publishes `.git` under the document root** — ~98MB whose history contains the credentials listed in §7. Full repository disclosure. |
+| Any `rsync --delete` variant | **Destroys `uploads/`**, which is user data that exists only on the server. |
+
+### What `deploy.sh` guarantees
+
+- **Never copies** `.git`, `.env`, `node_modules`, `tests/`, the Playwright
+  config, `_router.php`, or itself.
+- **Never deletes anything** at the destination, so `uploads/`, the server's
+  `.env` and live sessions survive every deploy.
+- Runs `composer install --no-dev --optimize-autoloader` if Composer is on the
+  host. If it is not, and `vendor/` is missing, it **fails loudly** rather than
+  leaving a frameworkless site. If `vendor/` is already there it warns that
+  dependencies were not refreshed.
+- Creates `writable/` subdirectories and warns if `.env` is absent.
+
+It prefers `rsync` and falls back to `tar` when rsync is unavailable, so it
+works on a bare shared host.
+
+**If the host has no Composer at all**, build locally with
+`composer install --no-dev --optimize-autoloader` and upload `vendor/` once by
+hand, repeating whenever `composer.lock` changes. Do **not** commit `vendor/` —
+it is third-party code and would make every future diff unreadable.
+
+### One-time server setup
+
+- Create `.env` on the server by hand from `env.example`, with the real
+  credentials and `CI_ENVIRONMENT = production`. It is gitignored and
+  `deploy.sh` never overwrites it.
+- Ensure `writable/` is writable by the web user.
+- **If an earlier deploy already left `.git` in the document root, delete it**,
+  then rotate the credentials in §7. `.htaccess` now blocks `.git`, `.env` and
+  the dependency manifests as a second line of defence, but a rewrite rule is
+  not a substitute for the files not being there.
 
 ### About the document root
 
 The front controller is at the **project root**, not in `public/`, because that
-is how the host serves this site and how the deploy copies the tree.
+is how the host serves this site.
 
 CodeIgniter's preferred arrangement points the document root at `public/` so
-that `app/`, `writable/` and `vendor/` are not reachable over HTTP at all. The
-`.htaccess` denies are equivalent protection *as long as `.htaccess` is being
-honoured*. If the host lets you move the document root, that is the better
-configuration — it fails safe instead of relying on a rewrite rule.
+`app/`, `writable/` and `vendor/` are unreachable over HTTP by construction. The
+`.htaccess` denies are equivalent protection *only while `.htaccess` is being
+honoured*. If the host lets you move the document root, do it — that fails safe
+instead of relying on a rewrite rule.
 
 ---
 

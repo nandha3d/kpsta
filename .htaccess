@@ -1,14 +1,29 @@
 DirectoryIndex index.php index.html
 
-# Legacy public download path, kept so existing links keep resolving.
 RewriteEngine on
+
+# Legacy public download path, kept so existing links keep resolving.
 RewriteRule ^public/downloads/(.*)$ uploads/download/$1 [L,NC]
 
-# The application, framework internals and writable state must never be served
-# directly. The preferred fix is to point the document root at public/; these
-# denies are the equivalent protection while the root stays where it is.
+# Never serve the application, framework internals or writable state directly.
 RewriteRule ^(app|writable|vendor|tests)/ - [F,L]
 
+# Never serve VCS metadata, environment files or dependency manifests.
+#
+# deploy.sh excludes these, but an earlier `cp`-style deploy may already have
+# left them in the document root, and .git there would disclose the whole
+# repository -- including credentials committed before they were moved to the
+# environment. Belt and braces.
+RewriteRule (^|/)\.git - [F,L]
+RewriteRule (^|/)\.env - [F,L]
+RewriteRule ^(composer\.(json|lock|phar)|package(-lock)?\.json|deploy\.sh|\.cpanel\.yml|playwright\.config\.js|spark)$ - [F,L]
+
+# Apache 2.4 also blocks dotfile access outright where AllowOverride permits it.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Front controller.
 RewriteCond $1 !^(index\.php|robots\.txt|uploads|public|css|js)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

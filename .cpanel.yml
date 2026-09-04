@@ -1,5 +1,17 @@
 ---
+# cPanel Git deployment.
+#
+# The heavy lifting is in deploy.sh so the same steps can be run by hand or from
+# any other CI, and so the exclusions live somewhere reviewable.
+#
+# This deliberately no longer uses `cp * $DEPLOYPATH`. That worked under
+# CodeIgniter 3, where the framework was committed under system/, but it would
+# now ship an application with no framework (CI4 lives in the untracked
+# vendor/), it silently skipped every directory and dotfile because plain `cp`
+# does not recurse and `*` does not match dotfiles, and switching it to
+# `cp -r .` would publish .git -- roughly 98MB including credentials that were
+# committed before they were moved to the environment -- under the document root.
 deployment:
- tasks:
- - export DEPLOYPATH=/home1/credaqwv/public_html/kpsta/kpsta.in
- - /bin/cp * $DEPLOYPATH 
+  tasks:
+    - export DEPLOYPATH=/home1/credaqwv/public_html/kpsta/kpsta.in
+    - /bin/bash deploy.sh
