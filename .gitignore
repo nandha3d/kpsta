@@ -36,3 +36,16 @@ public/downloads/
 
 # local test harness
 /_router.php
+.env
+
+# CodeIgniter 4 writable state (directories are kept, contents are not)
+/writable/cache/*
+!/writable/cache/index.html
+/writable/logs/*
+!/writable/logs/index.html
+/writable/session/*
+!/writable/session/index.html
+/writable/uploads/*
+!/writable/uploads/index.html
+/writable/debugbar/*
+!/writable/debugbar/index.html

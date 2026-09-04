@@ -1,9 +1,15 @@
 DirectoryIndex index.php index.html
 
+# Legacy public download path, kept so existing links keep resolving.
 RewriteEngine on
 RewriteRule ^public/downloads/(.*)$ uploads/download/$1 [L,NC]
-RewriteCond $1 !^(index\.php|resources|robots\.txt|uploads|public)
+
+# The application, framework internals and writable state must never be served
+# directly. The preferred fix is to point the document root at public/; these
+# denies are the equivalent protection while the root stays where it is.
+RewriteRule ^(app|writable|vendor|tests)/ - [F,L]
+
+RewriteCond $1 !^(index\.php|robots\.txt|uploads|public|css|js)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?/$1 [L,QSA]
- 
