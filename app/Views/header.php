@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KPSTA - Kerala Pradesh School Teachers' Association | Home</title>
   <meta name="description" content="Official website of Kerala Pradesh School Teachers' Association (KPSTA), the largest school teachers association in Kerala united for quality education.">
-  <link rel="icon" href="<?php echo base_url('public/Page References/logo.png'); ?>" type="image/png">
-  <link rel="shortcut icon" href="<?php echo base_url('public/Page References/logo.png'); ?>" type="image/png">
+  <link rel="icon" href="<?php echo base_url('public/images/logo.png'); ?>" type="image/png">
+  <link rel="shortcut icon" href="<?php echo base_url('public/images/logo.png'); ?>" type="image/png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0" />
-  <link rel="stylesheet" href="<?php echo base_url('public/css/styles.css?v=4.4'); ?>">
+  <link rel="stylesheet" href="<?php echo base_url('public/css/styles.css?v=4.5'); ?>">
   <?php if (!empty($heading_bg_image)): ?>
   <style>
     /* The hero artwork is reused, heavily washed out, behind the welcome card and footer */
