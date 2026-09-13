@@ -42,7 +42,8 @@ class Download extends PublicController {
         $param['category'] = $this->input->get('category');
 
         $content['selectedCategory'] = $param['category'];
-        $content['selectedCategoryName'] = $this->Download_model->getCategoryById($param['category']);
+        $catRow = !empty($param['category']) ? $this->Download_model->getCategoryById($param['category']) : null;
+        $content['selectedCategoryName'] = is_array($catRow) ? ($catRow['name'] ?? '') : (is_string($catRow) ? $catRow : '');
         $content['categories'] = $this->Download_model->getFormsCategory($param);
         $content['urlString'] = base_url($this->uri->uri_string());
 
@@ -91,43 +92,47 @@ class Download extends PublicController {
         $param['type'] = $segment['type'];
         $content['categories'] = $this->Download_model->getFormsCategory($param);
 
-        if (empty($param['category']) && !empty($content['categories'])) {
-            $param['category'] = $content['categories'][0]['id'];
-        }
-
-        $config["total_rows"] = $this->Download_model->getAllCount($param, TRUE);
-        if ($param['category'] > 0) {
+        // If no category is selected, do not auto-select first category; show category hub first
+        if (!empty($param['category'])) {
+            $config["total_rows"] = $this->Download_model->getAllCount($param, TRUE);
             $config['suffix'] = '&category=' . $param['category'];
             $config['first_url'] = '?category=' . $param['category'];
-        }
-        $config["base_url"] = base_url() . $segment['baseUrl'];
-        $config["per_page"] = $param['limit'];
+            $config["base_url"] = base_url() . $segment['baseUrl'];
+            $config["per_page"] = $param['limit'];
 
-        if ($config["total_rows"] <= $param['offset']) {
-            $param['offset'] = 0;
-        }
-        $configBootrap = $this->BootsrapPaginationConfig();
-        $config = array_merge($config, $configBootrap);
-        $this->load->library("pagination");
-        $this->pagination->initialize($config);
-        $content["links"] = $this->pagination->create_links();
-
-        $content['selectedCategory'] = $param['category'];
-        $content['selectedCategoryName'] = $this->Download_model->getCategoryById($param['category']);
-        $content['search'] = $param['search'];
-
-        $content['urlString'] = base_url($this->uri->uri_string());
-        $content['base_url'] = $config["base_url"] ;
-
-        $forms = $this->Download_model->getAll($param, TRUE);
-        $content['forms'] = array();
-        try {
-            foreach ($forms as $form) {
-                $content['forms'][$form['category']][] = $form;
+            if ($config["total_rows"] <= $param['offset']) {
+                $param['offset'] = 0;
             }
-        } catch (\Exception $exc) {
-            
+            $configBootrap = $this->BootsrapPaginationConfig();
+            $config = array_merge($config, $configBootrap);
+            $this->load->library("pagination");
+            $this->pagination->initialize($config);
+            $content["links"] = $this->pagination->create_links();
+
+            $content['selectedCategory'] = $param['category'];
+            $catRow = !empty($param['category']) ? $this->Download_model->getCategoryById($param['category']) : null;
+            $content['selectedCategoryName'] = is_array($catRow) ? ($catRow['name'] ?? '') : (is_string($catRow) ? $catRow : '');
+
+            $forms = $this->Download_model->getAll($param, TRUE);
+            $content['forms'] = array();
+            try {
+                foreach ($forms as $form) {
+                    $content['forms'][$form['category']][] = $form;
+                }
+            } catch (\Exception $exc) {
+                
+            }
+        } else {
+            $content['selectedCategory'] = null;
+            $content['selectedCategoryName'] = null;
+            $content['forms'] = array();
+            $content['links'] = '';
+            $config["base_url"] = base_url() . $segment['baseUrl'];
         }
+
+        $content['search'] = $param['search'];
+        $content['urlString'] = base_url($this->uri->uri_string());
+        $content['base_url'] = $config["base_url"];
 
 
 

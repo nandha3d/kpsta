@@ -48,7 +48,8 @@ class OrderCircular extends PublicController {
         $content["links"] = $this->pagination->create_links();
 
         $content['selectedCategory'] = $param['category'];
-        $content['selectedCategoryName'] = $this->OrderCircular_model->getCategoryById($param['category']);
+        $catRow = !empty($param['category']) ? $this->OrderCircular_model->getCategoryById($param['category']) : null;
+        $content['selectedCategoryName'] = is_array($catRow) ? ($catRow['name'] ?? '') : (is_string($catRow) ? $catRow : '');
         $content['search'] = $param['search'];
 
         $content['urlString'] = base_url($this->uri->uri_string());
@@ -89,7 +90,7 @@ class OrderCircular extends PublicController {
 
             default:
                 $data['type'] = 1;
-                $data['contentTitle'] = 'General';
+                $data['contentTitle'] = '';
                 break;
         }
         return $data;

@@ -46,7 +46,7 @@ if (!isset($page_title) || $page_title === '') {
             // Applied before first paint so a collapsed sidebar does not flash open.
             (function () {
                 try {
-                    if (localStorage.getItem('kpstaSidebarCollapsed') === '1' && window.innerWidth > 768) {
+                    if (localStorage.getItem('kpstaSidebarCollapsed') === '1' && window.innerWidth > 991) {
                         document.documentElement.className += ' pre-collapsed';
                     }
                 } catch (e) {}

@@ -21,6 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     tabButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTab = btn.getAttribute('data-tab');
+        const placeholderMsg = document.getElementById('tab-placeholder-msg');
+        if (placeholderMsg) {
+          placeholderMsg.style.display = 'none';
+        }
         
         tabButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');

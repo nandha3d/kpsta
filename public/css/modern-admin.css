@@ -836,7 +836,8 @@ select.form-control { cursor: pointer; appearance: auto; height: 44px !important
 }
 /* The admin forms wrap header/body/footer in a <form>, so the flex chain has to
    pass through it or the body never shrinks and the dialog runs off-screen. */
-.modal-content > form {
+.modal-content > form,
+.modal-content-form > form {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 1 auto !important;
@@ -870,6 +871,7 @@ select.form-control { cursor: pointer; appearance: auto; height: 44px !important
   /* Tall forms scroll inside the dialog instead of running off-screen */
   flex: 1 1 auto !important;
   overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
   min-height: 0 !important;
 }
 .modal-footer {
@@ -882,6 +884,102 @@ select.form-control { cursor: pointer; appearance: auto; height: 44px !important
 }
 .modal-footer .btn { margin: 0 !important; }
 .modal-backdrop.in { opacity: 0.6 !important; background: #0f172a !important; }
+
+/* Tablet Modal Adaptations */
+@media (min-width: 769px) and (max-width: 991px) {
+  .modal-dialog {
+    margin: 20px auto !important;
+    width: 92% !important;
+    max-width: 700px !important;
+  }
+  .modal-content {
+    max-height: calc(100vh - 40px) !important;
+  }
+}
+
+/* Mobile Full-Screen Touch Sheet Modal */
+@media (max-width: 768px) {
+  .modal {
+    padding: 0 !important;
+    overflow-y: hidden !important;
+  }
+  .modal-dialog {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    padding: 0 !important;
+  }
+  .modal-content {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    max-height: 100% !important;
+  }
+  .modal-header {
+    padding: 16px 18px !important;
+    background: #ffffff !important;
+    border-bottom: 1.5px solid var(--border) !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1060 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  .modal-header .modal-title {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+  }
+  .modal-header .close {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #f1f5f9 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    opacity: 0.8 !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+  .modal-body {
+    padding: 20px 18px 28px !important;
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    min-height: 0 !important;
+  }
+  .modal-footer {
+    padding: 12px 18px !important;
+    background: #ffffff !important;
+    border-top: 1.5px solid var(--border) !important;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.06) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 1060 !important;
+  }
+  .modal-footer .btn {
+    flex: 1 1 50% !important;
+    min-height: 48px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+  }
+}
 
 /* Alerts */
 .alert {
@@ -939,6 +1037,82 @@ select.form-control { cursor: pointer; appearance: auto; height: 44px !important
 
 /* Toolbar */
 .std-toolbar { display: inline-flex; }
+
+/* ---- Highlighted Primary "New" / "Add" Buttons in Toolbar ---- */
+.std-toolbar [data-id="new"],
+.toolbar [data-id="new"],
+.toolbar a[data-target="#modal"][data-id="new"],
+.toolbar a.btn-default[data-toggle="modal"] {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  padding: 8px 16px !important;
+  border-radius: var(--r) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  box-shadow: 0 2px 8px var(--primary-glow) !important;
+  transition: all 0.2s ease !important;
+}
+.std-toolbar [data-id="new"]:hover,
+.toolbar [data-id="new"]:hover,
+.toolbar a.btn-default[data-toggle="modal"]:hover {
+  background: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--primary-glow) !important;
+}
+.std-toolbar [data-id="new"] i,
+.toolbar [data-id="new"] i,
+.toolbar a.btn-default[data-toggle="modal"] i {
+  color: #ffffff !important;
+  font-size: 13px !important;
+}
+/* Ensure the word "New" or text is NEVER hidden on mobile or tablet */
+.std-toolbar [data-id="new"] .hidden-xs,
+.std-toolbar [data-id="new"] .hidden-sm,
+.toolbar [data-id="new"] .hidden-xs,
+.toolbar [data-id="new"] .hidden-sm {
+  display: inline !important;
+  font-weight: 700 !important;
+}
+
+/* Floating Action Button (FAB) for Mobile Quick Content Add */
+.mobile-fab-add {
+  display: none;
+}
+@media (max-width: 768px) {
+  .mobile-fab-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: 22px;
+    right: 18px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 6px 22px var(--primary-glow);
+    z-index: 950;
+    cursor: pointer;
+    font-size: 22px;
+    transition: transform 0.18s ease, background 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-fab-add:active {
+    transform: scale(0.92);
+    background: var(--primary-hover);
+  }
+  body.modal-open .mobile-fab-add {
+    display: none !important;
+  }
+}
 
 /* File input fixing native overlapping */
 .btn-file {
@@ -1003,7 +1177,7 @@ input[type="radio"] {
 /* ---- Desktop: collapsed icon rail ----
    The sidebar keeps its icons so navigation stays usable while collapsed,
    and expands back on hover. */
-@media (min-width: 769px) {
+@media (min-width: 992px) {
   .modern-wrapper.sidebar-collapsed .modern-sidebar { width: var(--sidebar-rail-w); }
   .modern-wrapper.sidebar-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
 
@@ -1050,9 +1224,9 @@ html.pre-collapsed .modern-sidebar { width: var(--sidebar-rail-w); }
 html.pre-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
 
 /* =========================================================================
-   RESPONSIVE
+   RESPONSIVE (Mobile & Tablet)
    ========================================================================= */
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .modern-sidebar {
     transform: translateX(-100%);
     width: var(--sidebar-w);
@@ -1073,6 +1247,222 @@ html.pre-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
   .modern-user-menu a span { display: none; }
   .modern-user-menu a { padding: 8px 10px; }
   .modern-user-chip { max-width: 110px; margin-left: 4px; padding: 6px 10px; }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    margin: 0 0 16px 0 !important;
+    padding: 0 !important;
+  }
+  .page-header .box-layout {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+  }
+  .page-header .box-layout > [class*="col-"] {
+    width: auto !important;
+    flex: 0 1 auto !important;
+  }
+  .page-header .box-layout > [class*="col-"]:first-child {
+    flex: 1 1 auto !important;
+    min-width: 0;
+  }
+  .page-header h3 {
+    font-size: 18px !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page-header .toolbar {
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .page-header .std-toolbar [data-id="new"] {
+    padding: 8px 14px !important;
+    font-size: 13.5px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Form controls touch optimization */
+  .form-group {
+    margin-bottom: 18px !important;
+  }
+  .form-group label,
+  .control-label {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    margin-bottom: 6px !important;
+  }
+  .form-control,
+  input.form-control,
+  select.form-control {
+    min-height: 46px !important;
+    font-size: 16px !important; /* Prevents auto-zoom in mobile Safari */
+    padding: 10px 14px !important;
+    border-radius: 8px !important;
+  }
+  .input-group-addon {
+    min-height: 46px !important;
+    padding: 10px 14px !important;
+    font-size: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .input-group.date {
+    display: flex !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+  .input-group.date .form-control {
+    flex: 1 1 auto !important;
+  }
+
+  /* Segmented buttons (Upload type / Published / Status) */
+  .btn-group[data-toggle="buttons"],
+  .upload-type-toggle {
+    display: flex !important;
+    width: 100% !important;
+    margin: 4px 0 10px !important;
+    border-radius: 8px !important;
+  }
+  .btn-group[data-toggle="buttons"] .btn,
+  .upload-type-toggle .btn {
+    flex: 1 1 50% !important;
+    min-height: 46px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 10px 14px !important;
+  }
+
+  /* File upload button & caption */
+  .file-caption-main {
+    display: flex !important;
+    width: 100% !important;
+    min-height: 46px !important;
+  }
+  .file-caption-main > .file-caption {
+    min-height: 46px !important;
+    padding: 10px 12px !important;
+    font-size: 14px !important;
+    flex: 1 1 auto !important;
+  }
+  .file-caption-main > .input-group-btn > .btn-file {
+    min-height: 46px !important;
+    padding: 10px 18px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  /* Select2 Mobile Friendly */
+  .select2-container .select2-selection--single,
+  .select2-container .select2-selection--multiple {
+    min-height: 46px !important;
+    border-radius: 8px !important;
+    font-size: 15px !important;
+    padding: 4px 8px !important;
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    padding: 4px 10px !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
+    margin-top: 4px !important;
+  }
+  .select2-dropdown {
+    z-index: 1080 !important;
+    font-size: 15px !important;
+    border-radius: 10px !important;
+  }
+  .select2-results__option {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+
+  /* Datepicker popup inside modals */
+  .datepicker.dropdown-menu {
+    z-index: 1090 !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.18) !important;
+    border: 1px solid var(--border) !important;
+  }
+  .datepicker table tr td,
+  .datepicker table tr th {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+  }
+  .datepicker table tr td.active,
+  .datepicker table tr td.active:hover {
+    background-color: var(--primary) !important;
+    background-image: none !important;
+  }
+
+  /* Table action buttons & touch - icon only, no text bleed */
+  .table .modern-actions .btn,
+  .table .btn-edit,
+  .table .btn-delete,
+  .table .btn-view {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    margin-right: 6px !important;
+    font-size: 0 !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+  .table .modern-actions .btn i,
+  .table .btn-edit i,
+  .table .btn-delete i,
+  .table .btn-view i {
+    font-size: 14px !important;
+    margin: 0 !important;
+  }
+  .table td, .table th {
+    padding: 12px 14px !important;
+  }
+
+  /* Delete confirmation dialog */
+  #delete .modal-dialog {
+    margin: 24px auto !important;
+    width: 92% !important;
+    max-width: 380px !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+  #delete .modal-content {
+    min-height: auto !important;
+    height: auto !important;
+    border-radius: var(--r-xl) !important;
+  }
+  #delete .modal-body {
+    padding: 24px !important;
+    display: flex !important;
+    gap: 12px !important;
+  }
+  #delete .modal-body .btn {
+    flex: 1 !important;
+    min-height: 46px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1318,12 +1708,9 @@ html.pre-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
   .box-header .input-group { width: 100%; }
 }
 
-/* ---- wide data tables ---------------------------------------------------
-   Admin list tables are far wider than a phone viewport (the circulars table
-   is ~2266px). Let them scroll inside the panel instead of forcing the whole
-   page to scroll sideways. */
-/* The content column is a flex item, so its default `min-width: auto` let it
-   grow to the widest table (2266px) instead of clamping it. */
+/* ---- Mobile App Table Card Model (Single Reusable Model) ----------------
+   Eliminate sideways scrolling completely. Tables transform into responsive,
+   touch-friendly mobile cards with clear typography, badges, and action bars. */
 .modern-main-content {
   min-width: 0;
   max-width: 100%;
@@ -1337,8 +1724,16 @@ html.pre-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
 .box-body .table-responsive,
 #table-content {
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .box-body > .table,
+  .box-body > form > .table,
+  .box-body .table-responsive,
+  #table-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media (max-width: 767px) {
@@ -1355,6 +1750,176 @@ html.pre-collapsed .modern-main-content { margin-left: var(--sidebar-rail-w); }
   .box-header .form-inline .form-group { min-width: 0; }
 
   .page-header .box-layout > [class*="col-"]:last-child { margin-left: 0; }
+
+  /* Table container - zero sideways scroll */
+  .box-body > .table,
+  .box-body > form > .table,
+  .box-body .table-responsive,
+  #table-content {
+    overflow-x: visible !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* Table structure */
+  .box-body table.table,
+  #table-content table.table,
+  .table-responsive table.table {
+    display: block !important;
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide traditional column header row */
+  .box-body table.table > thead,
+  #table-content table.table > thead,
+  .table-responsive table.table > thead {
+    display: none !important;
+  }
+
+  /* Rows list */
+  .box-body table.table > tbody,
+  #table-content table.table > tbody,
+  .table-responsive table.table > tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  /* Each row is a mobile card */
+  .box-body table.table > tbody > tr,
+  #table-content table.table > tbody > tr,
+  .table-responsive table.table > tbody > tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--border, #e8e8ed) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    padding: 14px 16px !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    gap: 6px 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Reset all cell defaults inside mobile card */
+  .box-body table.table > tbody > tr > td,
+  #table-content table.table > tbody > tr > td,
+  .table-responsive table.table > tbody > tr > td {
+    display: flex !important;
+    align-items: center !important;
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    min-height: 0 !important;
+  }
+
+  /* Checkbox / ID / Position */
+  .table td.td-select,
+  .table td:has(input[type="checkbox"]),
+  .table td.col-md-1:first-child,
+  .table td:first-child:has(.text-center) {
+    order: 1 !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    margin-right: 4px !important;
+  }
+  .table td input[type="checkbox"].list-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+  }
+
+  /* Date */
+  .table td.td-date,
+  .table td:nth-child(2) {
+    order: 2 !important;
+    flex: 0 0 auto !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: var(--text-muted, #71717a) !important;
+  }
+
+  /* Badges & Upload Types (PDF, URL, Category tags) */
+  .table td.td-badge,
+  .table td:has(.btn-xs),
+  .table td:has(.label) {
+    order: 3 !important;
+    flex: 0 0 auto !important;
+    gap: 4px !important;
+  }
+  .table td .btn-xs,
+  .table td .label {
+    font-size: 11px !important;
+    padding: 2px 8px !important;
+    border-radius: 4px !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+  }
+
+  /* Publish toggle switch - right aligned in header row */
+  .table td.td-publish,
+  .table td:has(.btn-group.publish) {
+    order: 4 !important;
+    margin-left: auto !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Title / Description - full width prominent text */
+  .table td.td-title,
+  .table td.text-ellipsis {
+    order: 10 !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    font-size: 14.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.45 !important;
+    color: var(--text-dark, #1e1e2d) !important;
+    margin: 4px 0 6px 0 !important;
+    word-break: break-word !important;
+  }
+
+  /* Secondary metadata */
+  .table td.td-meta {
+    order: 12 !important;
+    flex: 1 1 100% !important;
+    font-size: 12px !important;
+    color: var(--text-muted, #a1a5b7) !important;
+    word-break: break-all !important;
+  }
+
+  /* Action buttons row */
+  .table td.td-actions,
+  .table td:has(.modern-actions),
+  .table td:has(.btn-edit),
+  .table td:last-child {
+    order: 20 !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    border-top: 1px dashed #f0f0f4 !important;
+    padding-top: 10px !important;
+    margin-top: 4px !important;
+  }
+
+  .table .modern-actions {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+  }
 }
 
 /* ------------------------------------------------------------------ *

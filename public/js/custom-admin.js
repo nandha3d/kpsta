@@ -1,6 +1,6 @@
 (function ($) {
     var SIDEBAR_KEY = 'kpstaSidebarCollapsed';
-    var MOBILE_MAX = 768;
+    var MOBILE_MAX = 991;
 
     var $wrapper = $('#modernWrapper');
     var $backdrop = $('#sidebarBackdrop');
@@ -487,3 +487,60 @@ $('body').on('click', '.fileinput-remove-button', function () {
     $fileInput.find('.file-caption-name').html('').attr('title', '');
     $fileInput.addClass('file-input-new');
 });
+
+/* ------------------------------------------------------------------ *
+ * Mobile Quick Action: Floating Action Button (FAB)
+ * Whenever a page provides a [data-id="new"] action, inject a FAB
+ * so mobile users can tap "+" anytime with ease.
+ * ------------------------------------------------------------------ */
+$(function () {
+    var $newBtn = $('[data-id="new"]').first();
+    if ($newBtn.length && !$('#mobileFabAdd').length) {
+        var newTitle = $newBtn.data('title-new') || $newBtn.attr('title') || 'Add New';
+        var $fab = $('<button type="button" id="mobileFabAdd" class="mobile-fab-add" title="' + newTitle + '" aria-label="' + newTitle + '"><i class="fa fa-plus"></i></button>');
+        $('body').append($fab);
+        $fab.on('click', function (e) {
+            e.preventDefault();
+            $newBtn.trigger('click');
+        });
+    }
+});
+
+/* ------------------------------------------------------------------ *
+ * Mobile Table Card Enhancer (Single Reusable Model)
+ * Dynamically tags table cells with semantic roles for responsive card layout
+ * ------------------------------------------------------------------ */
+function enhanceMobileTables() {
+    $('table.table').each(function() {
+        var $table = $(this);
+        var headers = [];
+        $table.find('thead th').each(function() {
+            headers.push($.trim($(this).text()).toLowerCase());
+        });
+        $table.find('tbody tr').each(function() {
+            var $tr = $(this);
+            $tr.children('td').each(function(idx) {
+                var $td = $(this);
+                var h = headers[idx] || '';
+                if ($td.find('input[type="checkbox"]').length) {
+                    $td.addClass('td-select');
+                } else if ($td.find('.btn-group.publish').length || h === 'publish') {
+                    $td.addClass('td-publish');
+                } else if ($td.find('.modern-actions, .btn-edit, .btn-delete, .btn-view').length || h === 'action') {
+                    $td.addClass('td-actions');
+                } else if (h.indexOf('date') !== -1) {
+                    $td.addClass('td-date');
+                } else if ($td.hasClass('text-ellipsis') || h.indexOf('description') !== -1 || h.indexOf('heading') !== -1 || h.indexOf('title') !== -1) {
+                    $td.addClass('td-title');
+                } else if ($td.find('.btn-xs, .label').length || h.indexOf('type') !== -1 || h.indexOf('category') !== -1) {
+                    $td.addClass('td-badge');
+                } else if (h.indexOf('url') !== -1 || h.indexOf('path') !== -1) {
+                    $td.addClass('td-meta');
+                }
+            });
+        });
+    });
+}
+$(document).ready(enhanceMobileTables);
+$(document).ajaxComplete(enhanceMobileTables);
+

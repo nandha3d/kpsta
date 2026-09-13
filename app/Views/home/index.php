@@ -37,8 +37,8 @@
     <div class="container hero-content">
       <div class="hero-flag">
         <picture>
-          <source srcset="<?php echo base_url('public/images/flag.webp'); ?>" type="image/webp">
-          <img src="<?php echo base_url('public/images/flag.png'); ?>" alt="KPSTA Flag" style="margin: 0 auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));">
+          <source srcset="<?php echo base_url('public/images/flag.webp?v=' . (file_exists(FCPATH . 'public/images/flag.webp') ? filemtime(FCPATH . 'public/images/flag.webp') : time())); ?>" type="image/webp">
+          <img src="<?php echo base_url('public/images/flag.png?v=' . (file_exists(FCPATH . 'public/images/flag.png') ? filemtime(FCPATH . 'public/images/flag.png') : time())); ?>" alt="KPSTA Flag" style="margin: 0 auto; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.4));">
         </picture>
       </div>
       <h1 class="hero-title">KPSTA</h1>
@@ -145,7 +145,7 @@
               <div class="action-icon"><span class="material-symbols-outlined">school</span></div>
               <div class="action-title">Academic Corner</div>
             </a>
-            <a href="<?php echo base_url('Home/service_corner'); ?>" class="action-card-link">
+            <a href="<?php echo base_url('service-corner'); ?>" class="action-card-link">
               <div class="action-icon"><span class="material-symbols-outlined">support_agent</span></div>
               <div class="action-title">Service Corner</div>
             </a>

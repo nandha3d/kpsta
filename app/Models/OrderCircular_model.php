@@ -50,7 +50,7 @@ class OrderCircular_model extends Ci3Model {
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;
         $param['search'] = isset($param['search']) ? $param['search'] : FALSE;
 
-        $this->db->select('o.id, o.description, o.upload_type, DATE_FORMAT(o.date,"%d-%m-%Y") as date, o.date as date_unformat, c.name as category, o.path, o.is_publish');
+        $this->db->select('o.id, o.description, o.upload_type, DATE_FORMAT(o.date,"%d-%m-%Y") as date, o.date as date_unformat, o.category as raw_category, c.name as category, o.path, o.is_publish');
         $this->db->from('order_circular o');
         $this->db->join('order_circular_category c', 'o.category = c.id', 'left');
         if (isset($param['type']) && $param['type']) {
@@ -63,15 +63,51 @@ class OrderCircular_model extends Ci3Model {
         if (isset($param['search']) && $param['search']) {
             $this->db->where("o.description LIKE ", '%' . $param['search'] . '%');
         }
-        if (isset($param['category']) && $param['category']) {
-            $this->db->where_in("o.category", explode(',', $param['category']));
+        if (isset($param['category']) && !empty($param['category'])) {
+            $cat = $this->db->escape_str($param['category']);
+            $this->db->where("(o.category = '{$cat}' OR FIND_IN_SET('{$cat}', o.category) > 0)");
         }
 
         $this->db->order_by('o.date desc, o.id desc');
         $this->db->limit($param['limit'], $param['offset']);
         $query = $this->db->get();
         if ($query->num_rows() > 0) {
-            return $query->result_array();
+            $orders = $query->result_array();
+            $catMap = $this->getAllCategory(); // [id => name]
+            $nameToId = array();
+            foreach ($catMap as $cid => $cname) {
+                $nameToId[strtolower(trim($cname))] = $cid;
+            }
+
+            foreach ($orders as &$order) {
+                $order['categories_list'] = array();
+                
+                // 1. Try by raw_category (e.g. "103" or comma separated "103,105")
+                if (!empty($order['raw_category'])) {
+                    $catIds = explode(',', (string)$order['raw_category']);
+                    foreach ($catIds as $cid) {
+                        $cid = trim($cid);
+                        if (!empty($cid) && isset($catMap[$cid])) {
+                            $order['categories_list'][] = array(
+                                'id' => $cid,
+                                'name' => $catMap[$cid]
+                            );
+                        }
+                    }
+                }
+                
+                // 2. Fallback by name lookup if categories_list is still empty
+                if (empty($order['categories_list']) && !empty($order['category'])) {
+                    $cleanName = strtolower(trim($order['category']));
+                    if (isset($nameToId[$cleanName])) {
+                        $order['categories_list'][] = array(
+                            'id' => $nameToId[$cleanName],
+                            'name' => $order['category']
+                        );
+                    }
+                }
+            }
+            return $orders;
         }
         return array();
     }
@@ -92,8 +128,9 @@ class OrderCircular_model extends Ci3Model {
         if (isset($param['search']) && $param['search']) {
             $this->db->where("o.description LIKE ", '%' . $param['search'] . '%');
         }
-        if (isset($param['category']) && $param['category']) {
-            $this->db->where_in("o.category", explode(',', $param['category']));
+        if (isset($param['category']) && !empty($param['category'])) {
+            $cat = $this->db->escape_str($param['category']);
+            $this->db->where("(o.category = '{$cat}' OR FIND_IN_SET('{$cat}', o.category) > 0)");
         }
 
         $query = $this->db->get();

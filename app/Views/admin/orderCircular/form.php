@@ -28,10 +28,15 @@
     </div>
 
     <?php $class = form_error('category') ? 'form-group has-error' : 'form-group' ?>
-    <?php $selected = isset($formValues['category']) ? $formValues['category'] : '' ?>
+    <?php 
+      $selected = array();
+      if (!empty($formValues['category'])) {
+          $selected = is_array($formValues['category']) ? $formValues['category'] : explode(',', (string)$formValues['category']);
+      }
+    ?>
     <div class="<?php echo $class ?>">
-        <label for="heading">Category</label>
-        <?php echo form_dropdown('category', $category, $selected, 'class="form-control select2-category" style="width: 100%;"  required= "required" '); ?>
+        <label for="heading">Category / Labels (Select one or more)</label>
+        <?php echo form_dropdown('category[]', $category, $selected, 'class="form-control select2-category" style="width: 100%;" multiple="multiple" required="required" data-placeholder="Choose one or more labels"'); ?>
     </div>
 
 

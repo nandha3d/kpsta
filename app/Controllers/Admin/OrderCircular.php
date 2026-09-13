@@ -90,7 +90,6 @@ class OrderCircular extends AppController {
         $data['addUrl'] = base_url('admin/order-circular/' . $this->segment3 . '/add');
         $data['formValues'] = $formValues;
         $data['category'] = $this->OrderCircular_model->getAllCategory();
-        $data['category'] = ['' => '- - - SELECT CATEGORY - - -'] + $data['category'];
 
         return $this->load->view('admin/orderCircular/form', $data, TRUE);
     }
@@ -152,7 +151,12 @@ class OrderCircular extends AppController {
     }
 
     function formValidation() {
-        $this->form_validation->set_rules('category', 'category', 'trim|required');
+        $catInput = $this->input->post('category');
+        $categoryVal = is_array($catInput) ? implode(',', array_filter($catInput)) : trim((string)$catInput);
+
+        if (empty($categoryVal)) {
+            $this->form_validation->set_rules('category', 'Category', 'required');
+        }
         $this->form_validation->set_rules('date', 'Date', 'trim|required');
         $this->form_validation->set_rules('description', 'Description', 'trim|required');
         $this->form_validation->set_rules('upload_type', 'Upload Type', 'trim|required');
@@ -167,7 +171,7 @@ class OrderCircular extends AppController {
         $this->form_validation->set_error_delimiters("<p>", "</p>");
         //set all form values into array
         $formValues = [
-            'category' => $this->input->post('category'),
+            'category' => $categoryVal,
             'date' => $this->input->post('date'),
             'description' => $this->input->post('description'),
             'upload_type' => $this->input->post('upload_type'),
@@ -175,8 +179,6 @@ class OrderCircular extends AppController {
             'pdfName' => $this->input->post('pdfName'),
             'is_publish' => $this->input->post('is_publish'),
         ];
-
-
 
         return $formValues;
     }

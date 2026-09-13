@@ -30,6 +30,27 @@
   <main class="page-download">
     <div class="container">
       
+      <?php if((isset($type) && $type == 5) || (isset($contentTitle) && stripos($contentTitle, 'notic') !== false)): ?>
+      <!-- KPSTA Official Logo Download Card -->
+      <div class="logo-download-banner" style="background: linear-gradient(135deg, #0b4f57 0%, #17717a 100%); border-radius: 14px; padding: 2rem 2.5rem; margin-bottom: 2.5rem; color: white; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.75rem; box-shadow: 0 10px 25px rgba(11, 79, 87, 0.25);">
+        <div style="display: flex; align-items: center; gap: 1.75rem; flex-wrap: wrap;">
+          <div style="width: 88px; height: 88px; background: white; border-radius: 50%; padding: 6px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px rgba(0,0,0,0.15); flex-shrink: 0;">
+            <img src="<?php echo base_url('public/images/logo.png'); ?>" alt="KPSTA Official Logo" style="width: 100%; height: 100%; object-fit: contain;">
+          </div>
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #fed7aa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Official Emblem</div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; color: white; margin: 0 0 0.4rem;">KPSTA Official Logo</h2>
+            <p style="color: #e2e8f0; font-size: 0.95rem; margin: 0; max-width: 540px; line-height: 1.5;">Download high-resolution transparent PNG KPSTA emblem for official posters, flex boards, certificates, and notices.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="<?php echo base_url('public/images/logo.png'); ?>" download="KPSTA_Official_Logo.png" class="btn-logo-dl" style="display: inline-flex; align-items: center; gap: 0.6rem; background: var(--color-orange); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35); transition: all 0.2s ease;">
+            <span class="material-symbols-outlined" style="font-size: 1.3rem;">download</span> Download Logo (PNG)
+          </a>
+        </div>
+      </div>
+      <?php endif; ?>
+
       <!-- Category Navigation Tabs (Each category is a tab) -->
       <?php if(!empty($categories)) { 
         $activeCatId = !empty($selectedCategory) ? $selectedCategory : $categories[0]['id'];

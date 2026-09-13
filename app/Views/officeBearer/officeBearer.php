@@ -30,7 +30,7 @@
   <main class="page-office-bearers">
     <div class="container">
       <div class="page-actions">
-        <a href="<?php echo base_url('Home/former_leaders'); ?>" class="btn-blue">Former leaders →</a>
+        <a href="<?php echo base_url('former-leaders'); ?>" class="btn-blue">Former leaders →</a>
       </div>
 
       <?php if(!empty($content)) { foreach($content as $designation => $bearers) { ?>
