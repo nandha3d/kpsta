@@ -524,7 +524,7 @@ function enhanceMobileTables() {
                 var h = headers[idx] || '';
                 if ($td.find('input[type="checkbox"]').length) {
                     $td.addClass('td-select');
-                } else if ($td.find('.btn-group.publish').length || h === 'publish') {
+                } else if ($td.find('.btn-group.publish, .publish, [data-href*="publish"]').length || h === 'publish') {
                     $td.addClass('td-publish');
                 } else if ($td.find('.modern-actions, .btn-edit, .btn-delete, .btn-view').length || h === 'action') {
                     $td.addClass('td-actions');

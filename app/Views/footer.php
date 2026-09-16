@@ -41,6 +41,6 @@
     </div>
   </footer>
 
-  <script src="<?php echo base_url('public/js/main.js?v=1.1'); ?>"></script>
+  <script src="<?php echo base_url('public/js/main.js?v=' . (file_exists(FCPATH . 'js/main.js') ? filemtime(FCPATH . 'js/main.js') : time())); ?>"></script>
 </body>
 </html>

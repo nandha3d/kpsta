@@ -13,6 +13,52 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 1b. Mobile / Tablet Dropdown Submenu Toggle
+  const dropdownToggles = document.querySelectorAll('.dropdown-toggle-btn');
+  dropdownToggles.forEach(toggleBtn => {
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const dropdownLi = toggleBtn.closest('.dropdown');
+      if (!dropdownLi) return;
+
+      const isOpen = dropdownLi.classList.contains('open');
+
+      // Close other open dropdowns at this level
+      document.querySelectorAll('.dropdown.open').forEach(other => {
+        if (other !== dropdownLi) {
+          other.classList.remove('open');
+          const otherBtn = other.querySelector('.dropdown-toggle-btn');
+          if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      if (isOpen) {
+        dropdownLi.classList.remove('open');
+        toggleBtn.setAttribute('aria-expanded', 'false');
+      } else {
+        dropdownLi.classList.add('open');
+        toggleBtn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // Close mobile nav and open dropdowns when clicking outside header
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.main-header')) {
+      if (navLinksList && navLinksList.classList.contains('open')) {
+        navLinksList.classList.remove('open');
+        const icon = navToggleBtn ? navToggleBtn.querySelector('.material-symbols-outlined') : null;
+        if (icon) icon.textContent = 'menu';
+      }
+      document.querySelectorAll('.dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        const btn = d.querySelector('.dropdown-toggle-btn');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
+
   // 2. Tab Switching (Melakal page)
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabPanels = document.querySelectorAll('.tab-panel');

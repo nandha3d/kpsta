@@ -72,7 +72,12 @@
         ?>
         <li><a href="<?php echo base_url(); ?>" class="nav-link <?php echo empty($seg1) ? 'active' : ''; ?>">Home</a></li>
         <li class="dropdown">
-          <a href="<?php echo base_url('OfficeBearer'); ?>" class="nav-link <?php echo (in_array($seg1, ['OfficeBearer', 'District', 'melakal', 'former-leaders', 'former_leaders']) || ($seg1 == 'Home' && $seg2 == 'former_leaders')) ? 'active' : ''; ?>">Organization <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_drop_down</span></a>
+          <div class="nav-item-wrapper">
+            <a href="<?php echo base_url('OfficeBearer'); ?>" class="nav-link <?php echo (in_array($seg1, ['OfficeBearer', 'District', 'melakal', 'former-leaders', 'former_leaders']) || ($seg1 == 'Home' && $seg2 == 'former_leaders')) ? 'active' : ''; ?>">Organization</a>
+            <button type="button" class="dropdown-toggle-btn" aria-label="Toggle Organization submenu" aria-expanded="false">
+              <span class="material-symbols-outlined">arrow_drop_down</span>
+            </button>
+          </div>
           <div class="dropdown-menu">
             <a href="<?php echo base_url('OfficeBearer'); ?>" class="dropdown-item">State Office Bearers</a>
             <a href="<?php echo base_url('District'); ?>" class="dropdown-item">District Office Bearers</a>
@@ -82,7 +87,12 @@
         </li>
         <li><a href="<?php echo base_url('order-circular'); ?>" class="nav-link <?php echo ($seg1 == 'order-circular') ? 'active' : ''; ?>">Order & Circular</a></li>
         <li class="dropdown">
-          <a href="<?php echo base_url('download/forms'); ?>" class="nav-link <?php echo (in_array($seg1, ['download', 'notice_poster', 'service_corner', 'service-corner', 'memorandums']) || ($seg1 == 'Home' && in_array($seg2, ['service_corner', 'memorandums']))) ? 'active' : ''; ?>">Downloads <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_drop_down</span></a>
+          <div class="nav-item-wrapper">
+            <a href="<?php echo base_url('download/forms'); ?>" class="nav-link <?php echo (in_array($seg1, ['download', 'notice_poster', 'service_corner', 'service-corner', 'memorandums']) || ($seg1 == 'Home' && in_array($seg2, ['service_corner', 'memorandums']))) ? 'active' : ''; ?>">Downloads</a>
+            <button type="button" class="dropdown-toggle-btn" aria-label="Toggle Downloads submenu" aria-expanded="false">
+              <span class="material-symbols-outlined">arrow_drop_down</span>
+            </button>
+          </div>
           <div class="dropdown-menu">
             <a href="<?php echo base_url('download/forms'); ?>" class="dropdown-item">Forms</a>
             <a href="<?php echo base_url('service-corner'); ?>" class="dropdown-item">Service Corner</a>
