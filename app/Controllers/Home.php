@@ -95,7 +95,110 @@ class Home extends PublicController {
         // Deliberately no active_term filter: former leaders belong to past
         // terms by definition, so restricting to the current term would hide
         // every one of them.
-        $content['former_leaders'] = $this->OfficeBearer_model->getAll(array('isPublish' => TRUE, 'is_former' => 1, 'limit' => 500));
+        $raw = $this->OfficeBearer_model->getAll(array('isPublish' => TRUE, 'is_former' => 1, 'limit' => 500));
+
+        // Consolidate persons so that a leader who held multiple positions
+        // across different periods appears as a single unified card listing all their positions.
+        $leaders = array();
+        $personIndex = array(); // unique key => index in $leaders
+
+        if (!empty($raw)) {
+            foreach ($raw as $ob) {
+                $normName = mb_strtolower(trim((string)$ob['name']));
+                $phone = !empty($ob['phone']) ? preg_replace('/[^0-9]/', '', (string)$ob['phone']) : '';
+
+                // Matching key: if phone exists, name + phone, else name
+                $lookupKey = !empty($phone) ? ($normName . '|' . $phone) : $normName;
+
+                // Primary position
+                $primaryPos = [
+                    'designation' => $ob['designation'],
+                    'year' => !empty($ob['year']) ? $ob['year'] : '',
+                    'level' => !empty($ob['level']) ? $ob['level'] : 'State',
+                    'section_heading' => !empty($ob['section_heading']) ? $ob['section_heading'] : '',
+                    'position' => isset($ob['position']) && is_numeric($ob['position']) ? (int)$ob['position'] : 25
+                ];
+
+                // Previous positions from JSON column
+                $additionalPositions = [];
+                if (!empty($ob['previous_positions'])) {
+                    $decoded = is_array($ob['previous_positions']) ? $ob['previous_positions'] : json_decode($ob['previous_positions'], true);
+                    if (is_array($decoded)) {
+                        $additionalPositions = $decoded;
+                    }
+                }
+
+                if (isset($personIndex[$lookupKey])) {
+                    $idx = $personIndex[$lookupKey];
+                    $leaders[$idx]['all_positions'][] = $primaryPos;
+                    foreach ($additionalPositions as $pos) {
+                        $leaders[$idx]['all_positions'][] = $pos;
+                    }
+                    if (empty($leaders[$idx]['image']) && !empty($ob['image'])) {
+                        $leaders[$idx]['image'] = $ob['image'];
+                    }
+                } else {
+                    $entry = $ob;
+                    $entry['all_positions'] = array_merge([$primaryPos], $additionalPositions);
+                    $personIndex[$lookupKey] = count($leaders);
+                    $leaders[] = $entry;
+                }
+            }
+        }
+
+        // Deduplicate and sort positions for each leader
+        $filteredLeaders = [];
+        foreach ($leaders as $leader) {
+            $seenPos = [];
+            $uniquePositions = [];
+            foreach ($leader['all_positions'] as $pos) {
+                if (isset($pos['is_enabled']) && ((int)$pos['is_enabled'] === 0 || $pos['is_enabled'] === '0' || $pos['is_enabled'] === false)) {
+                    continue;
+                }
+                if (empty($pos['designation']) && empty($pos['year'])) continue;
+                $pDesig = trim((string)$pos['designation']);
+                $pYear = isset($pos['year']) ? trim((string)$pos['year']) : '';
+                $pLevel = isset($pos['level']) ? trim((string)$pos['level']) : 'State';
+                $pSec = isset($pos['section_heading']) ? trim((string)$pos['section_heading']) : '';
+                $pPos = isset($pos['position']) && is_numeric($pos['position']) ? (int)$pos['position'] : 25;
+
+                $fp = mb_strtolower("{$pDesig}|{$pYear}|{$pLevel}|{$pSec}");
+                if (!isset($seenPos[$fp])) {
+                    $seenPos[$fp] = true;
+                    $uniquePositions[] = [
+                        'designation' => $pDesig,
+                        'year' => $pYear,
+                        'level' => $pLevel,
+                        'section_heading' => $pSec,
+                        'position' => $pPos
+                    ];
+                }
+            }
+
+            if (empty($uniquePositions)) {
+                continue;
+            }
+
+            // Sort positions: latest period first (e.g. 2012-2015 before 2008-2010),
+            // and within same period, sort by rank order position (1 = highest / President, 2, 3...)
+            usort($uniquePositions, function($a, $b) {
+                preg_match_all('/\b(19\d\d|20\d\d)\b/', $a['year'], $mA);
+                preg_match_all('/\b(19\d\d|20\d\d)\b/', $b['year'], $mB);
+                $yrA = !empty($mA[0]) ? (int)end($mA[0]) : 0;
+                $yrB = !empty($mB[0]) ? (int)end($mB[0]) : 0;
+                if ($yrA !== $yrB) {
+                    return $yrB - $yrA;
+                }
+                $posA = isset($a['position']) ? (int)$a['position'] : 25;
+                $posB = isset($b['position']) ? (int)$b['position'] : 25;
+                return $posA - $posB;
+            });
+
+            $leader['all_positions'] = $uniquePositions;
+            $filteredLeaders[] = $leader;
+        }
+
+        $content['former_leaders'] = $filteredLeaders;
         $this->load->view('header');
         $this->load->view('home/former_leaders', $content);
         $this->load->view('footer');
@@ -104,6 +207,12 @@ class Home extends PublicController {
     public function memorandums() {
         $this->load->view('header');
         $this->load->view('home/memorandums');
+        $this->load->view('footer');
+    }
+
+    public function membership_magazine() {
+        $this->load->view('header');
+        $this->load->view('home/membership_magazine');
         $this->load->view('footer');
     }
 

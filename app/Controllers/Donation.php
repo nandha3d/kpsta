@@ -1,7 +1,11 @@
 <?php
 
 namespace App\Controllers;
-require APPPATH. 'libraries/razorpay/Razorpay.php';
+if (file_exists(APPPATH . 'Libraries/razorpay/Razorpay.php')) {
+    require_once APPPATH . 'Libraries/razorpay/Razorpay.php';
+} elseif (file_exists(APPPATH . 'libraries/razorpay/Razorpay.php')) {
+    require_once APPPATH . 'libraries/razorpay/Razorpay.php';
+}
 use Razorpay\Api\Api;
 
 class Donation extends PublicController {

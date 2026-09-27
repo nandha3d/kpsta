@@ -16,17 +16,19 @@ $stats = array(
 
 $sections = array(
     array('State Office Bearers', 'admin/office_bearer', 'OfficeBearer', 'fa-user'),
-    array('District Office Bearers', 'admin/office_bearer', 'District', 'fa-map-marker'),
+    array('District Office Bearers', 'admin/district', 'District', 'fa-map-marker'),
+    array('Former Leaders', 'admin/office_bearer?is_former=1', 'former-leaders', 'fa-history'),
+    array('Memorandums', 'admin/memorandums', 'memorandums', 'fa-file-text'),
+    array('Notices & Posters', 'admin/notice_poster', 'notice_poster', 'fa-thumb-tack'),
     array('Latest News', 'admin/news', 'news', 'fa-newspaper-o'),
     array('Order & Circular', 'admin/order-circular/general', 'order-circular', 'fa-book'),
     array('Forms', 'admin/download/forms', 'download/forms', 'fa-file-text-o'),
-    array('Service Corner', 'admin/ServiceCorner', 'Home/service_corner', 'fa-cubes'),
-    array('Gallery', 'admin/gallery', 'Gallery', 'fa-picture-o'),
-    array('Quick Links', 'admin/quicklink', 'Quicklink', 'fa-link'),
-    array('Notices & Posters', 'admin/notice_poster', 'notice_poster', 'fa-thumb-tack'),
+    array('Service Corner', 'admin/ServiceCorner', 'service-corner', 'fa-cubes'),
     array('Melakal', 'admin/melakal', 'melakal', 'fa-smile-o'),
-    array('Adayapaka Sabham', 'admin/adayapaka_sabham', 'adayapaka_sabham', 'fa-share-alt'),
+    array('Gallery', 'admin/gallery', 'Gallery', 'fa-picture-o'),
+    array('Reaction Gallery', 'admin/reaction_gallery', '', 'fa-comments-o'),
     array('Home Slider & Headings', 'admin/slider', '', 'fa-sliders'),
+    array('Quick Links', 'admin/quicklink', 'Quicklink', 'fa-link'),
 );
 ?>
 <div class="content-wrapper">

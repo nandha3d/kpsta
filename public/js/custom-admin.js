@@ -90,19 +90,40 @@
 
     // 2. Highlight the current link. Only the longest match wins, so on
     // .../office_bearer/designation the parent .../office_bearer stays quiet.
-    var currentUrl = window.location.href.split('?')[0].replace(/\/$/, "");
+    var fullUrl = window.location.href.replace(/\/$/, "");
+    var cleanUrl = window.location.href.split('?')[0].replace(/\/$/, "");
+    var search = window.location.search;
     var $best = null;
     var bestLen = -1;
 
     $('.modern-sidebar-menu a').each(function () {
         var href = $(this).attr('href');
-        if (!href || href === '#') {
+        if (!href || href === '#' || href === 'javascript:void(0)') {
             return;
         }
         var linkUrl = href.replace(/\/$/, "");
 
-        // Exact match or sub-page match (like /edit/1)
-        if (currentUrl === linkUrl || currentUrl.indexOf(linkUrl + '/') === 0) {
+        // Exact match with query params (e.g. ?is_former=1)
+        if (fullUrl === linkUrl) {
+            $best = $(this);
+            bestLen = 999999;
+            return false;
+        }
+
+        // Sub-page match with query params
+        if (search && linkUrl.indexOf(search) !== -1) {
+            var linkBase = linkUrl.split('?')[0];
+            if (cleanUrl === linkBase || cleanUrl.indexOf(linkBase + '/') === 0) {
+                if (linkUrl.length > bestLen) {
+                    bestLen = linkUrl.length;
+                    $best = $(this);
+                }
+                return;
+            }
+        }
+
+        // Exact match without query params or sub-page match
+        if (cleanUrl === linkUrl || cleanUrl.indexOf(linkUrl + '/') === 0) {
             if (linkUrl.length > bestLen) {
                 bestLen = linkUrl.length;
                 $best = $(this);

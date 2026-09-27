@@ -156,11 +156,26 @@ $("body").on('click', '.edit', function (e) {
             if (result.code == 'success') {
                 $(this).dropdown('toggle');
                 $("body .modal-content-form").html(result.form);
+                if ($('.select2-category').length) {
+                    $('.select2-category').select2({
+                        tags: true,
+                        dropdownParent: $('#modal')
+                    });
+                }
                 $('#modal').modal({show: true});
             }
         }
     });
     return false;
+});
+
+$('#modal').on('shown.bs.modal', function () {
+    if ($('.select2-category').length) {
+        $('.select2-category').select2({
+            tags: true,
+            dropdownParent: $('#modal')
+        });
+    }
 });
 
 

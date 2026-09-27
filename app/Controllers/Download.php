@@ -9,7 +9,7 @@ class Download extends PublicController {
     }
 
     function getSegment2() {
-        if (in_array($this->uri->segment(1), ['notice_poster', 'melakal', 'official_outlook'])) {
+        if (in_array($this->uri->segment(1), ['notice_poster', 'melakal', 'official_outlook', 'memorandums'])) {
             return $this->uri->segment(1);
         } else {
             return $this->uri->segment(2);
@@ -18,10 +18,10 @@ class Download extends PublicController {
 
     /**
      * Page types whose reference design shows the file-type mark beside each
-     * row: Forms (4), Notices & Posters (5), Melakal (6), Academic Corner (8).
+     * row: Forms (4), Notices & Posters (5), Melakal (6), Memorandums (7), Academic Corner (8).
      * Act & Rules, Software and Fonts are drawn as plain rows.
      */
-    private $iconTypes = array(4, 5, 6, 8);
+    private $iconTypes = array(4, 5, 6, 7, 8);
 
     public function index() {
         $this->load->view('header');
@@ -182,11 +182,12 @@ class Download extends PublicController {
                 $data['baseUrl'] = 'melakal';
                 break;
 
+            case 'memorandums':
             case 'official_outlook':
                 $data['type'] = 7;
-                $data['contentTitle'] = 'Official outlook';
-                $data['route'] = 'official_outlook';
-                $data['baseUrl'] = 'official_outlook';
+                $data['contentTitle'] = 'Memorandums';
+                $data['route'] = 'memorandums';
+                $data['baseUrl'] = 'memorandums';
                 $data['category'] = false;
                 break;
                 

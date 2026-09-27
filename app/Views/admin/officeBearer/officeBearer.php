@@ -26,7 +26,7 @@
     </section>
 
     <div class="modal fade" id="modal" role="dialog" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true" >
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg" style="width: 900px; max-width: 96vw;">
             <div class="modal-content modal-content-form" >
                 <?php echo isset($form) ? $form : '' ?>
             </div>
@@ -83,10 +83,11 @@
                             <!-- Former vs Active Filter -->
                             <div class="col-md-2 col-sm-6" style="margin-bottom: 10px;">
                                 <label style="font-weight: 600; font-size: 12px; color: #555;">Leader Type</label>
+                                <?php $selectedFormer = $this->input->get('is_former'); ?>
                                 <select name="former-search" class="form-control filter-control">
                                     <option value="">All Leaders</option>
-                                    <option value="0">Active Leaders</option>
-                                    <option value="1">Former Leaders</option>
+                                    <option value="0" <?php echo ($selectedFormer === '0') ? 'selected' : ''; ?>>Active Leaders</option>
+                                    <option value="1" <?php echo ($selectedFormer === '1') ? 'selected' : ''; ?>>Former Leaders</option>
                                 </select>
                             </div>
                         </div>

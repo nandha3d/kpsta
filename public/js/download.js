@@ -106,8 +106,15 @@ var ajax_request;
 function seach(_page) {
     var _page = _page;
     var search = $('input[name="search"]').val();
-    var _category = $('.category-search').select2("val");
-    _category = _category ? _category.join(',') : '';
+    var _category = '';
+    if ($('.category-search').length) {
+        try {
+            var catVal = $('.category-search').val();
+            _category = Array.isArray(catVal) ? catVal.join(',') : (catVal || '');
+        } catch (e) {
+            _category = '';
+        }
+    }
 
     if (typeof ajax_request !== 'undefined') {
         ajax_request.abort();

@@ -112,13 +112,26 @@ class OfficeBearer extends AppController {
         $data['title'] = $title;
         $data['url'] = $url;
         $data['addUrl'] = base_url('admin/office_bearer/add');
+        
+        if ($formValues && isset($formValues['previous_positions']) && is_string($formValues['previous_positions'])) {
+            $decoded = json_decode($formValues['previous_positions'], true);
+            $formValues['previous_positions'] = is_array($decoded) ? $decoded : [];
+        }
         $data['formValues'] = $formValues;
+        
         $data['designation'] = $this->OfficeBearer_model->getAllDesignation();
         $data['designation'] = ['' => '- - - SELECT DESIGNATION - - -'] + $data['designation'];
 
         $data['section_headings'] = $this->OfficeBearer_model->getAllSectionHeadings();
         $data['section_headings'] = ['' => '- - - SELECT OR TYPE SECTION HEADING - - -'] + $data['section_headings'];
         
+        $data['category_levels'] = [
+            'State' => 'State Level',
+            'District' => 'District Level',
+            'Educational District' => 'Educational District Level',
+            'Sub District' => 'Sub District Level'
+        ];
+
         $data['districts'] = [
             '' => '- - - SELECT DISTRICT - - -',
             'Thiruvananthapuram' => 'Thiruvananthapuram',
@@ -151,29 +164,91 @@ class OfficeBearer extends AppController {
             exit;
         }
 
+        $desigInput = $formValues['designation'];
         $formValues['designation'] = $this->OfficeBearer_model->getOrAddDesignation($formValues['designation']);
+        $desigRow = $this->OfficeBearer_model->getDesignationById($formValues['designation']);
+        $resolvedDesigName = $desigRow ? $desigRow['name'] : $desigInput;
 
-        //check whether the post is single person or mulitple
-        if ($this->OfficeBearer_model->isSingleDesignation($formValues['designation'])) {
+        // Check if name and phone match an existing person (no duplicate entries for same person)
+        $cleanedName = trim((string)$formValues['name']);
+        $cleanedPhone = trim((string)$formValues['phone']);
+        $existingPerson = null;
+        if (!empty($cleanedName) && !empty($cleanedPhone)) {
+            $existingPerson = $this->OfficeBearer_model->findPersonByNameAndPhone($cleanedName, $cleanedPhone);
+        }
+
+        if ($existingPerson) {
+            $imageName = '';
+            if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+                $uploadData = $this->uploadImage();
+                if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
+                    $data['code'] = 'error';
+                    $formValues['error'] = $uploadData['error'];
+                    $data['form'] = $this->createForm(base_url('admin/office_bearer/add'), $formValues);
+                    echo json_encode($data);
+                    exit;
+                }
+                $imageName = $uploadData['file_name'];
+            }
+
+            // Positions to merge into existing person:
+            $submittedPositions = array();
+            $submittedPositions[] = [
+                'designation' => $resolvedDesigName,
+                'year' => $formValues['year'],
+                'level' => $formValues['level'],
+                'section_heading' => $formValues['section_heading'],
+                'position' => isset($formValues['position']) ? (int)$formValues['position'] : 25
+            ];
+
+            if (!empty($formValues['previous_positions'])) {
+                foreach ($formValues['previous_positions'] as $pp) {
+                    $submittedPositions[] = $pp;
+                }
+            }
+
+            $extra = array();
+            if (!empty($imageName)) {
+                $extra['image'] = $imageName;
+            }
+            if (!empty($formValues['email'])) {
+                $extra['email'] = $formValues['email'];
+            }
+            if (isset($formValues['is_former'])) {
+                $extra['is_former'] = $formValues['is_former'];
+            }
+
+            $this->OfficeBearer_model->mergePositions($existingPerson['id'], $submittedPositions, $extra);
+
+            $data['code'] = 'success';
+            $data['lastId'] = $existingPerson['id'];
+            $data['message'] = "Leader '" . htmlspecialchars($cleanedName) . "' already exists. The position(s) were successfully added to their profile without creating a duplicate record.";
+            $data['content'] = $this->getContent();
+            echo json_encode($data);
+            exit;
+        }
+
+        //check whether the post is single person or multiple
+        if ($this->OfficeBearer_model->isSingleDesignation($formValues['designation'], $formValues['is_former'])) {
             $data['code'] = 'error';
-            $formValues['error'] = 'This designation is already exist. Please update the record';
+            $formValues['error'] = 'This designation already exists. Please update the existing record';
             $data['form'] = $this->createForm(base_url('admin/office_bearer/add'), $formValues);
             echo json_encode($data);
             exit;
         }
 
-
-        $uploadData = $this->uploadImage();
-        if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
-            $data['code'] = 'error';
-            $formValues['error'] = $uploadData['error'];
-            $data['form'] = $this->createForm(base_url('admin/office_bearer/add'), $formValues);
-            echo json_encode($data);
-            exit;
+        $formValues['image'] = '';
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $uploadData = $this->uploadImage();
+            if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
+                $data['code'] = 'error';
+                $formValues['error'] = $uploadData['error'];
+                $data['form'] = $this->createForm(base_url('admin/office_bearer/add'), $formValues);
+                echo json_encode($data);
+                exit;
+            }
+            $formValues['image'] = $uploadData['file_name'];
         }
-
-        //Insert values
-        $formValues['image'] = $uploadData['file_name'];
         $add = $this->OfficeBearer_model->add($formValues);
         if ($add) {
             $data['code'] = 'success';
@@ -294,6 +369,29 @@ class OfficeBearer extends AppController {
             'is_former' => $this->input->post('is_former') ? $this->input->post('is_former') : 0
         ];
 
+        $prevPositions = $this->input->post('previous_positions');
+        $cleanedPositions = array();
+        if (!empty($prevPositions) && is_array($prevPositions)) {
+            foreach ($prevPositions as $pos) {
+                $pDesig = isset($pos['designation']) ? trim((string)$pos['designation']) : '';
+                $pYear = isset($pos['year']) ? trim((string)$pos['year']) : '';
+                $pLevel = isset($pos['level']) ? trim((string)$pos['level']) : 'State';
+                $pSec = isset($pos['section_heading']) ? trim((string)$pos['section_heading']) : '';
+
+                if (!empty($pDesig) || !empty($pYear)) {
+                    $cleanedPositions[] = [
+                        'designation' => $pDesig,
+                        'year' => $pYear,
+                        'level' => $pLevel,
+                        'section_heading' => $pSec,
+                        'position' => isset($pos['position']) && is_numeric($pos['position']) ? (int)$pos['position'] : 25,
+                        'is_enabled' => isset($pos['is_enabled']) ? (int)$pos['is_enabled'] : 1
+                    ];
+                }
+            }
+        }
+        $formValues['previous_positions'] = $cleanedPositions;
+
         return $formValues;
     }
 
@@ -303,11 +401,55 @@ class OfficeBearer extends AppController {
         $id = $this->uri->segment(4);
         $formInfo = $this->OfficeBearer_model->getById($id);
         if ($formInfo) {
+            if (!empty($formInfo['previous_positions']) && is_string($formInfo['previous_positions'])) {
+                $decoded = json_decode($formInfo['previous_positions'], true);
+                $formInfo['previous_positions'] = is_array($decoded) ? $decoded : [];
+            }
             $url = base_url('admin/office_bearer/update/' . $id);
             $data['form'] = $this->createForm($url, $formInfo, 'Edit Form');
             $data['code'] = 'success';
         }
         echo json_encode($data);
+        exit;
+    }
+
+    public function check_person() {
+        $name = trim((string)$this->input->get('name'));
+        $phone = trim((string)$this->input->get('phone'));
+        $excludeId = $this->input->get('exclude_id');
+
+        if (empty($name) || empty($phone)) {
+            echo json_encode(['exists' => false]);
+            exit;
+        }
+
+        $person = $this->OfficeBearer_model->findPersonByNameAndPhone($name, $phone, $excludeId);
+        if ($person) {
+            $prev = array();
+            if (!empty($person['previous_positions'])) {
+                $decoded = json_decode($person['previous_positions'], true);
+                if (is_array($decoded)) {
+                    $prev = $decoded;
+                }
+            }
+            echo json_encode([
+                'exists' => true,
+                'person' => [
+                    'id' => $person['id'],
+                    'name' => $person['name'],
+                    'phone' => $person['phone'],
+                    'email' => $person['email'],
+                    'designation' => $person['designation_name'],
+                    'year' => $person['year'],
+                    'level' => $person['level'],
+                    'section_heading' => $person['section_heading'],
+                    'is_former' => $person['is_former'],
+                    'previous_positions' => $prev
+                ]
+            ]);
+        } else {
+            echo json_encode(['exists' => false]);
+        }
         exit;
     }
 

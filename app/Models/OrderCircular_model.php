@@ -67,6 +67,12 @@ class OrderCircular_model extends Ci3Model {
             $cat = $this->db->escape_str($param['category']);
             $this->db->where("(o.category = '{$cat}' OR FIND_IN_SET('{$cat}', o.category) > 0)");
         }
+        if (isset($param['year']) && !empty($param['year'])) {
+            $this->db->where("YEAR(o.date)", (int)$param['year']);
+        }
+        if (isset($param['month']) && !empty($param['month'])) {
+            $this->db->where("MONTH(o.date)", (int)$param['month']);
+        }
 
         $this->db->order_by('o.date desc, o.id desc');
         $this->db->limit($param['limit'], $param['offset']);
@@ -132,11 +138,50 @@ class OrderCircular_model extends Ci3Model {
             $cat = $this->db->escape_str($param['category']);
             $this->db->where("(o.category = '{$cat}' OR FIND_IN_SET('{$cat}', o.category) > 0)");
         }
+        if (isset($param['year']) && !empty($param['year'])) {
+            $this->db->where("YEAR(o.date)", (int)$param['year']);
+        }
+        if (isset($param['month']) && !empty($param['month'])) {
+            $this->db->where("MONTH(o.date)", (int)$param['month']);
+        }
 
         $query = $this->db->get();
         $result = $query->row(0, 'array');
 
         return $result['count'];
+    }
+
+    public function getAvailableYears($type = null) {
+        $this->db->select('DISTINCT(YEAR(date)) as year');
+        $this->db->where('is_delete !=', 1);
+        $this->db->where('date IS NOT NULL');
+        if ($type) {
+            $this->db->where('type', $type);
+        }
+        $this->db->order_by('year', 'DESC');
+        $query = $this->db->get('order_circular');
+        $years = [];
+        if ($query->num_rows() > 0) {
+            foreach ($query->result() as $row) {
+                if ($row->year > 1970) {
+                    $years[] = (int)$row->year;
+                }
+            }
+        }
+        return $years;
+    }
+
+    public function getOrAddCategory($name) {
+        $clean = trim((string)$name);
+        if (is_numeric($clean)) {
+            return (int)$clean;
+        }
+        $this->db->where('LOWER(name)', strtolower($clean));
+        $query = $this->db->get('order_circular_category');
+        if ($query->num_rows() > 0) {
+            return $query->row()->id;
+        }
+        return $this->categoryAdd(['name' => $clean]);
     }
 
     public function getById($id) {
@@ -180,7 +225,7 @@ class OrderCircular_model extends Ci3Model {
 
     public function categoryAdd($data) {
         $data['created_at'] = date("Y-m-d H:i:s");
-        $data['created_by'] = $this->session->userdata('id');
+        $data['created_by'] = (int)($this->session->userdata('id') ?: 0);
 
         $this->db->insert('order_circular_category', $data);
         return $this->db->insert_id();

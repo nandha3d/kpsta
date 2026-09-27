@@ -6,7 +6,7 @@
   <?php endif; ?>
 
   <!-- Hero Section -->
-  <section class="hero-banner home-hero">
+  <section class="hero-banner home-hero is-first-slide" id="heroBanner">
     <!-- Background Slider Elements -->
     <?php
       // Only slides that actually carry an image file are rendered
@@ -43,7 +43,7 @@
       </div>
       <h1 class="hero-title">KPSTA</h1>
       <p class="hero-subtitle">Kerala Pradesh School Teacher's Association</p>
-      <div class="hero-tagline">UNITE FOR QUALITY EDUCATION</div>
+      <div class="hero-tagline">Unite for Quality Education</div>
       <p class="hero-subtagline">Better education for a better world</p>
     </div>
   </section>
@@ -51,6 +51,7 @@
   <!-- Hero Background Slider Script -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      const banner = document.getElementById('heroBanner');
       const slides = document.querySelectorAll('#heroBgSlider .hero-slide');
       const dots = document.querySelectorAll('#heroDots .hero-dot');
       if (slides.length > 1) {
@@ -61,6 +62,16 @@
           currentSlide = (index + slides.length) % slides.length;
           slides[currentSlide].classList.add('active');
           if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+
+          if (banner) {
+            if (currentSlide === 0) {
+              banner.classList.add('is-first-slide');
+              banner.classList.remove('is-subsequent-slide');
+            } else {
+              banner.classList.remove('is-first-slide');
+              banner.classList.add('is-subsequent-slide');
+            }
+          }
         };
         let timer = setInterval(() => show(currentSlide + 1), 5000);
         dots.forEach((dot) => {
@@ -133,7 +144,7 @@
 
         <div class="home-actions-block">
           <div class="action-box-grid">
-            <a href="<?php echo base_url('membership'); ?>" class="action-card-link">
+            <a href="<?php echo base_url('membership-magazine'); ?>" class="action-card-link">
               <div class="action-icon"><span class="material-symbols-outlined">workspace_premium</span></div>
               <div class="action-title">Membership & Magazine</div>
             </a>
@@ -190,7 +201,7 @@
       <?php if(!empty($reactionGalleryImages)) { ?>
         <div class="reaction-slider-container">
           <?php foreach($reactionGalleryImages as $idx => $rg) { ?>
-            <div class="poster-card reaction-slide no-title" style="<?php echo $idx === 0 ? 'display: block;' : 'display: none;'; ?>">
+            <div class="poster-card reaction-slide no-title" style="<?php echo $idx === 0 ? 'display: flex;' : 'display: none;'; ?>">
               <?php if(!empty($rg['image'])) { ?>
                 <a href="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" target="_blank">
                   <img src="<?php echo base_url('uploads/reaction_gallery/'.$rg['image']); ?>" alt="<?php echo htmlspecialchars($rg['description']); ?>">
@@ -216,7 +227,7 @@
           const rgDots = document.querySelectorAll('.rg-dot');
           function showReactionSlide(index) {
             rgSlides.forEach((slide, i) => {
-              slide.style.display = (i === index) ? 'block' : 'none';
+              slide.style.display = (i === index) ? 'flex' : 'none';
             });
             rgDots.forEach((dot, i) => {
               dot.style.background = (i === index) ? '#f97316' : 'rgba(255,255,255,0.4)';

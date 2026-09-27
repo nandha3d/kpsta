@@ -49,3 +49,10 @@ public/downloads/
 !/writable/uploads/index.html
 /writable/debugbar/*
 !/writable/debugbar/index.html
+
+# Local artifacts and temporary scripts
+scratch/
+*.tar
+test_*.png
+Page References/
+

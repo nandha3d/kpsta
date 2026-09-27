@@ -22,10 +22,7 @@ class AauthGroup_model extends Ci3Model {
 
         $this->db->select('*');
         if (isset($param['search']) && $param['search']) {
-            $this->db->where("( heading LIKE   '%" . $param['search'] . "%'   OR  content LIKE   '%" . $param['search'] . "%'  ) ");
-        }
-        if (isset($param['isPublish']) && $param['isPublish']) {
-            $this->db->where(array("publish" => 1));
+            $this->db->where("( name LIKE   '%" . $param['search'] . "%'   OR  definition LIKE   '%" . $param['search'] . "%'  ) ");
         }
         $this->db->limit($param['limit'], $param['offset']);
         $this->db->order_by('id');
@@ -39,7 +36,7 @@ class AauthGroup_model extends Ci3Model {
     public function getAllCount($param) {
         $this->db->select('count(id) as count');
         if (isset($param['search']) && $param['search']) {
-            $this->db->where("( heading LIKE   '%" . $param['search'] . "%'   OR  content LIKE   '%" . $param['search'] . "%'  ) ");
+            $this->db->where("( name LIKE   '%" . $param['search'] . "%'   OR  definition LIKE   '%" . $param['search'] . "%'  ) ");
         }
         if (isset($param['isPublish']) && $param['isPublish']) {
             $this->db->where(array("publish" => 1));
@@ -51,6 +48,10 @@ class AauthGroup_model extends Ci3Model {
     }
 
     public function getNews($id) {
+        return $this->getGroup($id);
+    }
+
+    public function getGroup($id) {
         $this->db->select('*');
         $this->db->where(array("id" => $id));
         $query = $this->db->get('aauth_groups');

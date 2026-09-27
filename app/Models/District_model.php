@@ -16,6 +16,8 @@ class District_model extends Ci3Model {
         return $this->db->insert_id();
     }
 
+    private array $districtNameCache = [];
+
     /**
      * District office bearers live in `office_bearer` with level = 'District'.
      * The district is held by name in section_heading, which is also what the
@@ -25,11 +27,15 @@ class District_model extends Ci3Model {
         if (!$districtId) {
             return FALSE;
         }
-        $this->db->select('district');
-        $this->db->where('id', (int) $districtId);
-        $query = $this->db->get('district');
-        if ($query->num_rows() > 0) {
-            return $query->row()->district;
+        $id = (int) $districtId;
+        if (isset($this->districtNameCache[$id])) {
+            return $this->districtNameCache[$id];
+        }
+        $res = $this->db->ci4()->query("SELECT district FROM district WHERE id = ?", [$id]);
+        $row = $res->getRow();
+        if ($row && isset($row->district)) {
+            $this->districtNameCache[$id] = $row->district;
+            return $row->district;
         }
         return FALSE;
     }
@@ -59,7 +65,7 @@ class District_model extends Ci3Model {
             $this->db->where(array("o.is_publish" => 1));
         }
         if (isset($param['search']) && $param['search']) {
-            $this->db->where("o.name LIKE ", '%' . $param['search'] . '%');
+            $this->db->where("o.district LIKE ", '%' . $param['search'] . '%');
         }
 
         $this->db->order_by('o.id');

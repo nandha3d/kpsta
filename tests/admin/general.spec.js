@@ -36,6 +36,7 @@ test.describe('Admin: General Modules', () => {
         await openAddModal(page);
         const testMelakal = `Playwright Melakal ${Date.now()}`;
         await page.fill('input[name="description"]', testMelakal);
+        await page.click('label.btn:has-text("URL")');
         await page.fill('input[name="path"]', 'http://example.com/melakal');
         await submitForm(page);
         

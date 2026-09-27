@@ -16,7 +16,7 @@
 
 
 
-    <?php $class = form_error('description') ? 'form-group has-error' : 'form-group' ?>
+    <?php $class = form_error('name') ? 'form-group has-error' : 'form-group' ?>
     <div class="<?php echo $class ?>">
         <label for="name">Category Name</label>
         <input  class="form-control" name="name" placeholder="Enter Heading"  value="<?php echo isset($formValues['name']) ? $formValues['name'] : '' ?>">

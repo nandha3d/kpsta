@@ -24,7 +24,7 @@ class Download extends AppController {
     }
 
     function getSegment3() {
-        if (in_array($this->uri->segment(2), ['notice_poster', 'melakal', 'official_outlook'])) {
+        if (in_array($this->uri->segment(2), ['notice_poster', 'melakal', 'official_outlook', 'memorandums'])) {
             return $this->uri->segment(2);
         } else {
             return $this->uri->segment(3);
@@ -32,7 +32,7 @@ class Download extends AppController {
     }
 
     function getSegment5() {
-        if (in_array($this->uri->segment(2), ['notice_poster', 'melakal', 'official_outlook'])) {
+        if (in_array($this->uri->segment(2), ['notice_poster', 'melakal', 'official_outlook', 'memorandums'])) {
             return $this->uri->segment(4);
         } else {
             return $this->uri->segment(5);
@@ -574,10 +574,11 @@ class Download extends AppController {
                 $data['category'] = true;
                 break;
 
+            case 'memorandums':
             case 'official_outlook':
                 $data['type'] = 7;
-                $data['contentTitle'] = 'Official outlook';
-                $data['route'] = 'official_outlook';
+                $data['contentTitle'] = 'Memorandums';
+                $data['route'] = $this->uri->segment(2) === 'official_outlook' ? 'official_outlook' : 'memorandums';
                 $data['category'] = false;
                 break;
             case 'academic_corner':

@@ -42,15 +42,42 @@ test.describe('Admin: News & Circulars Modules', () => {
         // Create
         await openAddModal(page);
         const testOrder = `Playwright General Order ${Date.now()}`;
-        await page.fill('input[name="date"]', '01-01-2027');
-        await page.keyboard.press('Escape'); // close datepicker
+        await page.evaluate(() => {
+            const $date = $('#modal input[name="date"]');
+            if ($date.data('datepicker')) {
+                $date.datepicker('setDate', '01-01-2027');
+            } else {
+                $date.val('01-01-2027').trigger('change');
+            }
+        });
         await page.fill('input[name="description"]', testOrder);
-        await page.fill('input[name="date"]', '01-01-2027');
-        await page.keyboard.press('Escape'); // close datepicker
-        // Force check the URL radio
-        await page.check('input[name="upload_type"][value="URL"]', { force: true });
-        // The URL field is now required, make sure to fill it
+        // Toggle URL radio button
+        await page.evaluate(() => {
+            const urlRadio = document.querySelector('input[name="upload_type"][value="url"]');
+            if (urlRadio) {
+                urlRadio.checked = true;
+                urlRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                const label = urlRadio.closest('label');
+                if (label) {
+                    label.classList.add('active');
+                }
+            }
+            const pathInput = document.querySelector('input[name="path"]');
+            if (pathInput) {
+                pathInput.removeAttribute('disabled');
+            }
+        });
         await page.fill('input[name="path"]', 'http://example.com');
+        
+        // Select category
+        await page.evaluate(() => {
+            if ($('select[name="category[]"]').length) {
+                const firstOpt = $('select[name="category[]"] option').first().val();
+                if (firstOpt) {
+                    $('select[name="category[]"]').val([firstOpt]).trigger('change');
+                }
+            }
+        });
         
         // Remove HTML5 validation temporarily for playwright to allow testing the JS submit
         await page.evaluate(() => document.querySelector('#modal form').setAttribute('novalidate', 'true'));

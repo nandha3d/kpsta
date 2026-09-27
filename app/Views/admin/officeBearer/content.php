@@ -41,7 +41,31 @@
                                 </td>
 
                                 <td><span class="badge bg-<?php echo (isset($row['level']) && $row['level'] == 'District') ? 'info' : 'primary'; ?>"><?php echo isset($row['level']) ? $row['level'] : 'State'; ?></span></td>
-                                <td><?php echo $row['designation'] ?></td>
+                                <td>
+                                    <strong><?php echo htmlspecialchars($row['designation']); ?></strong>
+                                    <?php if (!empty($row['year'])) { ?>
+                                        <span class="text-muted" style="font-size: 11px;">(<?php echo htmlspecialchars($row['year']); ?>)</span>
+                                    <?php } ?>
+                                    <?php
+                                    if (!empty($row['previous_positions'])) {
+                                        $prevPos = is_array($row['previous_positions']) ? $row['previous_positions'] : json_decode($row['previous_positions'], true);
+                                        if (!empty($prevPos) && is_array($prevPos)) {
+                                            echo '<div style="margin-top: 4px; padding-top: 4px; border-top: 1px dashed #cbd5e1; font-size: 11px; color: #475569;">';
+                                            foreach ($prevPos as $p) {
+                                                $isEnabled = (!isset($p['is_enabled']) || $p['is_enabled'] === 1 || $p['is_enabled'] === '1' || $p['is_enabled'] === true);
+                                                $pDesig = isset($p['designation']) ? $p['designation'] : '';
+                                                $pYear = !empty($p['year']) ? ' (' . $p['year'] . ')' : '';
+                                                $pPos = (!empty($p['position']) && (int)$p['position'] < 25) ? ' <span class="badge" style="font-size: 9px; padding: 1px 4px; background: #fef3c7; color: #92400e;" title="Position Order">#' . htmlspecialchars($p['position']) . '</span>' : '';
+                                                $pLvl = (!empty($p['level']) && $p['level'] !== 'State') ? ' <span class="badge" style="font-size: 9px; padding: 1px 4px; background: #e0f2fe; color: #0369a1;">' . htmlspecialchars($p['level'] . (!empty($p['section_heading']) ? ' - ' . $p['section_heading'] : '')) . '</span>' : '';
+                                                $pStatus = !$isEnabled ? ' <span class="badge" style="font-size: 9px; padding: 1px 4px; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;"><i class="fa fa-ban"></i> Disabled</span>' : '';
+                                                $rowStyle = !$isEnabled ? 'opacity: 0.55; text-decoration: line-through;' : '';
+                                                echo '<div style="margin-bottom: 2px; ' . $rowStyle . '"><i class="fa fa-history text-muted" style="font-size: 10px;"></i> ' . htmlspecialchars($pDesig) . htmlspecialchars($pYear) . $pPos . $pLvl . $pStatus . '</div>';
+                                            }
+                                            echo '</div>';
+                                        }
+                                    }
+                                    ?>
+                                </td>
                                 <td><?php echo isset($row['section_heading']) ? $row['section_heading'] : '' ?></td>
                                 <td><?php echo $row['email'] ?></td>
                                 <td><?php echo $row['phone'] ?></td>

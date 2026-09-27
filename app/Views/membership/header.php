@@ -138,6 +138,12 @@
                                             </li>
 
 
+                                            <?php if ($this->session->userdata("group") == 1) { ?>
+                                                <li>
+                                                    <a href="<?php echo base_url('admin/home'); ?>" style="color: #ffd700;" title="Back to Admin Dashboard"><i class="fa fa-dashboard"></i> ADMIN PANEL</a>
+                                                </li>
+                                            <?php } ?>
+
                                             <li class="">
                                                 <a href="<?php echo base_url('membership/logout') ?>">LOGOUT</a>
                                             </li>

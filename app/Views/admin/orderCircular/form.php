@@ -1,4 +1,4 @@
-<?php echo form_open('#', ['autocomplete' => 'off', 'id' => "save", "data-href" => isset($url) ? $url : '', 'data-href-add' => $addUrl] ) ?> 
+<?php echo form_open('#', ['autocomplete' => 'off', 'id' => "save", 'novalidate' => 'novalidate', "data-href" => isset($url) ? $url : '', 'data-href-add' => $addUrl] ) ?> 
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
     <h4 class="modal-title" id="myModalLabel"><?php echo $title ?></h4>
@@ -36,7 +36,7 @@
     ?>
     <div class="<?php echo $class ?>">
         <label for="heading">Category / Labels (Select one or more)</label>
-        <?php echo form_dropdown('category[]', $category, $selected, 'class="form-control select2-category" style="width: 100%;" multiple="multiple" required="required" data-placeholder="Choose one or more labels"'); ?>
+        <?php echo form_dropdown('category[]', $category, $selected, 'class="form-control select2-category" style="width: 100%;" multiple="multiple" data-placeholder="Choose one or more labels"'); ?>
     </div>
 
 
@@ -120,7 +120,10 @@
 
     $(function () {
         $(".select2-category").select2({
-            dropdownParent: $("#modal")
+            dropdownParent: $("#modal"),
+            tags: true,
+            tokenSeparators: [','],
+            placeholder: "Select or type new label and press Enter"
         });
         $('.datepicker').datepicker({
             autoclose: true

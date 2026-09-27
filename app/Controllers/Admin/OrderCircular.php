@@ -152,10 +152,25 @@ class OrderCircular extends AppController {
 
     function formValidation() {
         $catInput = $this->input->post('category');
-        $categoryVal = is_array($catInput) ? implode(',', array_filter($catInput)) : trim((string)$catInput);
+        if (is_array($catInput)) {
+            $catIds = [];
+            foreach ($catInput as $catItem) {
+                $catItem = trim((string)$catItem);
+                if ($catItem !== '') {
+                    $catId = $this->OrderCircular_model->getOrAddCategory($catItem);
+                    if ($catId) {
+                        $catIds[] = $catId;
+                    }
+                }
+            }
+            $categoryVal = implode(',', array_unique($catIds));
+        } else {
+            $catItem = trim((string)$catInput);
+            $categoryVal = $catItem !== '' ? (string)$this->OrderCircular_model->getOrAddCategory($catItem) : '';
+        }
 
         if (empty($categoryVal)) {
-            $this->form_validation->set_rules('category', 'Category', 'required');
+            $this->form_validation->set_rules('category[]', 'Category', 'required');
         }
         $this->form_validation->set_rules('date', 'Date', 'trim|required');
         $this->form_validation->set_rules('description', 'Description', 'trim|required');
@@ -461,7 +476,7 @@ class OrderCircular extends AppController {
             $data['lastId'] = $add;
             $data['content'] = $this->getCategoryContent();
         } else {
-            $data['code'] = 'success';
+            $data['code'] = 'error';
             $data['data'] = 'Something went wrong! Pls try again';
         }
         echo json_encode($data);

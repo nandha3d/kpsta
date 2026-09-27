@@ -73,7 +73,7 @@
         <li><a href="<?php echo base_url(); ?>" class="nav-link <?php echo empty($seg1) ? 'active' : ''; ?>">Home</a></li>
         <li class="dropdown">
           <div class="nav-item-wrapper">
-            <a href="<?php echo base_url('OfficeBearer'); ?>" class="nav-link <?php echo (in_array($seg1, ['OfficeBearer', 'District', 'melakal', 'former-leaders', 'former_leaders']) || ($seg1 == 'Home' && $seg2 == 'former_leaders')) ? 'active' : ''; ?>">Organization</a>
+            <a href="javascript:void(0)" role="button" aria-haspopup="true" class="nav-link <?php echo (in_array($seg1, ['OfficeBearer', 'District', 'former-leaders', 'former_leaders', 'notice_poster', 'memorandums']) || ($seg1 == 'Home' && in_array($seg2, ['former_leaders', 'memorandums']))) ? 'active' : ''; ?>">Organization</a>
             <button type="button" class="dropdown-toggle-btn" aria-label="Toggle Organization submenu" aria-expanded="false">
               <span class="material-symbols-outlined">arrow_drop_down</span>
             </button>
@@ -82,13 +82,14 @@
             <a href="<?php echo base_url('OfficeBearer'); ?>" class="dropdown-item">State Office Bearers</a>
             <a href="<?php echo base_url('District'); ?>" class="dropdown-item">District Office Bearers</a>
             <a href="<?php echo base_url('former-leaders'); ?>" class="dropdown-item">Former Leaders</a>
-            <a href="<?php echo base_url('melakal'); ?>" class="dropdown-item">Melakal</a>
+            <a href="<?php echo base_url('memorandums'); ?>" class="dropdown-item">Memorandums</a>
+            <a href="<?php echo base_url('notice_poster'); ?>" class="dropdown-item">Notices & Posters</a>
           </div>
         </li>
         <li><a href="<?php echo base_url('order-circular'); ?>" class="nav-link <?php echo ($seg1 == 'order-circular') ? 'active' : ''; ?>">Order & Circular</a></li>
         <li class="dropdown">
           <div class="nav-item-wrapper">
-            <a href="<?php echo base_url('download/forms'); ?>" class="nav-link <?php echo (in_array($seg1, ['download', 'notice_poster', 'service_corner', 'service-corner', 'memorandums']) || ($seg1 == 'Home' && in_array($seg2, ['service_corner', 'memorandums']))) ? 'active' : ''; ?>">Downloads</a>
+            <a href="javascript:void(0)" role="button" aria-haspopup="true" class="nav-link <?php echo (in_array($seg1, ['download', 'melakal', 'service_corner', 'service-corner']) || ($seg1 == 'Home' && in_array($seg2, ['service_corner']))) ? 'active' : ''; ?>">Downloads</a>
             <button type="button" class="dropdown-toggle-btn" aria-label="Toggle Downloads submenu" aria-expanded="false">
               <span class="material-symbols-outlined">arrow_drop_down</span>
             </button>
@@ -98,8 +99,7 @@
             <a href="<?php echo base_url('service-corner'); ?>" class="dropdown-item">Service Corner</a>
             <a href="<?php echo base_url('download/academic_corner'); ?>" class="dropdown-item">Academic Corner</a>
             <a href="<?php echo base_url('download/softwares'); ?>" class="dropdown-item">Software Tools</a>
-            <a href="<?php echo base_url('memorandums'); ?>" class="dropdown-item">Memorandums</a>
-            <a href="<?php echo base_url('notice_poster'); ?>" class="dropdown-item">Notices & Posters</a>
+            <a href="<?php echo base_url('melakal'); ?>" class="dropdown-item">Melakal</a>
           </div>
         </li>
         <li><a href="<?php echo base_url('Gallery'); ?>" class="nav-link <?php echo ($seg1 == 'Gallery') ? 'active' : ''; ?>">Gallery</a></li>

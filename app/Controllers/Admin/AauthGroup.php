@@ -42,7 +42,7 @@ class AauthGroup extends AppController {
     public function createForm($url, $formValues = false, $title = "Add Latest group") {
         $data['title'] = $title;
         $data['url'] = $url;
-        $data['addUrl'] = base_url('admin/group/add');
+        $data['addUrl'] = base_url('admin/aauth/group/add');
         $data['formValues'] = $formValues;
         return $this->load->view('admin/aauth/group/form', $data, TRUE);
     }
@@ -97,13 +97,12 @@ class AauthGroup extends AppController {
         //validation FALSE
         if ($this->form_validation->run() == FALSE) {
             $data['code'] = 'error';
-            $data['form'] = $this->createForm(base_url('admin/group/add'), $formValues);
+            $data['form'] = $this->createForm(base_url('admin/aauth/group/add'), $formValues);
             echo json_encode($data);
             exit;
         }
         //Insert values
-        $formValues['created_at'] = date("Y-m-d H:i:s");
-        $add = $this->aauthGroup_model->addNews($formValues);
+        $add = $this->aauthGroup_model->add($formValues);
         if ($add) {
             $data['lastId'] = $add;
             $data['content'] = $this->getContent();
@@ -188,7 +187,7 @@ class AauthGroup extends AppController {
             echo true;
             exit;
         }
-        echo fale;
+        echo 'false';
         exit;
     }
 
@@ -200,12 +199,13 @@ class AauthGroup extends AppController {
         exit;
     }
 
-    public function delete() {
+    public function delete($id = null) {
         $data['code'] = 'error';
-        $id = $this->uri->segment(5);
-        $orderInfo = $this->aauthGroup_model->getNews($id);
+        if (!$id) {
+            $id = $this->uri->segment(5) ?: ($this->uri->segment(4) ?: $this->input->post('id'));
+        }
         $delete = $this->aauthGroup_model->delete($id);
-        if ($delete && $orderInfo) {
+        if ($delete) {
             $data['code'] = 'success';
             $data['lastId'] = $id;
             $data['content'] = $this->getContent();

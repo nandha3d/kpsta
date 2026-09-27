@@ -33,7 +33,7 @@ class Gallery extends AppController {
         $this->load->library("pagination");
 
         $param['limit'] = 10;
-        $param['offset'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+        $param['offset'] = (is_numeric($this->uri->segment(3))) ? (int)$this->uri->segment(3) : 0;
         $config["total_rows"] = $this->gallery_model->getAllAlbumCount($param);
 
         //view table bottom-left info

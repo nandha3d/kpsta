@@ -120,7 +120,7 @@
         var _label = $(this).find('button[type="submit"]');
         $(_label).find('i').remove().end().prepend('<i class="fa fa-spinner fa-spin"></i>');
         $.ajax({
-            url: 'aauthusers/add',
+            url: '<?php echo base_url("admin/aauth/add"); ?>',
             type: 'POST',
             dataType: 'json',
             data: $("#addNewUserForm").serialize(),
@@ -163,7 +163,7 @@
 
         var _id = $(this).data('id');
         $.ajax({
-            url: "aauthusers/edit",
+            url: '<?php echo base_url("admin/aauth/edit"); ?>',
             type: 'POST',
             dataType: 'json',
             data: {"_id": _id},
@@ -186,7 +186,7 @@
         var _label = $(this).find('button[type="submit"]');
         $(_label).find('i').remove().end().prepend('<i class="fa fa-spinner fa-spin"></i>');
         $.ajax({
-            url: "aauthusers/update",
+            url: '<?php echo base_url("admin/aauth/update"); ?>',
             type: 'POST',
             dataType: 'json',
             data: $(this).serialize() + '&_id=' + _id,

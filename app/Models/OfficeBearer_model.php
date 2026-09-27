@@ -15,11 +15,13 @@ class OfficeBearer_model extends Ci3Model {
         $data['created_at'] = date("Y-m-d H:i:s");
         $data['created_by'] = $this->session->userdata('id');
 
+        if (isset($data['previous_positions']) && is_array($data['previous_positions'])) {
+            $data['previous_positions'] = json_encode(array_values($data['previous_positions']));
+        }
 
         if ($data['position'] <> 100) {
             $this->updatePosition($data);
         }
-
 
         $this->db->insert('office_bearer', $data);
         return $this->db->insert_id();
@@ -52,6 +54,15 @@ class OfficeBearer_model extends Ci3Model {
     }
 
     public function getAllSectionHeadings() {
+        // Predefined headings that should always be available
+        $defaults = array(
+            'President / General Secretary / Treasurer' => 'President / General Secretary / Treasurer',
+            'Senior Vice President & Associate General Secretary' => 'Senior Vice President & Associate General Secretary',
+            'Vice President' => 'Vice President',
+            'Secretary' => 'Secretary',
+            'Secretariate Members' => 'Secretariate Members',
+        );
+
         $this->db->select('DISTINCT(section_heading) as heading');
         $this->db->where('section_heading IS NOT NULL');
         $this->db->where('section_heading !=', '');
@@ -63,7 +74,8 @@ class OfficeBearer_model extends Ci3Model {
                 $data[$row->heading] = $row->heading;
             }
         }
-        return $data;
+        // Merge: defaults first, then any DB-only headings appended
+        return array_merge($defaults, $data);
     }
 
     public function getOrAddDesignation($designation) {
@@ -125,7 +137,7 @@ class OfficeBearer_model extends Ci3Model {
         $param['limit'] = isset($param['limit']) ? $param['limit'] : 15;
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;
 
-        $this->db->select('o.id, o.name, o.phone, o.email, o.is_publish, o.image, c.name as designation, o.designation as designationId, o.section_heading, o.year, o.is_former, o.level, o.position');
+        $this->db->select('o.id, o.name, o.phone, o.email, o.is_publish, o.image, c.name as designation, o.designation as designationId, o.section_heading, o.year, o.is_former, o.level, o.position, o.previous_positions');
         $this->db->from('office_bearer o');
         $this->db->join('office_bearer_designation c', 'o.designation = c.id', 'left');
 
@@ -297,7 +309,7 @@ class OfficeBearer_model extends Ci3Model {
     }
 
     public function getById($id) {
-        $this->db->select('id, name, phone, email, is_publish, image, designation, position, section_heading, year, is_former, level');
+        $this->db->select('id, name, phone, email, is_publish, image, designation, position, section_heading, year, is_former, level, previous_positions');
         $this->db->where(array("id" => $id));
         $query = $this->db->get('office_bearer');
 
@@ -310,17 +322,132 @@ class OfficeBearer_model extends Ci3Model {
     public function update($id, $formValues) {
         unset($formValues['id']);
 
+        if (isset($formValues['previous_positions']) && is_array($formValues['previous_positions'])) {
+            $formValues['previous_positions'] = json_encode(array_values($formValues['previous_positions']));
+        }
 
         if ($formValues['position'] <> 100) {
             $this->updatePosition($formValues);
         }
-
 
         $this->db->where(array("id" => $id));
         if ($this->db->update('office_bearer', $formValues)) {
             return true;
         }
         return false;
+    }
+
+    public function findPersonByNameAndPhone($name, $phone, $excludeId = false) {
+        $name = trim((string)$name);
+        $phone = trim((string)$phone);
+        if ($name === '' || $phone === '') {
+            return false;
+        }
+
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+
+        $this->db->select('o.id, o.name, o.phone, o.email, o.image, o.designation, c.name as designation_name, o.year, o.level, o.section_heading, o.is_former, o.previous_positions');
+        $this->db->from('office_bearer o');
+        $this->db->join('office_bearer_designation c', 'o.designation = c.id', 'left');
+        $this->db->where('LOWER(TRIM(o.name))', mb_strtolower($name));
+        $this->db->group_start();
+        $this->db->where('o.phone', $phone);
+        if (!empty($cleanPhone)) {
+            $this->db->or_where("REPLACE(REPLACE(o.phone, ' ', ''), '-', '') =", $cleanPhone);
+        }
+        $this->db->group_end();
+        if ($excludeId) {
+            $this->db->where('o.id !=', $excludeId);
+        }
+        $query = $this->db->get();
+        if ($query->num_rows() > 0) {
+            return $query->row_array();
+        }
+        return false;
+    }
+
+    public function mergePositions($personId, $newPositions = array(), $extra = array()) {
+        $person = $this->getById($personId);
+        if (!$person) {
+            return false;
+        }
+
+        $existingList = array();
+        if (!empty($person['previous_positions'])) {
+            $decoded = json_decode($person['previous_positions'], true);
+            if (is_array($decoded)) {
+                $existingList = $decoded;
+            }
+        }
+
+        $makeFingerprint = function($item) {
+            $desig = mb_strtolower(trim(isset($item['designation']) ? (string)$item['designation'] : ''));
+            $year = mb_strtolower(trim(isset($item['year']) ? (string)$item['year'] : ''));
+            $level = mb_strtolower(trim(isset($item['level']) ? (string)$item['level'] : 'State'));
+            $sec = mb_strtolower(trim(isset($item['section_heading']) ? (string)$item['section_heading'] : ''));
+            return "{$desig}|{$year}|{$level}|{$sec}";
+        };
+
+        $seen = array();
+        $primaryDesig = '';
+        $desigRow = $this->getDesignationById($person['designation']);
+        if ($desigRow) {
+            $primaryDesig = $desigRow['name'];
+        }
+        $seen[$makeFingerprint(array(
+            'designation' => $primaryDesig,
+            'year' => $person['year'],
+            'level' => $person['level'],
+            'section_heading' => $person['section_heading']
+        ))] = true;
+
+        foreach ($existingList as $k => $item) {
+            $fp = $makeFingerprint($item);
+            $seen[$fp] = $k;
+        }
+
+        foreach ($newPositions as $pos) {
+            if (empty($pos['designation']) && empty($pos['year'])) {
+                continue;
+            }
+            $fp = $makeFingerprint($pos);
+            if (isset($seen[$fp])) {
+                $k = $seen[$fp];
+                if (isset($pos['is_enabled'])) {
+                    $existingList[$k]['is_enabled'] = (int)$pos['is_enabled'];
+                }
+                if (isset($pos['position']) && is_numeric($pos['position'])) {
+                    $existingList[$k]['position'] = (int)$pos['position'];
+                }
+            } else {
+                $seen[$fp] = count($existingList);
+                $existingList[] = array(
+                    'designation' => trim((string)$pos['designation']),
+                    'year' => trim((string)(isset($pos['year']) ? $pos['year'] : '')),
+                    'level' => trim((string)(isset($pos['level']) ? $pos['level'] : 'State')),
+                    'section_heading' => trim((string)(isset($pos['section_heading']) ? $pos['section_heading'] : '')),
+                    'position' => isset($pos['position']) && is_numeric($pos['position']) ? (int)$pos['position'] : 25,
+                    'is_enabled' => isset($pos['is_enabled']) ? (int)$pos['is_enabled'] : 1
+                );
+            }
+        }
+
+        $updateData = array(
+            'previous_positions' => json_encode(array_values($existingList))
+        );
+
+        if (!empty($extra['image']) && empty($person['image'])) {
+            $updateData['image'] = $extra['image'];
+        }
+        if (!empty($extra['email']) && empty($person['email'])) {
+            $updateData['email'] = $extra['email'];
+        }
+        if (isset($extra['is_former']) && $extra['is_former'] == 1) {
+            $updateData['is_former'] = 1;
+        }
+
+        $this->db->where('id', $personId);
+        return $this->db->update('office_bearer', $updateData);
     }
 
     public function publish($id, $publish) {
@@ -339,12 +466,15 @@ class OfficeBearer_model extends Ci3Model {
         return false;
     }
 
-    public function isSingleDesignation($designation) {
+    public function isSingleDesignation($designation, $isFormer = 0) {
+        if (!empty($isFormer)) {
+            return false;
+        }
         $this->db->where(array("is_single" => 1));
         $this->db->where(array("id" => $designation));
         $query = $this->db->get('office_bearer_designation');
         if ($query->num_rows()) {
-            $this->db->where(array("designation" => $designation));
+            $this->db->where(array("designation" => $designation, "is_former" => 0));
             $query = $this->db->get('office_bearer');
             if ($query->num_rows()) {
                 return TRUE;

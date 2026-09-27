@@ -24,7 +24,7 @@ class District extends AppController {
 
     public function index() {
 
-        $data['form'] = $this->createForm(base_url('admin/office_bearer/add'));
+        $data['form'] = $this->createForm(base_url('admin/district/add'));
 
         $data['content'] = $this->getContent();
 
@@ -56,7 +56,7 @@ class District extends AppController {
 
         //PAGINATION CONFIGS
         $config["total_rows"] = $this->District_model->getAllDistrictCount($param);
-        $config["base_url"] = base_url('admin/office_bearer');
+        $config["base_url"] = base_url('admin/district');
         $config["per_page"] = $param['limit'];
 
         $configBootrap = $this->BootsrapPaginationConfig();
@@ -173,6 +173,18 @@ class District extends AppController {
         $data['content'] = $this->getContent();
         $data['message'] = 'Saved Successfully';
 
+        echo json_encode($data);
+        exit;
+    }
+
+    public function delete() {
+        $data['code'] = 'error';
+        $id = $this->uri->segment(4);
+        if ($id && $this->District_model->delete($id)) {
+            $data['content'] = $this->getContent();
+            $data['code'] = 'success';
+            $data['lastId'] = $id;
+        }
         echo json_encode($data);
         exit;
     }

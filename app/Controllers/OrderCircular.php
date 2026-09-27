@@ -17,23 +17,27 @@ class OrderCircular extends PublicController {
 
         $param['category'] = $this->input->get('category');
         $param['search'] = $this->input->get('search');
+        $param['year'] = $this->input->get('year');
+        $param['month'] = $this->input->get('month');
 
-        $param['limit'] =30;
+        $param['limit'] = 30;
         $param['page'] = (int)($this->input->get('page') && $this->input->get('page') !== 'undefined' ? $this->input->get('page') : 1);
         $param['offset'] = ($param['page'] > 0) ? ($param['page'] - 1) * $param['limit'] : 0;
         $param['type'] = $segment['type'];
         $content['categories'] = $this->OrderCircular_model->getOrderCircularCategory($param);
 
         $config["total_rows"] = $this->OrderCircular_model->getAllByTypeCount($param, TRUE);
-        if ($param['category'] > 0 && $param['search']) {
-            $config['suffix'] = '&category=' . $param['category'] . '&search=' . $param['search'];
-            $config['first_url'] = '?category=' . $param['category'] . '&search=' . $param['search'];
-        } else if ($param['category'] > 0) {
-            $config['suffix'] = '&category=' . $param['category'];
-            $config['first_url'] = '?category=' . $param['category'];
-        } else if ($param['search']) {
-            $config['suffix'] = '&search=' . $param['search'];
-            $config['first_url'] = '?search=' . $param['search'];
+        
+        $queryParams = array();
+        if (!empty($param['category'])) { $queryParams['category'] = $param['category']; }
+        if (!empty($param['search'])) { $queryParams['search'] = $param['search']; }
+        if (!empty($param['year'])) { $queryParams['year'] = $param['year']; }
+        if (!empty($param['month'])) { $queryParams['month'] = $param['month']; }
+
+        if (!empty($queryParams)) {
+            $queryString = http_build_query($queryParams);
+            $config['suffix'] = '&' . $queryString;
+            $config['first_url'] = '?' . $queryString;
         }
         $config["base_url"] = base_url() . "order-circular/" . $this->uri->segment(2);
         $config["per_page"] = $param['limit'];
@@ -51,6 +55,9 @@ class OrderCircular extends PublicController {
         $catRow = !empty($param['category']) ? $this->OrderCircular_model->getCategoryById($param['category']) : null;
         $content['selectedCategoryName'] = is_array($catRow) ? ($catRow['name'] ?? '') : (is_string($catRow) ? $catRow : '');
         $content['search'] = $param['search'];
+        $content['selectedYear'] = $param['year'];
+        $content['selectedMonth'] = $param['month'];
+        $content['years'] = $this->OrderCircular_model->getAvailableYears($segment['type']);
 
         $content['urlString'] = base_url($this->uri->uri_string());
 

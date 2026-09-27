@@ -30,6 +30,27 @@ class OfficeBearer extends PublicController {
                 
             }
         }
+
+        // Enforce desired section display order
+        $sectionOrder = [
+            'President / General Secretary / Treasurer',
+            'Senior Vice President & Associate General Secretary',
+            'Vice President',
+            'Secretary',
+            'Secretariate Members',
+        ];
+        $ordered = array();
+        foreach ($sectionOrder as $section) {
+            if (isset($content['content'][$section])) {
+                $ordered[$section] = $content['content'][$section];
+                unset($content['content'][$section]);
+            }
+        }
+        // Append any remaining sections not in the predefined order
+        foreach ($content['content'] as $key => $bearers) {
+            $ordered[$key] = $bearers;
+        }
+        $content['content'] = $ordered;
         
 //        echo '<pre>';
 //        print_r($content['content']);

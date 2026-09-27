@@ -50,7 +50,7 @@
 
                                 <div class="input-group no-margin pull-left">
                                     <span class="input-group-btn"><button type="button" class="btn btn-default"><i class="fa fa-question-circle"></i></button></span>
-                                    <input type="text" class="form-control" placeholder="Search..." name="search" data-href="<?php echo base_url('admin/quicklink') ?>">
+                                    <input type="text" class="form-control" placeholder="Search..." name="search" data-href="<?php echo base_url('admin/slider') ?>">
                                     <span class="input-group-btn">
                                         <button type="button" class="btn btn-default btn-flat" name="search"><i class="fa fa-search fa-fw"></i></button>
                                     </span>

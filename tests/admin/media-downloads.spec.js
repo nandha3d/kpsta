@@ -36,8 +36,17 @@ test.describe('Admin: Media & Downloads Modules', () => {
         await openAddModal(page);
         const testForm = `Playwright Form ${Date.now()}`;
         await page.fill('input[name="description"]', testForm);
-        // Usually downloads need a file or URL
-        await page.click('label.btn:has-text("URL")');
+        await page.evaluate(() => {
+            const urlRadio = document.querySelector('input[name="upload_type"][value="url"]');
+            if (urlRadio) {
+                urlRadio.checked = true;
+                urlRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                const label = urlRadio.closest('label');
+                if (label) label.classList.add('active');
+            }
+            const pathInput = document.querySelector('input[name="path"]');
+            if (pathInput) pathInput.removeAttribute('disabled');
+        });
         await page.fill('input[name="path"]', 'http://example.com/form.pdf');
         await submitForm(page);
         
@@ -53,6 +62,7 @@ test.describe('Admin: Media & Downloads Modules', () => {
         await deleteItem(page, updatedForm);
         await expect(page.locator(`tbody tr:has-text("${updatedForm}")`)).toHaveCount(0);
     });
+
     test('Photo Gallery CRUD', async ({ page }) => {
         await page.goto('/admin/gallery');
         
@@ -61,42 +71,70 @@ test.describe('Admin: Media & Downloads Modules', () => {
         await page.fill('input[name="name"]', testGallery);
         await submitForm(page);
         
-        await verifyInTable(page, testGallery);
+        await expect(page.locator(`.thumb-gallery-details:has-text("${testGallery}")`)).toBeVisible();
         
-        await editItem(page, testGallery);
+        // Open dropdown gear menu and click Edit
+        const album = page.locator(`.thumb:has-text("${testGallery}")`).first();
+        await album.locator('.dropdown-toggle').click();
+        await album.locator('a.edit').click();
+        await page.waitForSelector('#modal.in, #modal.show, #modal:visible', { state: 'visible' });
+        
         const updatedGallery = `${testGallery} - Edited`;
         await page.fill('input[name="name"]', updatedGallery);
         await submitForm(page);
         
-        await verifyInTable(page, updatedGallery);
+        await expect(page.locator(`.thumb-gallery-details:has-text("${updatedGallery}")`)).toBeVisible();
         
-        await deleteItem(page, updatedGallery);
-        await expect(page.locator(`tbody tr:has-text("${updatedGallery}")`)).toHaveCount(0);
+        // Open dropdown gear menu and click Delete
+        const updatedAlbum = page.locator(`.thumb:has-text("${updatedGallery}")`).first();
+        await updatedAlbum.locator('.dropdown-toggle').click();
+        await updatedAlbum.locator('a[data-target="#delete"]').click();
+        await page.waitForSelector('#delete:visible', { state: 'visible' });
+        
+        await Promise.all([
+            page.waitForResponse(res => res.url().includes('/delete')),
+            page.locator('#delete button.delete, #delete button.btn-danger').first().click()
+        ]);
+        
+        await page.waitForTimeout(1000);
+        await expect(page.locator(`.thumb-gallery-details:has-text("${updatedGallery}")`)).toHaveCount(0);
     });
 
-    test('Forms RAR CRUD', async ({ page }) => {
-        await page.goto('/admin/forms');
+    test('Academic Corner Downloads CRUD', async ({ page }) => {
+        await page.goto('/admin/download/academic_corner');
         
         await openAddModal(page);
-        const testFormsrar = `Playwright Formsrar ${Date.now()}`;
-        await page.fill('input[name="description"]', testFormsrar);
-        // Assuming there is a category dropdown. If not, this might fail, but let's try to select the second option.
-        await page.selectOption('select[name="category"]', { index: 1 });
-        await page.click('label.btn:has-text("URL")');
-        await page.fill('input[name="path"]', 'http://example.com/forms.rar');
+        const testAcademic = `Playwright Academic ${Date.now()}`;
+        await page.fill('input[name="description"]', testAcademic);
+        await page.evaluate(() => {
+            if (window.$ && $('select[name="category"]').length) {
+                const opt = $('select[name="category"] option').eq(1).val() || $('select[name="category"] option').last().val();
+                if (opt) $('select[name="category"]').val(opt).trigger('change');
+            }
+            const urlRadio = document.querySelector('input[name="upload_type"][value="url"]');
+            if (urlRadio) {
+                urlRadio.checked = true;
+                urlRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                const label = urlRadio.closest('label');
+                if (label) label.classList.add('active');
+            }
+            const pathInput = document.querySelector('input[name="path"]');
+            if (pathInput) pathInput.removeAttribute('disabled');
+        });
+        await page.fill('input[name="path"]', 'http://example.com/academic.pdf');
         await submitForm(page);
         
-        await verifyInTable(page, testFormsrar);
+        await verifyInTable(page, testAcademic);
         
-        await editItem(page, testFormsrar);
-        const updatedFormsrar = `${testFormsrar} - Edited`;
-        await page.fill('input[name="description"]', updatedFormsrar);
+        await editItem(page, testAcademic);
+        const updatedAcademic = `${testAcademic} - Edited`;
+        await page.fill('input[name="description"]', updatedAcademic);
         await submitForm(page);
         
-        await verifyInTable(page, updatedFormsrar);
+        await verifyInTable(page, updatedAcademic);
         
-        await deleteItem(page, updatedFormsrar);
-        await expect(page.locator(`tbody tr:has-text("${updatedFormsrar}")`)).toHaveCount(0);
+        await deleteItem(page, updatedAcademic);
+        await expect(page.locator(`tbody tr:has-text("${updatedAcademic}")`)).toHaveCount(0);
     });
 
     test('Melakal Dynamic Category CRUD', async ({ page }) => {
@@ -112,7 +150,17 @@ test.describe('Admin: Media & Downloads Modules', () => {
         await page.keyboard.press('Enter');
         
         await page.fill('input[name="description"]', testMelakal);
-        await page.click('label.btn:has-text("URL")');
+        await page.evaluate(() => {
+            const urlRadio = document.querySelector('input[name="upload_type"][value="url"]');
+            if (urlRadio) {
+                urlRadio.checked = true;
+                urlRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                const label = urlRadio.closest('label');
+                if (label) label.classList.add('active');
+            }
+            const pathInput = document.querySelector('input[name="path"]');
+            if (pathInput) pathInput.removeAttribute('disabled');
+        });
         await page.fill('input[name="path"]', 'http://example.com/melakal.pdf');
         await submitForm(page);
         

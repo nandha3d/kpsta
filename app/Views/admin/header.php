@@ -106,25 +106,25 @@ if (!isset($page_title) || $page_title === '') {
                         }
                     } else {
                         ?>
-                        <li class="modern-menu-section"><span>Content</span></li>
+                        <li class="modern-menu-section"><span>Organization</span></li>
 
-                        <li class="treeview flash_news-menu" >
-                            <a href="#" data-title="Flash News">
-                                <i class="fa fa-bolt"></i>
-                                <span>Flash News</span>
+                        <li class="treeview office_bearer-menu">
+                            <a href="#" data-title="Organization">
+                                <i class="fa fa-sitemap"></i>
+                                <span>Organization</span>
                                 <i class="fa fa-angle-left modern-caret"></i>
                             </a>
-                            <ul class="treeview-menu ">
-                                <li><a href="<?php echo site_url("admin/flash_news/kpsta"); ?>"><i class="fa fa-circle-o"></i><span>Kpsta </span></a></li>
-                                <li><a href="<?php echo site_url("admin/flash_news/flash"); ?>"><i class="fa fa-circle-o"></i><span>Flash</span></a></li>
+                            <ul class="treeview-menu">
+                                <li><a href="<?php echo site_url("admin/office_bearer"); ?>"><i class="fa fa-circle-o"></i><span>State Office Bearers</span></a></li>
+                                <li><a href="<?php echo site_url("admin/district"); ?>"><i class="fa fa-circle-o"></i><span>District Office Bearers</span></a></li>
+                                <li><a href="<?php echo site_url("admin/office_bearer?is_former=1"); ?>"><i class="fa fa-circle-o"></i><span>Former Leaders</span></a></li>
+                                <li><a href="<?php echo site_url("admin/memorandums"); ?>"><i class="fa fa-circle-o"></i><span>Memorandums</span></a></li>
+                                <li><a href="<?php echo site_url("admin/notice_poster"); ?>"><i class="fa fa-circle-o"></i><span>Notices &amp; Posters</span></a></li>
+                                <li><a href="<?php echo site_url("admin/office_bearer/designation"); ?>"><i class="fa fa-circle-o"></i><span>Designations</span></a></li>
                             </ul>
                         </li>
 
-                        <li class="news-menu" >
-                            <a href="<?php echo site_url("admin/news"); ?>" data-title="Latest News">
-                                <i class="fa fa-newspaper-o"></i> <span>Latest News</span>
-                            </a>
-                        </li>
+                        <li class="modern-menu-section"><span>Orders</span></li>
 
                         <li class="treeview order-circular-menu" >
                             <a href="#" data-title="Order &amp; Circular">
@@ -140,29 +140,35 @@ if (!isset($page_title) || $page_title === '') {
                             </ul>
                         </li>
 
-                        <li class="adayapaka_sabham-menu">
-                            <a href="<?php echo site_url("admin/adayapaka_sabham"); ?>" data-title="Adayapaka Sabham">
-                                <i class="fa fa-share-alt"></i> <span>Adayapaka Sabham</span>
+                        <li class="modern-menu-section"><span>Downloads</span></li>
+
+                        <li class="treeview download-menu" >
+                            <a href="#" data-title="Downloads">
+                                <i class="fa fa-download"></i>
+                                <span>Downloads</span>
+                                <i class="fa fa-angle-left modern-caret"></i>
                             </a>
+                            <ul class="treeview-menu">
+                                <li><a href="<?php echo site_url("admin/download/forms"); ?>"><i class="fa fa-circle-o"></i><span>Forms</span></a></li>
+                                <li><a href="<?php echo site_url("admin/ServiceCorner"); ?>"><i class="fa fa-circle-o"></i><span>Service Corner</span></a></li>
+                                <li><a href="<?php echo site_url("admin/download/academic_corner"); ?>"><i class="fa fa-circle-o"></i><span>Academic Corner</span></a></li>
+                                <li><a href="<?php echo site_url("admin/download/softwares"); ?>"><i class="fa fa-circle-o"></i><span>Software Tools</span></a></li>
+                                <li><a href="<?php echo site_url("admin/melakal"); ?>"><i class="fa fa-circle-o"></i><span>Melakal</span></a></li>
+                                <li><a href="<?php echo site_url("admin/download/fonts"); ?>"><i class="fa fa-circle-o"></i><span>Fonts</span></a></li>
+                            </ul>
                         </li>
 
-                        <li class="ServiceCorner-menu">
-                            <a href="<?php echo site_url("admin/ServiceCorner"); ?>" data-title="Service Corner">
-                                <i class="fa fa-cubes"></i> <span>Service Corner</span>
+                        <li class="modern-menu-section"><span>Media &amp; News</span></li>
+
+                        <li class="news-menu" >
+                            <a href="<?php echo site_url("admin/news"); ?>" data-title="Latest News">
+                                <i class="fa fa-newspaper-o"></i> <span>Latest News</span>
                             </a>
                         </li>
-
-                        <li class="modern-menu-section"><span>Media</span></li>
 
                         <li class="gallery-menu">
                             <a href="<?php echo site_url("admin/gallery"); ?>" data-title="Gallery">
                                 <i class="fa fa-picture-o"></i> <span>Gallery</span>
-                            </a>
-                        </li>
-
-                        <li class="slider-menu">
-                            <a href="<?php echo site_url("admin/slider"); ?>" data-title="Slider &amp; Headings">
-                                <i class="fa fa-sliders"></i> <span>Slider &amp; Headings</span>
                             </a>
                         </li>
 
@@ -172,40 +178,13 @@ if (!isset($page_title) || $page_title === '') {
                             </a>
                         </li>
 
-                        <li class="notice_poster-menu">
-                            <a href="<?php echo site_url("admin/notice_poster"); ?>" data-title="Notice Poster">
-                                <i class="fa fa-thumb-tack"></i> <span>Notice Poster</span>
+                        <li class="slider-menu">
+                            <a href="<?php echo site_url("admin/slider"); ?>" data-title="Slider &amp; Headings">
+                                <i class="fa fa-sliders"></i> <span>Slider &amp; Headings</span>
                             </a>
                         </li>
 
-                        <li class="official_outlook-menu">
-                            <a href="<?php echo site_url("admin/official_outlook"); ?>" data-title="Official Outlook">
-                                <i class="fa fa-group"></i> <span>Official Outlook</span>
-                            </a>
-                        </li>
-
-                        <li class="modern-menu-section"><span>Documents &amp; Links</span></li>
-
-                        <li class="treeview download-menu" >
-                            <a href="#" data-title="Downloads">
-                                <i class="fa fa-download"></i>
-                                <span>Downloads</span>
-                                <i class="fa fa-angle-left modern-caret"></i>
-                            </a>
-                            <ul class="treeview-menu ">
-                                <li><a href="<?php echo site_url("admin/download/act_rules"); ?>"><i class="fa fa-circle-o"></i><span>Act &amp; Rules</span></a></li>
-                                <li><a href="<?php echo site_url("admin/download/softwares"); ?>"><i class="fa fa-circle-o"></i><span>Software</span></a></li>
-                                <li><a href="<?php echo site_url("admin/download/fonts"); ?>"><i class="fa fa-circle-o"></i><span>Fonts</span></a></li>
-                                <li><a href="<?php echo site_url("admin/download/forms"); ?>"><i class="fa fa-circle-o"></i><span>Forms</span></a></li>
-                                <li><a href="<?php echo site_url("admin/download/academic_corner"); ?>"><i class="fa fa-circle-o"></i><span>Academic Corner</span></a></li>
-                            </ul>
-                        </li>
-
-                        <li class="melakal-menu">
-                            <a href="<?php echo site_url("admin/melakal"); ?>" data-title="Melakal">
-                                <i class="fa fa-smile-o"></i> <span>Melakal</span>
-                            </a>
-                        </li>
+                        <li class="modern-menu-section"><span>Online Links</span></li>
 
                         <li class="quicklink-menu" >
                             <a href="<?php echo site_url("admin/quicklink"); ?>" data-title="Quick Links">
@@ -219,23 +198,11 @@ if (!isset($page_title) || $page_title === '') {
                             </a>
                         </li>
 
-                        <li class="modern-menu-section"><span>Organisation</span></li>
-
-                        <li class="treeview office_bearer-menu">
-                            <a href="#" data-title="Office Bearers">
-                                <i class="fa fa-user"></i>
-                                <span>Office Bearers</span>
-                                <i class="fa fa-angle-left modern-caret"></i>
-                            </a>
-                            <ul class="treeview-menu">
-                                <li><a href="<?php echo site_url("admin/office_bearer"); ?>"><i class="fa fa-circle-o"></i><span>All Office Bearers</span></a></li>
-                                <li><a href="<?php echo site_url("admin/office_bearer/designation"); ?>"><i class="fa fa-circle-o"></i><span>Designations</span></a></li>
-                            </ul>
-                        </li>
+                        <li class="modern-menu-section"><span>Membership</span></li>
 
                         <li class="membership-menu">
-                            <a href="<?php echo site_url("admin/membership"); ?>" data-title="Membership">
-                                <i class="fa fa-users"></i> <span>Membership</span>
+                            <a href="<?php echo site_url("membership/home"); ?>" data-title="Membership">
+                                <i class="fa fa-users"></i> <span>Membership Portal</span>
                             </a>
                         </li>
 

@@ -30,10 +30,50 @@
   <main class="page-list">
     <div class="container">
 
-      <!-- Label Filter Bar with Scrollable Searchable Dropdown -->
-      <div class="order-filter-toolbar" style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 2rem; position: relative;">
-        <div class="custom-searchable-dropdown" id="labelDropdown" style="position: relative; width: 100%; max-width: 320px;">
-          <button type="button" class="dropdown-trigger-btn" id="labelDropdownBtn" style="width: 100%; height: 44px; padding: 0 16px; background: white; border: 1.5px solid #cbd5e1; border-radius: 8px; font-weight: 600; font-size: 15px; color: var(--color-primary-dark); display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s;">
+      <?php
+        $baseUrl = base_url('order-circular/' . ($this->uri->segment(2) ?? ''));
+        $hasFilters = !empty($selectedCategory) || !empty($selectedYear) || !empty($selectedMonth) || !empty($search);
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
+        ];
+        function buildFilterUrl($base, $cat, $yr, $mo, $srch) {
+            $p = array();
+            if (!empty($cat)) $p['category'] = $cat;
+            if (!empty($yr)) $p['year'] = $yr;
+            if (!empty($mo)) $p['month'] = $mo;
+            if (!empty($srch)) $p['search'] = $srch;
+            return $base . (!empty($p) ? '?' . http_build_query($p) : '');
+        }
+      ?>
+
+      <!-- Search & Filter Toolbar: Year, Month, Label Dropdown & Clear Action -->
+      <div class="order-filter-toolbar" style="display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 12px; margin-bottom: 2rem; position: relative;">
+        
+        <!-- Year Filter -->
+        <div style="min-width: 140px; flex: 1; max-width: 170px;">
+          <select id="yearFilterSelect" onchange="location.href=this.value;" aria-label="Filter by Year" style="width: 100%; height: 44px; padding: 0 14px; background: white; border: 1.5px solid #cbd5e1; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--color-primary-dark); cursor: pointer; box-shadow: var(--shadow-sm); outline: none;">
+            <option value="<?php echo buildFilterUrl($baseUrl, $selectedCategory, '', $selectedMonth, $search); ?>">Search by Year</option>
+            <?php if(!empty($years)) { foreach($years as $yr) { ?>
+              <option value="<?php echo buildFilterUrl($baseUrl, $selectedCategory, $yr, $selectedMonth, $search); ?>" <?php echo ($selectedYear == $yr) ? 'selected' : ''; ?>><?php echo $yr; ?></option>
+            <?php } } ?>
+          </select>
+        </div>
+
+        <!-- Month Filter -->
+        <div style="min-width: 150px; flex: 1; max-width: 180px;">
+          <select id="monthFilterSelect" onchange="location.href=this.value;" aria-label="Filter by Month" style="width: 100%; height: 44px; padding: 0 14px; background: white; border: 1.5px solid #cbd5e1; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--color-primary-dark); cursor: pointer; box-shadow: var(--shadow-sm); outline: none;">
+            <option value="<?php echo buildFilterUrl($baseUrl, $selectedCategory, $selectedYear, '', $search); ?>">Search by Month</option>
+            <?php foreach($months as $num => $name) { ?>
+              <option value="<?php echo buildFilterUrl($baseUrl, $selectedCategory, $selectedYear, $num, $search); ?>" <?php echo ($selectedMonth == $num) ? 'selected' : ''; ?>><?php echo $name; ?></option>
+            <?php } ?>
+          </select>
+        </div>
+
+        <!-- Label Filter Bar with Scrollable Searchable Dropdown -->
+        <div class="custom-searchable-dropdown" id="labelDropdown" style="position: relative; width: 100%; max-width: 270px; flex: 1;">
+          <button type="button" class="dropdown-trigger-btn" id="labelDropdownBtn" style="width: 100%; height: 44px; padding: 0 16px; background: white; border: 1.5px solid #cbd5e1; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--color-primary-dark); display: flex; align-items: center; justify-content: space-between; cursor: pointer; box-shadow: var(--shadow-sm); transition: all 0.2s;">
             <span id="labelDropdownText" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               <?php 
                 $activeLabel = is_array($selectedCategoryName) ? ($selectedCategoryName['name'] ?? '') : (string)$selectedCategoryName;
@@ -48,12 +88,12 @@
               <input type="text" id="labelSearchFilterInput" placeholder="Type to search labels..." style="width: 100%; height: 36px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; outline: none;">
             </div>
             <div class="dropdown-items-list" id="labelItemsList" style="max-height: 250px; overflow-y: auto; padding: 6px 0;">
-              <a href="<?php echo base_url('order-circular'); ?>" class="dropdown-item-link <?php echo empty($selectedCategory) ? 'selected' : ''; ?>" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; font-size: 14px; color: var(--color-primary-dark); text-decoration: none; cursor: pointer;">
+              <a href="<?php echo buildFilterUrl($baseUrl, '', $selectedYear, $selectedMonth, $search); ?>" class="dropdown-item-link <?php echo empty($selectedCategory) ? 'selected' : ''; ?>" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; font-size: 14px; color: var(--color-primary-dark); text-decoration: none; cursor: pointer;">
                 <span>All Labels</span>
                 <?php if(empty($selectedCategory)): ?><span class="material-symbols-outlined" style="font-size:1.1rem; color:var(--color-primary);">check</span><?php endif; ?>
               </a>
               <?php if(!empty($categories)) { foreach($categories as $cat) { ?>
-                <a href="<?php echo base_url('order-circular?category=' . $cat['id']); ?>" data-label="<?php echo htmlspecialchars(strtolower($cat['name'])); ?>" class="dropdown-item-link <?php echo ($selectedCategory == $cat['id']) ? 'selected' : ''; ?>" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; font-size: 14px; color: #334155; text-decoration: none; cursor: pointer; transition: background 0.15s;">
+                <a href="<?php echo buildFilterUrl($baseUrl, $cat['id'], $selectedYear, $selectedMonth, $search); ?>" data-label="<?php echo htmlspecialchars(strtolower($cat['name'])); ?>" class="dropdown-item-link <?php echo ($selectedCategory == $cat['id']) ? 'selected' : ''; ?>" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; font-size: 14px; color: #334155; text-decoration: none; cursor: pointer; transition: background 0.15s;">
                   <span><?php echo htmlspecialchars($cat['name']); ?></span>
                   <?php if($selectedCategory == $cat['id']): ?><span class="material-symbols-outlined" style="font-size:1.1rem; color:var(--color-orange);">check</span><?php endif; ?>
                 </a>
@@ -62,9 +102,9 @@
           </div>
         </div>
 
-        <?php if(!empty($selectedCategory)): ?>
-        <a href="<?php echo base_url('order-circular'); ?>" style="margin-left: 12px; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: #e11d48; text-decoration: none; font-weight: 600; padding: 8px 12px; background: #fff1f2; border-radius: 6px; border: 1px solid #ffe4e6;">
-          <span class="material-symbols-outlined" style="font-size: 1rem;">close</span> Clear Filter
+        <?php if($hasFilters): ?>
+        <a href="<?php echo $baseUrl; ?>" style="display: inline-flex; align-items: center; gap: 4px; height: 44px; font-size: 13px; color: #e11d48; text-decoration: none; font-weight: 600; padding: 0 14px; background: #fff1f2; border-radius: 8px; border: 1.5px solid #ffe4e6; box-shadow: var(--shadow-sm); white-space: nowrap;">
+          <span class="material-symbols-outlined" style="font-size: 1rem;">close</span> Clear Filters
         </a>
         <?php endif; ?>
       </div>

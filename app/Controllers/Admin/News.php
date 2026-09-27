@@ -45,10 +45,14 @@ class News extends AppController {
         $param['search'] = trim((string)$this->input->get('search'));
 
         $param['limit'] = 10;
-        if ($this->uri->segment(3) == 'search') {
-            $param['offset'] = ($this->uri->segment(4)) ? $this->uri->segment(4) : 0;
+        if (!isset($param['offset'])) {
+            if ($this->uri->segment(3) == 'search') {
+                $param['offset'] = (is_numeric($this->uri->segment(4))) ? (int)$this->uri->segment(4) : 0;
+            } else {
+                $param['offset'] = (is_numeric($this->uri->segment(3))) ? (int)$this->uri->segment(3) : 0;
+            }
         } else {
-            $param['offset'] = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
+            $param['offset'] = (int)$param['offset'];
         }
         $config["total_rows"] = $this->news_model->getAllNewsCount($param);
 
@@ -120,6 +124,7 @@ class News extends AppController {
         }
 
         //Insert values
+        $formValues['created_by'] = (int)($this->session->userdata('id') ?: 0);
         $formValues['created_at'] = date("Y-m-d H:i:s");
         $add = $this->news_model->addNews($formValues);
         if ($add) {
