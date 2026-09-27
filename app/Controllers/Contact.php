@@ -48,6 +48,13 @@ class Contact extends PublicController {
             'limit' => 3,
         ));
 
+        $this->load->model("EditorialBoard_model");
+        $data['editorialMembers'] = $this->EditorialBoard_model->getAll([
+            'isPublish' => TRUE,
+            'sort' => 'position-asc',
+            'limit' => 20
+        ]);
+
         $this->load->view('header');
         $this->load->view('contact/contact', $data);
         $this->load->view('footer');

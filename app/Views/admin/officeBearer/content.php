@@ -42,29 +42,54 @@
 
                                 <td><span class="badge bg-<?php echo (isset($row['level']) && $row['level'] == 'District') ? 'info' : 'primary'; ?>"><?php echo isset($row['level']) ? $row['level'] : 'State'; ?></span></td>
                                 <td>
-                                    <strong><?php echo htmlspecialchars($row['designation']); ?></strong>
-                                    <?php if (!empty($row['year'])) { ?>
-                                        <span class="text-muted" style="font-size: 11px;">(<?php echo htmlspecialchars($row['year']); ?>)</span>
-                                    <?php } ?>
+                                    <div style="font-weight: 700; color: #1e293b; font-size: 13.5px;">
+                                        <?php echo htmlspecialchars($row['designation']); ?>
+                                    </div>
+                                    <!-- Time Period of the Position -->
+                                    <div style="font-size: 11.5px; color: #0284c7; margin-top: 3px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                                        <i class="fa fa-calendar-check-o text-muted"></i>
+                                        <span><strong>Period:</strong> <?php echo !empty($row['year']) ? htmlspecialchars($row['year']) : '<span class="text-muted">Current</span>'; ?></span>
+                                    </div>
+
                                     <?php
+                                    $prevPos = [];
                                     if (!empty($row['previous_positions'])) {
                                         $prevPos = is_array($row['previous_positions']) ? $row['previous_positions'] : json_decode($row['previous_positions'], true);
-                                        if (!empty($prevPos) && is_array($prevPos)) {
-                                            echo '<div style="margin-top: 4px; padding-top: 4px; border-top: 1px dashed #cbd5e1; font-size: 11px; color: #475569;">';
-                                            foreach ($prevPos as $p) {
-                                                $isEnabled = (!isset($p['is_enabled']) || $p['is_enabled'] === 1 || $p['is_enabled'] === '1' || $p['is_enabled'] === true);
-                                                $pDesig = isset($p['designation']) ? $p['designation'] : '';
-                                                $pYear = !empty($p['year']) ? ' (' . $p['year'] . ')' : '';
-                                                $pPos = (!empty($p['position']) && (int)$p['position'] < 25) ? ' <span class="badge" style="font-size: 9px; padding: 1px 4px; background: #fef3c7; color: #92400e;" title="Position Order">#' . htmlspecialchars($p['position']) . '</span>' : '';
-                                                $pLvl = (!empty($p['level']) && $p['level'] !== 'State') ? ' <span class="badge" style="font-size: 9px; padding: 1px 4px; background: #e0f2fe; color: #0369a1;">' . htmlspecialchars($p['level'] . (!empty($p['section_heading']) ? ' - ' . $p['section_heading'] : '')) . '</span>' : '';
-                                                $pStatus = !$isEnabled ? ' <span class="badge" style="font-size: 9px; padding: 1px 4px; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;"><i class="fa fa-ban"></i> Disabled</span>' : '';
-                                                $rowStyle = !$isEnabled ? 'opacity: 0.55; text-decoration: line-through;' : '';
-                                                echo '<div style="margin-bottom: 2px; ' . $rowStyle . '"><i class="fa fa-history text-muted" style="font-size: 10px;"></i> ' . htmlspecialchars($pDesig) . htmlspecialchars($pYear) . $pPos . $pLvl . $pStatus . '</div>';
-                                            }
-                                            echo '</div>';
-                                        }
                                     }
+                                    if (!empty($prevPos) && is_array($prevPos)) {
+                                        $posCount = count($prevPos);
+                                        $collapseId = 'prev_pos_' . $row['id'];
                                     ?>
+                                        <div style="margin-top: 6px;">
+                                            <button type="button" class="btn btn-xs prev-positions-toggle" data-toggle="collapse" data-target="#<?php echo $collapseId; ?>" aria-expanded="false" style="padding: 2px 8px; font-size: 11px; border-radius: 4px; background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; text-decoration: none;">
+                                                <i class="fa fa-chevron-right prev-pos-arrow" style="font-size: 9px; color: #6366f1;"></i>
+                                                <span style="font-weight: 600;"><?php echo $posCount; ?> Previous Position<?php echo $posCount > 1 ? 's' : ''; ?></span>
+                                            </button>
+
+                                            <div class="collapse prev-positions-drawer" id="<?php echo $collapseId; ?>" style="margin-top: 6px; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; border-left: 3px solid #6366f1; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                                                <?php foreach ($prevPos as $p) {
+                                                    $isEnabled = (!isset($p['is_enabled']) || $p['is_enabled'] === 1 || $p['is_enabled'] === '1' || $p['is_enabled'] === true);
+                                                    $pDesig = isset($p['designation']) ? $p['designation'] : '';
+                                                    $pYear = !empty($p['year']) ? $p['year'] : 'Previous Term';
+                                                    $pPos = (!empty($p['position']) && (int)$p['position'] < 25) ? ' <span class="badge" style="font-size: 9px; padding: 1px 5px; background: #fef3c7; color: #92400e;" title="Position Order">#' . htmlspecialchars($p['position']) . '</span>' : '';
+                                                    $pLvl = (!empty($p['level']) && $p['level'] !== 'State') ? ' <span class="badge" style="font-size: 9px; padding: 1px 5px; background: #e0f2fe; color: #0369a1;">' . htmlspecialchars($p['level'] . (!empty($p['section_heading']) ? ' - ' . $p['section_heading'] : '')) . '</span>' : '';
+                                                    $pStatus = !$isEnabled ? ' <span class="badge" style="font-size: 9px; padding: 1px 4px; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;"><i class="fa fa-ban"></i> Inactive</span>' : '';
+                                                    $rowStyle = !$isEnabled ? 'opacity: 0.55; text-decoration: line-through;' : '';
+                                                ?>
+                                                    <div style="margin-bottom: 5px; padding-bottom: 4px; border-bottom: 1px dashed #e2e8f0; font-size: 11.5px; <?php echo $rowStyle; ?>">
+                                                        <div style="font-weight: 600; color: #1e293b;">
+                                                            <i class="fa fa-history text-muted" style="font-size: 10px; margin-right: 3px;"></i>
+                                                            <?php echo htmlspecialchars($pDesig); ?>
+                                                            <?php echo $pPos . $pLvl . $pStatus; ?>
+                                                        </div>
+                                                        <div style="font-size: 11px; color: #0284c7; margin-left: 14px; margin-top: 2px;">
+                                                            <i class="fa fa-clock-o text-muted"></i> <strong>Period:</strong> <?php echo htmlspecialchars($pYear); ?>
+                                                        </div>
+                                                    </div>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
                                 </td>
                                 <td><?php echo isset($row['section_heading']) ? $row['section_heading'] : '' ?></td>
                                 <td><?php echo $row['email'] ?></td>

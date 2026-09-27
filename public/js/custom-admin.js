@@ -565,3 +565,24 @@ function enhanceMobileTables() {
 $(document).ready(enhanceMobileTables);
 $(document).ajaxComplete(enhanceMobileTables);
 
+/* ------------------------------------------------------------------ *
+ * Expandable Previous Positions in Office Bearers
+ * ------------------------------------------------------------------ */
+$(document).on('click', '.prev-positions-toggle', function (e) {
+    e.preventDefault();
+    var $btn = $(this);
+    var target = $btn.data('target');
+    var $target = $(target);
+    if ($target.length) {
+        $target.collapse('toggle');
+    }
+});
+$(document).on('show.bs.collapse', '.prev-positions-drawer', function () {
+    var id = $(this).attr('id');
+    $('[data-target="#' + id + '"]').addClass('expanded').attr('aria-expanded', 'true');
+});
+$(document).on('hide.bs.collapse', '.prev-positions-drawer', function () {
+    var id = $(this).attr('id');
+    $('[data-target="#' + id + '"]').removeClass('expanded').attr('aria-expanded', 'false');
+});
+

@@ -116,61 +116,59 @@
           <!-- Box 2: Editorial Board Card -->
           <div class="editorial-card">
             <div class="editorial-list">
-              
-              <div class="editorial-row">
-                <div class="editorial-left">
-                  <div class="quill-circle"><span class="material-symbols-outlined" >edit</span></div>
-                  <span>Editor-in-Chief</span>
+              <?php if (!empty($editorialMembers)) { ?>
+                <?php foreach ($editorialMembers as $em) { ?>
+                  <div class="editorial-row">
+                    <div class="editorial-left">
+                      <div class="quill-circle"><span class="material-symbols-outlined">edit</span></div>
+                      <span><?php echo htmlspecialchars($em['designation']); ?></span>
+                    </div>
+                    <div class="editorial-line"></div>
+                    <span class="editorial-name"><?php echo htmlspecialchars($em['name']); ?></span>
+                  </div>
+                <?php } ?>
+              <?php } else { ?>
+                <div class="editorial-row">
+                  <div class="editorial-left">
+                    <div class="quill-circle"><span class="material-symbols-outlined">edit</span></div>
+                    <span>Editor-in-Chief</span>
+                  </div>
+                  <div class="editorial-line"></div>
+                  <span class="editorial-name">Abdul Majeed K</span>
                 </div>
-                <div class="editorial-line"></div>
-                <span class="editorial-name">Abdul Majeed K</span>
-              </div>
-
-              <div class="editorial-row">
-                <div class="editorial-left">
-                  <div class="quill-circle"><span class="material-symbols-outlined" >edit</span></div>
-                  <span>Associate Editor</span>
+                <div class="editorial-row">
+                  <div class="editorial-left">
+                    <div class="quill-circle"><span class="material-symbols-outlined">edit</span></div>
+                    <span>Associate Editor</span>
+                  </div>
+                  <div class="editorial-line"></div>
+                  <span class="editorial-name">Abdul Majeed K</span>
                 </div>
-                <div class="editorial-line"></div>
-                <span class="editorial-name">Abdul Majeed K</span>
-              </div>
-
-              <div class="editorial-row">
-                <div class="editorial-left">
-                  <div class="quill-circle"><span class="material-symbols-outlined" >edit</span></div>
-                  <span>Technical Editor</span>
+                <div class="editorial-row">
+                  <div class="editorial-left">
+                    <div class="quill-circle"><span class="material-symbols-outlined">edit</span></div>
+                    <span>Technical Editor</span>
+                  </div>
+                  <div class="editorial-line"></div>
+                  <span class="editorial-name">Abdul Majeed K</span>
                 </div>
-                <div class="editorial-line"></div>
-                <span class="editorial-name">Abdul Majeed K</span>
-              </div>
-
-              <div class="editorial-row">
-                <div class="editorial-left">
-                  <div class="quill-circle"><span class="material-symbols-outlined" >edit</span></div>
-                  <span>Editorial Advisor</span>
+                <div class="editorial-row">
+                  <div class="editorial-left">
+                    <div class="quill-circle"><span class="material-symbols-outlined">edit</span></div>
+                    <span>Editorial Advisor</span>
+                  </div>
+                  <div class="editorial-line"></div>
+                  <span class="editorial-name">Abdul Majeed K</span>
                 </div>
-                <div class="editorial-line"></div>
-                <span class="editorial-name">Abdul Majeed K</span>
-              </div>
-
-              <div class="editorial-row">
-                <div class="editorial-left">
-                  <div class="quill-circle"><span class="material-symbols-outlined" >edit</span></div>
-                  <span>Editorial Member</span>
+                <div class="editorial-row">
+                  <div class="editorial-left">
+                    <div class="quill-circle"><span class="material-symbols-outlined">edit</span></div>
+                    <span>Editorial Member</span>
+                  </div>
+                  <div class="editorial-line"></div>
+                  <span class="editorial-name">Abdul Majeed K</span>
                 </div>
-                <div class="editorial-line"></div>
-                <span class="editorial-name">Abdul Majeed K</span>
-              </div>
-
-              <div class="editorial-row">
-                <div class="editorial-left">
-                  <div class="quill-circle"><span class="material-symbols-outlined" >edit</span></div>
-                  <span>Editorial Member</span>
-                </div>
-                <div class="editorial-line"></div>
-                <span class="editorial-name">Abdul Majeed K</span>
-              </div>
-
+              <?php } ?>
             </div>
           </div>
 

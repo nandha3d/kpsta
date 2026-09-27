@@ -2080,3 +2080,25 @@ table td .text-center { min-width: 34px; }
 #table-content .table > tbody > tr:nth-child(odd) > td { background: #ffffff !important; }
 .box-body .table > tbody > tr:hover > td,
 #table-content .table > tbody > tr:hover > td { background: var(--primary-light) !important; }
+
+/* Previous Positions Expandable Arrow */
+.prev-positions-toggle {
+  transition: all 0.2s ease !important;
+  font-family: inherit !important;
+}
+.prev-positions-toggle:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+.prev-positions-toggle[aria-expanded="true"] .prev-pos-arrow,
+.prev-positions-toggle.expanded .prev-pos-arrow {
+  transform: rotate(90deg) !important;
+}
+.prev-pos-arrow {
+  display: inline-block !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.prev-positions-drawer {
+  transition: height 0.25s ease !important;
+}

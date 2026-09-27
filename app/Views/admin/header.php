@@ -108,7 +108,7 @@ if (!isset($page_title) || $page_title === '') {
                         ?>
                         <li class="modern-menu-section"><span>Organization</span></li>
 
-                        <li class="treeview office_bearer-menu">
+                        <li class="treeview office_bearer-menu editorial_board-menu">
                             <a href="#" data-title="Organization">
                                 <i class="fa fa-sitemap"></i>
                                 <span>Organization</span>
@@ -118,6 +118,7 @@ if (!isset($page_title) || $page_title === '') {
                                 <li><a href="<?php echo site_url("admin/office_bearer"); ?>"><i class="fa fa-circle-o"></i><span>State Office Bearers</span></a></li>
                                 <li><a href="<?php echo site_url("admin/district"); ?>"><i class="fa fa-circle-o"></i><span>District Office Bearers</span></a></li>
                                 <li><a href="<?php echo site_url("admin/office_bearer?is_former=1"); ?>"><i class="fa fa-circle-o"></i><span>Former Leaders</span></a></li>
+                                <li><a href="<?php echo site_url("admin/editorial_board"); ?>"><i class="fa fa-circle-o"></i><span>Editorial Board</span></a></li>
                                 <li><a href="<?php echo site_url("admin/memorandums"); ?>"><i class="fa fa-circle-o"></i><span>Memorandums</span></a></li>
                                 <li><a href="<?php echo site_url("admin/notice_poster"); ?>"><i class="fa fa-circle-o"></i><span>Notices &amp; Posters</span></a></li>
                                 <li><a href="<?php echo site_url("admin/office_bearer/designation"); ?>"><i class="fa fa-circle-o"></i><span>Designations</span></a></li>
