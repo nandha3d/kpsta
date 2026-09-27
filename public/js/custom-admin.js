@@ -284,6 +284,40 @@ $('#modal').on('hidden.bs.modal', function (e) {
     $(e.target).find('.btn').removeClass('active');
 });
 
+// Global Edit Handler fallback for admin modules
+$(document).on('click', '.btn-edit, .edit', function (e) {
+    if (e.isDefaultPrevented()) return;
+    var $btn = $(this);
+    var href = $btn.data('href') || $btn.attr('href');
+    if (!href || href === '#' || href === 'javascript:void(0)') return;
+
+    var $modal = $('#modal');
+    if (!$modal.length) return;
+
+    e.preventDefault();
+    if ($btn.hasClass('disabled')) return;
+    $btn.addClass('disabled');
+
+    $.ajax({
+        url: href,
+        type: 'GET',
+        dataType: 'json',
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+        success: function (res) {
+            $btn.removeClass('disabled');
+            if (res && res.code === 'success' && res.form) {
+                $modal.find('.modal-content-form').html(res.form);
+                $modal.modal('show');
+            } else if (res && res.message) {
+                alert(res.message);
+            }
+        },
+        error: function () {
+            $btn.removeClass('disabled');
+        }
+    });
+});
+
 
 
 $("body").on('focus', 'input, textarea', function () {

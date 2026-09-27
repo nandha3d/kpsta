@@ -1,4 +1,4 @@
-<form action="<?php echo $url ?>" data-href="<?php echo $url ?>" data-href-add="<?php echo $addUrl ?>" method="post" id="editorialBoardForm">
+<form action="<?php echo $url ?>" data-href="<?php echo $url ?>" data-href-add="<?php echo $addUrl ?>" method="post" id="save" class="editorialBoardForm">
     <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; border-radius: 6px 6px 0 0;">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" style="font-weight: 700; color: #1e293b;">

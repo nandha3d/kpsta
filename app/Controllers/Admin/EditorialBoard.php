@@ -117,9 +117,9 @@ class EditorialBoard extends AppController {
         exit;
     }
 
-    public function edit() {
+    public function edit($id = null) {
         $data['code'] = 'error';
-        $id = $this->uri->segment(4);
+        $id = $id ?: $this->uri->segment(4);
         $member = $this->EditorialBoard_model->getById($id);
         if ($member) {
             $url = base_url('admin/editorial_board/update/' . $id);
@@ -132,9 +132,9 @@ class EditorialBoard extends AppController {
         exit;
     }
 
-    public function update() {
+    public function update($id = null) {
         $formValues = $this->formValidation();
-        $id = $this->uri->segment(4);
+        $id = $id ?: $this->uri->segment(4);
 
         if ($this->form_validation->run() == FALSE) {
             $url = base_url('admin/editorial_board/update/' . $id);
@@ -162,8 +162,8 @@ class EditorialBoard extends AppController {
         exit;
     }
 
-    public function publish() {
-        $id = $this->uri->segment(4);
+    public function publish($id = null) {
+        $id = $id ?: $this->uri->segment(4);
         $member = $this->EditorialBoard_model->getById($id);
         if ($id && $member) {
             $publish = ($member['is_publish'] == 1) ? 0 : 1;
@@ -175,9 +175,9 @@ class EditorialBoard extends AppController {
         exit;
     }
 
-    public function delete() {
+    public function delete($id = null) {
         $data['code'] = 'error';
-        $id = $this->uri->segment(4);
+        $id = $id ?: $this->uri->segment(4);
         $member = $this->EditorialBoard_model->getById($id);
         if ($member) {
             $this->EditorialBoard_model->delete($id);
