@@ -105,6 +105,7 @@ class OfficeBearer extends AppController {
         ]);
 
         $content['content'] = $this->OfficeBearer_model->getAll($param);
+        $content['is_former_filter'] = isset($param['is_former']) ? $param['is_former'] : '';
         return $this->load->view('admin/officeBearer/content', $content, TRUE);
     }
 

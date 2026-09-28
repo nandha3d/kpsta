@@ -164,7 +164,17 @@ class OfficeBearer_model extends Ci3Model {
         $this->applyActiveTerm($param);
 
         if (isset($param['is_former']) && $param['is_former'] !== '') {
-            $this->db->where("o.is_former", $param['is_former']);
+            if ($param['is_former'] == 1) {
+                // "Former Leaders": include rows explicitly marked former
+                // OR rows that carry previous positions (active leaders who
+                // held earlier roles should still appear here).
+                $this->db->group_start();
+                $this->db->where("o.is_former", 1);
+                $this->db->or_where("(o.previous_positions IS NOT NULL AND o.previous_positions != '' AND o.previous_positions != '[]')", NULL, FALSE);
+                $this->db->group_end();
+            } else {
+                $this->db->where("o.is_former", $param['is_former']);
+            }
         }
 
         if (isset($param['search']) && !empty($param['search'])) {
@@ -264,7 +274,14 @@ class OfficeBearer_model extends Ci3Model {
         $this->applyActiveTerm($param);
 
         if (isset($param['is_former']) && $param['is_former'] !== '') {
-            $this->db->where("o.is_former", $param['is_former']);
+            if ($param['is_former'] == 1) {
+                $this->db->group_start();
+                $this->db->where("o.is_former", 1);
+                $this->db->or_where("(o.previous_positions IS NOT NULL AND o.previous_positions != '' AND o.previous_positions != '[]')", NULL, FALSE);
+                $this->db->group_end();
+            } else {
+                $this->db->where("o.is_former", $param['is_former']);
+            }
         }
 
         if (isset($param['search']) && !empty($param['search'])) {
