@@ -30,8 +30,9 @@ class WhatsNew_model extends MembershipModel {
             $this->db->where(array("publish" => 1));
         }
         $this->db->join('aauth_groups aq', 'w.group_id = aq.id', 'left');
-        if ($this->aauthGroupId != static::AAUTH_GROUP_STATE) {
-            $this->db->where("( w.group_id IS NULL OR w.group_id = 0 OR w.group_id = " . $this->aauthGroupId . "  ) ");
+        $groupId = !empty($this->aauthGroupId) ? (int)$this->aauthGroupId : 0;
+        if ($groupId != static::AAUTH_GROUP_STATE) {
+            $this->db->where("( w.group_id IS NULL OR w.group_id = 0 OR w.group_id = " . $groupId . " ) ");
         }
         $this->db->limit($param['limit'], $param['offset']);
         $this->db->order_by('w.position, w.id desc');
@@ -50,8 +51,9 @@ class WhatsNew_model extends MembershipModel {
         if (isset($param['isPublish']) && $param['isPublish']) {
             $this->db->where(array("publish" => 1));
         }
-        if ($this->aauthGroupId != static::AAUTH_GROUP_STATE) {
-            $this->db->where("( group_id IS NULL OR group_id = 0 OR group_id = " . $this->aauthGroupId . "  ) ");
+        $groupId = !empty($this->aauthGroupId) ? (int)$this->aauthGroupId : 0;
+        if ($groupId != static::AAUTH_GROUP_STATE) {
+            $this->db->where("( group_id IS NULL OR group_id = 0 OR group_id = " . $groupId . " ) ");
         }
         $query = $this->db->get('whats_new');
         $result = $query->row(0, 'array');

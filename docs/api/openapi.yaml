@@ -1,0 +1,529 @@
+openapi: 3.0.3
+info:
+  title: KPSTA Unified REST API
+  description: >
+    Unified REST API for Kerala Pradesh School Teachers Association (KPSTA).
+    Serves as the single source of truth for both web application and Flutter mobile app.
+    Complies with Normative Rule API-1 (Zero Discrepancy Invariant).
+  version: 1.0.0
+servers:
+  - url: http://kpsta.test/api/v1
+    description: Local Valet / Herd development server
+  - url: http://127.0.0.1:8090/api/v1
+    description: Local PHP CLI development server
+  - url: https://kpsta.in/api/v1
+    description: Production server
+
+paths:
+  /auth/whatsapp/request-otp:
+    post:
+      summary: Request WhatsApp OTP for authentication
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone:
+                  type: string
+                  example: "919876543210"
+      responses:
+        '200':
+          description: OTP dispatched successfully
+        '422':
+          description: Validation error
+
+  /auth/whatsapp/verify-otp:
+    post:
+      summary: Verify WhatsApp OTP and obtain Bearer access token
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, otp]
+              properties:
+                phone:
+                  type: string
+                  example: "919876543210"
+                otp:
+                  type: string
+                  example: "123456"
+                device_id:
+                  type: string
+                device_type:
+                  type: string
+                  default: mobile
+      responses:
+        '200':
+          description: Authentication successful, tokens issued
+        '400':
+          description: Invalid OTP
+        '401':
+          description: OTP expired
+
+  /auth/refresh:
+    post:
+      summary: Refresh access token using refresh token
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+        '401':
+          description: Invalid or expired refresh token
+
+  /auth/logout:
+    post:
+      summary: Invalidate active access token
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully
+
+  /auth/me:
+    get:
+      summary: Get current authenticated user profile
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved
+        '401':
+          description: Unauthenticated
+
+  /auth/permissions:
+    get:
+      summary: Get user role and menu permissions
+      tags: [Authentication]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User permissions list
+
+  /home:
+    get:
+      summary: Consolidated homepage dataset
+      tags: [Public]
+      responses:
+        '200':
+          description: Homepage sliders, news, circulars, quick links, and services
+
+  /news:
+    get:
+      summary: List published news articles
+      tags: [Public]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated news list
+
+  /news/{id}:
+    get:
+      summary: Get news article by ID
+      tags: [Public]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: News article detail
+        '404':
+          description: Article not found
+
+  /flash-news:
+    get:
+      summary: List flash news tickers
+      tags: [Public]
+      responses:
+        '200':
+          description: List of flash news items
+
+  /order-circulars:
+    get:
+      summary: List order circulars
+      tags: [Public]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [general, hse, vhse]
+            default: general
+        - name: category
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Paginated order and circulars list
+
+  /order-circulars/categories:
+    get:
+      summary: Get circular categories
+      tags: [Public]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [general, hse, vhse]
+      responses:
+        '200':
+          description: Categories list
+
+  /downloads:
+    get:
+      summary: List downloadable files and documents
+      tags: [Public]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [forms, act_rules, softwares, fonts, notice_poster, melakal, memorandums, academic_corner]
+            default: forms
+        - name: category
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated downloads list
+
+  /downloads/categories:
+    get:
+      summary: List download categories for a specific download type
+      tags: [Public]
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of categories
+
+  /galleries:
+    get:
+      summary: List photo albums
+      tags: [Public]
+      parameters:
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of albums with cover and photo counts
+
+  /galleries/{id}:
+    get:
+      summary: Get album details with all photos
+      tags: [Public]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Album detail and photos
+
+  /reaction-gallery:
+    get:
+      summary: List reaction gallery images
+      tags: [Public]
+      responses:
+        '200':
+          description: List of reaction gallery images
+
+  /office-bearers:
+    get:
+      summary: List state office bearers grouped by section
+      tags: [Public]
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: string
+            default: State
+      responses:
+        '200':
+          description: Grouped office bearers list
+
+  /former-leaders:
+    get:
+      summary: List former leaders with full historical tenures
+      tags: [Public]
+      responses:
+        '200':
+          description: List of former leaders
+
+  /districts:
+    get:
+      summary: List 14 districts with district office bearers
+      tags: [Public]
+      responses:
+        '200':
+          description: District list
+
+  /districts/{id}:
+    get:
+      summary: Get district details and office bearers
+      tags: [Public]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: District details
+
+  /service-corner:
+    get:
+      summary: List service corner cards
+      tags: [Public]
+      responses:
+        '200':
+          description: Service corner list
+
+  /service-corner/{id}:
+    get:
+      summary: Get service corner detail with downloadable rules
+      tags: [Public]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Service detail and rules
+
+  /quick-links:
+    get:
+      summary: List online portals and quick links
+      tags: [Public]
+      responses:
+        '200':
+          description: Quick links list
+
+  /results:
+    get:
+      summary: List competition and examination results
+      tags: [Public]
+      responses:
+        '200':
+          description: Results list
+
+  /contact:
+    get:
+      summary: Get association contact info and leadership contacts
+      tags: [Public]
+      responses:
+        '200':
+          description: Contact information
+    post:
+      summary: Submit enquiry or message
+      tags: [Public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, content]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                address:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Enquiry submitted
+
+  /privacy-policy:
+    get:
+      summary: Get association privacy policy
+      tags: [Public]
+      responses:
+        '200':
+          description: Privacy policy
+
+  /donations:
+    post:
+      summary: Initiate donation payment order
+      tags: [Public]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, phone, amount]
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                amount:
+                  type: number
+      responses:
+        '201':
+          description: Donation order token generated
+
+  /admin/dashboard:
+    get:
+      summary: Get admin summary metrics
+      tags: [Admin]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Summary counts
+        '403':
+          description: Forbidden - admin privileges required
+
+  /admin/media/upload:
+    post:
+      summary: Secure media and document upload
+      tags: [Admin]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                folder:
+                  type: string
+                  enum: [news, order_circular, download, gallery, office_bearer, slider, service_rules]
+      responses:
+        '201':
+          description: Media uploaded successfully
+
+  /membership/dashboard:
+    get:
+      summary: Get membership summary metrics and recent notices
+      tags: [Membership]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Membership counts and whats-new
+
+  /membership/teachers:
+    get:
+      summary: List registered teachers
+      tags: [Membership]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated teacher records
+    post:
+      summary: Register new teacher record
+      tags: [Membership]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, mobile]
+              properties:
+                name:
+                  type: string
+                mobile:
+                  type: string
+                email:
+                  type: string
+                district_id:
+                  type: integer
+                school_id:
+                  type: integer
+      responses:
+        '201':
+          description: Teacher created
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Token

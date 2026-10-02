@@ -474,3 +474,148 @@ $routes->add('donation', 'Donation::index');
 $routes->add('donation/pay', 'Donation::pay');
 $routes->add('donation/payment-status', 'Donation::paymentStatus');
 $routes->add('donation/success/(:segment)', 'Donation::success');
+
+// ==========================================
+// UNIFIED REST API V1 (NORMATIVE: API-1)
+// ==========================================
+$routes->group('api/v1', ['filter' => 'api-cors'], function ($routes) {
+    // 1. Authentication
+    $routes->post('auth/whatsapp/request-otp', 'Api\V1\AuthController::requestOtp');
+    $routes->post('auth/whatsapp/verify-otp', 'Api\V1\AuthController::verifyOtp');
+    $routes->post('auth/refresh', 'Api\V1\AuthController::refresh');
+    $routes->post('auth/logout', 'Api\V1\AuthController::logout');
+    $routes->get('auth/me', 'Api\V1\AuthController::me', ['filter' => 'api-auth']);
+    $routes->get('auth/permissions', 'Api\V1\AuthController::permissions', ['filter' => 'api-auth']);
+
+    // 2. Public Read Endpoints
+    $routes->get('home', 'Api\V1\HomeController::index');
+    $routes->get('news', 'Api\V1\NewsController::index');
+    $routes->get('news/(:num)', 'Api\V1\NewsController::show/$1');
+    $routes->get('flash-news', 'Api\V1\NewsController::flashNews');
+    $routes->get('flash-news/(:num)', 'Api\V1\NewsController::showFlashNews/$1');
+    $routes->get('order-circulars', 'Api\V1\CircularController::index');
+    $routes->get('order-circulars/categories', 'Api\V1\CircularController::categories');
+    $routes->get('order-circulars/(:num)', 'Api\V1\CircularController::show/$1');
+    $routes->get('memorandums', 'Api\V1\CircularController::memorandums');
+    $routes->get('downloads', 'Api\V1\DownloadController::index');
+    $routes->get('downloads/categories', 'Api\V1\DownloadController::categories');
+    $routes->get('downloads/(:num)', 'Api\V1\DownloadController::show/$1');
+    $routes->get('galleries', 'Api\V1\GalleryController::index');
+    $routes->get('galleries/(:segment)/images', 'Api\V1\GalleryController::images/$1');
+    $routes->get('galleries/(:segment)', 'Api\V1\GalleryController::show/$1');
+    $routes->get('reaction-gallery', 'Api\V1\GalleryController::reactionGallery');
+    $routes->get('office-bearers', 'Api\V1\OrganizationController::officeBearers');
+    $routes->get('former-leaders', 'Api\V1\OrganizationController::formerLeaders');
+    $routes->get('districts', 'Api\V1\OrganizationController::districts');
+    $routes->get('districts/(:num)', 'Api\V1\OrganizationController::districtDetail/$1');
+    $routes->get('editorial-board', 'Api\V1\OrganizationController::editorialBoard');
+    $routes->get('service-corner', 'Api\V1\ServiceController::index');
+    $routes->get('service-corner/(:num)', 'Api\V1\ServiceController::show/$1');
+    $routes->get('adayapaka-sabham', 'Api\V1\ServiceController::adayapakaSabham');
+    $routes->get('quick-links', 'Api\V1\LinkController::quickLinks');
+    $routes->get('results', 'Api\V1\LinkController::results');
+    $routes->get('results/(:num)', 'Api\V1\LinkController::showResult/$1');
+    $routes->get('contact', 'Api\V1\ContactController::index');
+    $routes->post('contact', 'Api\V1\ContactController::submit');
+    $routes->get('privacy-policy', 'Api\V1\ContactController::privacyPolicy');
+    $routes->get('site-visitors', 'Api\V1\HomeController::siteVisitors');
+    $routes->post('donations', 'Api\V1\DonationController::initiate');
+    $routes->get('donations/(:segment)/status', 'Api\V1\DonationController::status/$1');
+
+    // Route aliases for seamless client compatibility
+    $routes->get('circulars', 'Api\V1\CircularController::index');
+    $routes->get('circulars/categories', 'Api\V1\CircularController::categories');
+    $routes->get('circulars/(:num)', 'Api\V1\CircularController::show/$1');
+    $routes->get('gallery', 'Api\V1\GalleryController::index');
+    $routes->get('gallery/(:segment)', 'Api\V1\GalleryController::show/$1');
+    $routes->get('services', 'Api\V1\ServiceController::index');
+    $routes->get('services/(:num)', 'Api\V1\ServiceController::show/$1');
+    $routes->get('organization/office-bearers', 'Api\V1\OrganizationController::officeBearers');
+    $routes->get('organization/former-leaders', 'Api\V1\OrganizationController::formerLeaders');
+    $routes->get('organization/districts', 'Api\V1\OrganizationController::districts');
+
+    // 3. Admin Protected Endpoints (filter: api-auth:admin)
+    $routes->group('admin', ['filter' => 'api-auth:admin'], function ($routes) {
+        $routes->get('dashboard', 'Api\V1\Admin\AdminController::dashboard');
+        $routes->post('media/upload', 'Api\V1\Admin\AdminController::uploadMedia');
+
+        // News CRUD
+        $routes->get('news', 'Api\V1\Admin\AdminController::listNews');
+        $routes->post('news', 'Api\V1\Admin\AdminController::createNews');
+        $routes->put('news/(:num)', 'Api\V1\Admin\AdminController::updateNews/$1');
+        $routes->delete('news/(:num)', 'Api\V1\Admin\AdminController::deleteNews/$1');
+        $routes->post('news/(:num)/publish', 'Api\V1\Admin\AdminController::publishNews/$1');
+
+        // Circulars CRUD
+        $routes->get('order-circulars', 'Api\V1\Admin\AdminController::listCirculars');
+        $routes->get('order-circulars/(:num)', 'Api\V1\Admin\AdminController::getCircular/$1');
+        $routes->post('order-circulars', 'Api\V1\Admin\AdminController::createCircular');
+        $routes->put('order-circulars/(:num)', 'Api\V1\Admin\AdminController::updateCircular/$1');
+        $routes->delete('order-circulars/(:num)', 'Api\V1\Admin\AdminController::deleteCircular/$1');
+        $routes->post('order-circulars/(:num)/publish', 'Api\V1\Admin\AdminController::publishCircular/$1');
+
+        // Downloads CRUD
+        $routes->get('downloads', 'Api\V1\Admin\AdminController::listDownloads');
+        $routes->post('downloads', 'Api\V1\Admin\AdminController::createDownload');
+        $routes->put('downloads/(:num)', 'Api\V1\Admin\AdminController::updateDownload/$1');
+        $routes->delete('downloads/(:num)', 'Api\V1\Admin\AdminController::deleteDownload/$1');
+        $routes->post('downloads/(:num)/publish', 'Api\V1\Admin\AdminController::publishDownload/$1');
+
+        // Office Bearers CRUD
+        $routes->get('office-bearers', 'Api\V1\Admin\AdminController::listOfficeBearers');
+        $routes->post('office-bearers', 'Api\V1\Admin\AdminController::createOfficeBearer');
+        $routes->put('office-bearers/(:num)', 'Api\V1\Admin\AdminController::updateOfficeBearer/$1');
+        $routes->delete('office-bearers/(:num)', 'Api\V1\Admin\AdminController::deleteOfficeBearer/$1');
+
+        // Flash News CRUD
+        $routes->get('flash-news', 'Api\V1\Admin\AdminController::listFlashNews');
+        $routes->post('flash-news', 'Api\V1\Admin\AdminController::createFlashNews');
+        $routes->put('flash-news/(:num)', 'Api\V1\Admin\AdminController::updateFlashNews/$1');
+        $routes->delete('flash-news/(:num)', 'Api\V1\Admin\AdminController::deleteFlashNews/$1');
+        $routes->post('flash-news/(:num)/publish', 'Api\V1\Admin\AdminController::publishFlashNews/$1');
+
+        // Sliders CRUD
+        $routes->get('sliders', 'Api\V1\Admin\AdminController::listSliders');
+        $routes->post('sliders', 'Api\V1\Admin\AdminController::createSlider');
+        $routes->put('sliders/(:num)', 'Api\V1\Admin\AdminController::updateSlider/$1');
+        $routes->delete('sliders/(:num)', 'Api\V1\Admin\AdminController::deleteSlider/$1');
+        $routes->post('sliders/(:num)/publish', 'Api\V1\Admin\AdminController::publishSlider/$1');
+
+        // Galleries CRUD & Images
+        $routes->get('galleries', 'Api\V1\Admin\AdminController::listGalleries');
+        $routes->post('galleries', 'Api\V1\Admin\AdminController::createGallery');
+        $routes->put('galleries/(:num)', 'Api\V1\Admin\AdminController::updateGallery/$1');
+        $routes->delete('galleries/(:num)', 'Api\V1\Admin\AdminController::deleteGallery/$1');
+        $routes->post('galleries/(:num)/images', 'Api\V1\Admin\AdminController::uploadGalleryImage/$1');
+        $routes->delete('galleries/(:num)/images/(:num)', 'Api\V1\Admin\AdminController::deleteGalleryImage/$1/$2');
+
+        // Quick Links CRUD
+        $routes->get('quick-links', 'Api\V1\Admin\AdminController::listQuickLinks');
+        $routes->post('quick-links', 'Api\V1\Admin\AdminController::createQuickLink');
+        $routes->put('quick-links/(:num)', 'Api\V1\Admin\AdminController::updateQuickLink/$1');
+        $routes->delete('quick-links/(:num)', 'Api\V1\Admin\AdminController::deleteQuickLink/$1');
+
+        // Result Links CRUD
+        $routes->get('result-links', 'Api\V1\Admin\AdminController::listResultLinks');
+        $routes->post('result-links', 'Api\V1\Admin\AdminController::createResultLink');
+        $routes->put('result-links/(:num)', 'Api\V1\Admin\AdminController::updateResultLink/$1');
+        $routes->delete('result-links/(:num)', 'Api\V1\Admin\AdminController::deleteResultLink/$1');
+    });
+
+    // 4. Membership Protected Endpoints (filter: api-auth)
+    $routes->group('membership', ['filter' => 'api-auth'], function ($routes) {
+        $routes->get('dashboard', 'Api\V1\Membership\MembershipApiController::dashboard');
+        $routes->get('counts', 'Api\V1\Membership\MembershipApiController::counts');
+        $routes->get('reports', 'Api\V1\Membership\MembershipApiController::reports');
+        $routes->get('metadata', 'Api\V1\Membership\MembershipApiController::metadata');
+        $routes->get('teachers', 'Api\V1\Membership\MembershipApiController::teachers');
+        $routes->post('teachers', 'Api\V1\Membership\MembershipApiController::createTeacher');
+        $routes->get('teachers/(:num)', 'Api\V1\Membership\MembershipApiController::teacherDetail/$1');
+        $routes->put('teachers/(:num)', 'Api\V1\Membership\MembershipApiController::updateTeacher/$1');
+        $routes->delete('teachers/(:num)', 'Api\V1\Membership\MembershipApiController::deleteTeacher/$1');
+        $routes->post('teachers/(:num)/process', 'Api\V1\Membership\MembershipApiController::processTeacher/$1');
+        $routes->get('whats-new', 'Api\V1\Membership\MembershipApiController::whatsNew');
+    });
+});
+
+
