@@ -60,7 +60,7 @@ class AppTheme {
           color: AppColors.white,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardBg,
         elevation: 1,
         shadowColor: Colors.black.withOpacity(0.06),

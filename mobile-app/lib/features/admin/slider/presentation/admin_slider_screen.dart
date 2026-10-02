@@ -149,13 +149,13 @@ class AdminSliderScreen extends ConsumerWidget {
                               children: [
                                 StatusBadge(
                                   label: isPublished ? 'Published' : 'Hidden',
-                                  isSuccess: isPublished,
+                                  isPublished: isPublished,
                                 ),
                                 const SizedBox(width: 8),
                                 if (showOnHome)
                                   const StatusBadge(
                                     label: 'Home Active',
-                                    isSuccess: true,
+                                    isPublished: true,
                                   ),
                                 const Spacer(),
                                 IconButton(

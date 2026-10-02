@@ -34,6 +34,10 @@ class AppColors {
   static const Color success = Color(0xFF16A34A);
   static const Color warning = Color(0xFFD97706);
   static const Color info = Color(0xFF0284C7);
+  static const Color gold = Color(0xFFD97706);
+  static const Color purple = Color(0xFF7C3AED);
+  static const Color blue = Color(0xFF2563EB);
+  static const Color backgroundSecondary = Color(0xFFF1F5F9);
 
   // Status colors
   static const Color statusPublishedBg = Color(0xFFDCFCE7);

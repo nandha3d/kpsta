@@ -180,7 +180,7 @@ class AdminFlashNewsScreen extends ConsumerWidget {
                           children: [
                             StatusBadge(
                               label: isPublished ? 'Live Ticker' : 'Unpublished',
-                              isSuccess: isPublished,
+                              isPublished: isPublished,
                             ),
                             const Spacer(),
                             IconButton(

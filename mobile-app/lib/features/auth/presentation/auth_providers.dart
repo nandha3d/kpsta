@@ -53,11 +53,14 @@ class AuthState {
   }
 }
 
-class AuthNotifier extends StateNotifier<AuthState> {
-  final AuthRepository _repo;
+class AuthNotifier extends Notifier<AuthState> {
+  late final AuthRepository _repo;
 
-  AuthNotifier(this._repo) : super(const AuthState()) {
-    checkSession();
+  @override
+  AuthState build() {
+    _repo = ref.watch(authRepositoryProvider);
+    Future.microtask(() => checkSession());
+    return const AuthState();
   }
 
   Future<void> checkSession() async {
@@ -133,7 +136,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
 }
 
 final authNotifierProvider =
-    StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final repo = ref.watch(authRepositoryProvider);
-  return AuthNotifier(repo);
-});
+    NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);

@@ -13,7 +13,7 @@ class StatisticCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.value,
-    required this.icon,
+    this.icon = Icons.analytics_outlined,
     this.color = AppColors.primary,
     this.onTap,
   });

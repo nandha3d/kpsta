@@ -5,10 +5,7 @@ class SecureTokenStorage {
   final FlutterSecureStorage _storage;
 
   SecureTokenStorage([FlutterSecureStorage? storage])
-      : _storage = storage ??
-            const FlutterSecureStorage(
-              aOptions: AndroidOptions(encryptedSharedPreferences: true),
-            );
+      : _storage = storage ?? const FlutterSecureStorage();
 
   static const String _accessTokenKey = 'kpsta_access_token';
   static const String _refreshTokenKey = 'kpsta_refresh_token';

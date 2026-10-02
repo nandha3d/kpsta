@@ -5,11 +5,13 @@ import '../constants/app_colors.dart';
 class StatusBadge extends StatelessWidget {
   final bool isPublished;
   final String? customLabel;
+  final String? label;
 
   const StatusBadge({
     super.key,
     required this.isPublished,
     this.customLabel,
+    this.label,
   });
 
   @override
@@ -18,7 +20,7 @@ class StatusBadge extends StatelessWidget {
     final textCol =
         isPublished ? AppColors.statusPublishedText : AppColors.statusDraftText;
     final icon = isPublished ? Icons.check_circle_outline : Icons.pending_outlined;
-    final label = customLabel ?? (isPublished ? 'Published' : 'Draft');
+    final badgeLabel = label ?? customLabel ?? (isPublished ? 'Published' : 'Draft');
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -33,7 +35,7 @@ class StatusBadge extends StatelessWidget {
           Icon(icon, size: 14, color: textCol),
           const SizedBox(width: 4),
           Text(
-            label,
+            badgeLabel,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,

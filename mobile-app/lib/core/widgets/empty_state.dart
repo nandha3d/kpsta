@@ -5,6 +5,7 @@ import '../constants/app_colors.dart';
 class EmptyState extends StatelessWidget {
   final String title;
   final String? message;
+  final String? subtitle;
   final IconData icon;
   final String? actionLabel;
   final VoidCallback? onAction;
@@ -13,6 +14,7 @@ class EmptyState extends StatelessWidget {
     super.key,
     required this.title,
     this.message,
+    this.subtitle,
     this.icon = Icons.folder_open_outlined,
     this.actionLabel,
     this.onAction,
@@ -20,6 +22,8 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final desc = subtitle ?? message;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -44,10 +48,10 @@ class EmptyState extends StatelessWidget {
                 color: AppColors.textDark,
               ),
             ),
-            if (message != null) ...[
+            if (desc != null) ...[
               const SizedBox(height: 8),
               Text(
-                message!,
+                desc,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 13,
