@@ -30,9 +30,13 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // Attach Bearer token if available
-          final token = await tokenStorage.getAccessToken();
-          if (token != null && token.isNotEmpty) {
-            options.headers['Authorization'] = 'Bearer $token';
+          try {
+            final token = await tokenStorage.getAccessToken();
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
+          } catch (_) {
+            // Silently continue without token for public endpoints if storage throws
           }
           return handler.next(options);
         },
@@ -118,8 +122,10 @@ class ApiClient {
             );
         }
       }
+      final detail = error.message ??
+          (error.error != null ? error.error.toString() : 'Network connection failure');
       return NetworkException(
-        message: error.message ?? 'Network connection failure',
+        message: detail,
       );
     }
     return ApiException(message: error.toString());
