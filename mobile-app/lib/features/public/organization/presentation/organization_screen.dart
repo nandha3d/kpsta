@@ -85,7 +85,8 @@ class OrganizationScreen extends ConsumerWidget {
                         name: m['name']?.toString() ?? '',
                         designation: m['designation']?.toString() ?? '',
                         photoUrl: m['photo_url']?.toString(),
-                        mobile: m['mobile']?.toString(),
+                        mobile: m['phone']?.toString() ??
+                            m['mobile']?.toString(),
                         email: m['email']?.toString(),
                         district: m['district']?.toString(),
                       );

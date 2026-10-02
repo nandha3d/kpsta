@@ -52,8 +52,9 @@ class _DistrictsScreenState extends ConsumerState<DistrictsScreen> {
               ? districts[_selectedDistrictIndex!]
               : null;
 
-          final bearers =
-              selectedDistrict?['bearers'] as List<dynamic>? ?? [];
+          final bearers = (selectedDistrict?['office_bearers'] ??
+                  selectedDistrict?['bearers']) as List<dynamic>? ??
+              [];
 
           return Column(
             children: [
@@ -108,7 +109,9 @@ class _DistrictsScreenState extends ConsumerState<DistrictsScreen> {
                           final d = districts[idx];
                           final name = d['name']?.toString() ?? '';
                           final count =
-                              (d['bearers'] as List<dynamic>?)?.length ?? 0;
+                              (d['office_bearers'] as List<dynamic>?)?.length ??
+                              (d['bearers'] as List<dynamic>?)?.length ??
+                              0;
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
@@ -163,7 +166,8 @@ class _DistrictsScreenState extends ConsumerState<DistrictsScreen> {
                                 designation:
                                     b['designation']?.toString() ?? '',
                                 photoUrl: b['photo_url']?.toString(),
-                                mobile: b['mobile']?.toString(),
+                                mobile: b['phone']?.toString() ??
+                                    b['mobile']?.toString(),
                                 email: b['email']?.toString(),
                                 district: selectedDistrict['name']?.toString(),
                               );

@@ -123,9 +123,11 @@ class _CircularsScreenState extends ConsumerState<CircularsScreen> {
                       final id = item['id']?.toString() ?? '';
                       return DocumentRow(
                         title: item['title']?.toString() ?? '',
-                        date: item['created_date']?.toString(),
-                        category: item['category']?.toString() ??
-                            item['type']?.toString().toUpperCase(),
+                        date: (item['date'] ?? item['created_date'])?.toString(),
+                        category: (item['category_name'] ??
+                                item['category'] ??
+                                item['type'])
+                            ?.toString(),
                         fileUrl: item['file_url']?.toString(),
                         onTap: () => context.push('/circulars/$id'),
                       );

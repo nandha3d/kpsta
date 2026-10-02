@@ -80,9 +80,11 @@ class GalleryDetailScreen extends ConsumerWidget {
           onRetry: () => ref.refresh(albumDetailProvider(id)),
         ),
         data: (data) {
-          final album = data['album'] as Map<String, dynamic>? ?? {};
-          final photos = data['photos'] as List<dynamic>? ?? [];
-          final albumTitle = album['title']?.toString() ?? 'Photos';
+          final album = (data['album'] as Map<String, dynamic>?) ?? data;
+          final photos =
+              (data['images'] ?? data['photos']) as List<dynamic>? ?? [];
+          final albumTitle =
+              (album['name'] ?? album['title'])?.toString() ?? 'Photos';
 
           if (photos.isEmpty) {
             return const EmptyState(

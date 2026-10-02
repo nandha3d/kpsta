@@ -59,9 +59,12 @@ class GalleryScreen extends ConsumerWidget {
                 final name = album['name']?.toString() ??
                     album['title']?.toString() ??
                     'Album';
-                final coverUrl = album['cover_url']?.toString() ??
+                final coverUrl = album['cover_image']?.toString() ??
+                    album['cover_url']?.toString() ??
                     album['image_url']?.toString();
-                final count = album['photo_count']?.toString() ?? '0';
+                final count =
+                    (album['image_count'] ?? album['photo_count'])?.toString() ??
+                        '0';
 
                 return InkWell(
                   onTap: () => context.push('/gallery/$id'),

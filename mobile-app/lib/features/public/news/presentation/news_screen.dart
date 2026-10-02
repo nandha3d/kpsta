@@ -79,8 +79,11 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
                       final item = newsItems[idx];
                       final id = item['id']?.toString() ?? '';
                       final title = item['title']?.toString() ?? '';
-                      final date = item['date']?.toString() ?? '';
-                      final imageUrl = item['image_url']?.toString();
+                      final date =
+                          (item['date'] ?? item['published_at'])?.toString() ??
+                              '';
+                      final imageUrl =
+                          (item['image_url'] ?? item['photo_url'])?.toString();
 
                       return Card(
                         margin: const EdgeInsets.symmetric(

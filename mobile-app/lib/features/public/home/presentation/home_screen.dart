@@ -270,9 +270,9 @@ class HomeScreen extends ConsumerWidget {
                 else
                   ...latestNews.take(3).map((item) {
                     final title = item['title']?.toString() ?? '';
-                    final date = item['date']?.toString() ?? '';
+                    final date = (item['date'] ?? item['published_at'])?.toString() ?? '';
                     final id = item['id']?.toString() ?? '';
-                    final imageUrl = item['image_url']?.toString();
+                    final imageUrl = (item['image_url'] ?? item['photo_url'])?.toString();
 
                     return Card(
                       margin: const EdgeInsets.symmetric(
@@ -374,8 +374,8 @@ class HomeScreen extends ConsumerWidget {
                   ...circulars.take(4).map((circ) {
                     return DocumentRow(
                       title: circ['title']?.toString() ?? '',
-                      date: circ['created_date']?.toString(),
-                      category: circ['category']?.toString(),
+                      date: (circ['date'] ?? circ['created_date'])?.toString(),
+                      category: (circ['category_name'] ?? circ['category'])?.toString(),
                       fileUrl: circ['file_url']?.toString(),
                       onTap: () {
                         final id = circ['id']?.toString() ?? '';
