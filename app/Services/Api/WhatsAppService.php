@@ -6,72 +6,115 @@ class WhatsAppService implements WhatsAppProviderInterface
 {
     protected string $provider;
     protected string $apiUrl;
-    protected string $apiToken;
+    protected string $authKey;
+    protected string $integratedNumber;
+    protected string $fallbackNumber;
     protected string $templateName;
 
     public function __construct()
     {
-        $this->provider = getenv('WHATSAPP_PROVIDER') ?: 'log';
-        $this->apiUrl = getenv('WHATSAPP_API_URL') ?: '';
-        $this->apiToken = getenv('WHATSAPP_API_TOKEN') ?: '';
-        $this->templateName = getenv('WHATSAPP_TEMPLATE_NAME') ?: 'kpsta_otp_verification';
+        $this->provider = getenv('WHATSAPP_PROVIDER') ?: 'msg91';
+        $this->apiUrl = getenv('WHATSAPP_API_URL') ?: 'https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/';
+        $this->authKey = getenv('WHATSAPP_AUTH_KEY') ?: '463379AbmG58Zt6892f626P1';
+        // 15554929613 is the active integrated number in MSG91; 15559636218 is the configured fallback
+        $this->integratedNumber = getenv('WHATSAPP_INTEGRATED_NUMBER') ?: '15554929613';
+        $this->fallbackNumber = getenv('WHATSAPP_FALLBACK_NUMBER') ?: '15559636218';
+        $this->templateName = getenv('WHATSAPP_TEMPLATE_NAME') ?: 'zolofund_auth';
     }
 
+    /**
+     * Send OTP to the specified WhatsApp phone number via MSG91 WhatsApp Outbound API.
+     *
+     * @param string $phone Phone number (e.g. 919876543210 or 9876543210)
+     * @param string $otp 6-digit OTP string
+     * @return bool True if successfully dispatched, false otherwise
+     */
     public function sendOtp(string $phone, string $otp): bool
     {
-        // In development or when provider is 'log', record safely to log
-        if ($this->provider === 'log' || empty($this->apiUrl) || empty($this->apiToken)) {
-            log_message('info', "[WhatsAppService] (DEV/MOCK) Dispatched OTP to {$phone}: {$otp}");
+        // Allow mock logging in tests if explicitly configured
+        if ($this->provider === 'log') {
+            log_message('info', "[WhatsAppService] (MOCK LOG) Dispatched OTP to {$phone}: {$otp}");
             return true;
         }
 
-        // Live HTTP provider dispatch
-        try {
-            $client = \Config\Services::curlrequest();
-            $response = $client->post($this->apiUrl, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->apiToken,
-                    'Content-Type'  => 'application/json',
-                ],
-                'json' => [
-                    'messaging_product' => 'whatsapp',
-                    'to'                => $phone,
-                    'type'              => 'template',
-                    'template'          => [
-                        'name' => $this->templateName,
-                        'language' => ['code' => 'en'],
-                        'components' => [
-                            [
-                                'type' => 'body',
-                                'parameters' => [
-                                    ['type' => 'text', 'text' => $otp],
-                                ],
-                            ],
-                            [
-                                'type' => 'button',
-                                'sub_type' => 'url',
-                                'index' => '0',
-                                'parameters' => [
-                                    ['type' => 'text', 'text' => $otp],
+        // Normalize phone number (pure digits, ensuring country code e.g. 91)
+        $cleanPhone = preg_replace('/\D+/', '', $phone);
+        if (strlen($cleanPhone) === 10 && in_array($cleanPhone[0], ['6', '7', '8', '9'])) {
+            $cleanPhone = '91' . $cleanPhone;
+        }
+
+        // Try primary integrated number, fallback if needed
+        $numbersToTry = array_unique(array_filter([$this->integratedNumber, $this->fallbackNumber]));
+        foreach ($numbersToTry as $senderNumber) {
+            $success = $this->dispatchMsg91($cleanPhone, $otp, $senderNumber);
+            if ($success) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Dispatch single WhatsApp template request via MSG91.
+     */
+    protected function dispatchMsg91(string $phone, string $otp, string $senderNumber): bool
+    {
+        $payload = [
+            'integrated_number' => $senderNumber,
+            'content_type'      => 'template',
+            'payload'           => [
+                'messaging_product' => 'whatsapp',
+                'type'              => 'template',
+                'template'          => [
+                    'name'     => $this->templateName,
+                    'language' => [
+                        'code'   => 'en',
+                        'policy' => 'deterministic',
+                    ],
+                    'namespace' => null,
+                    'to_and_components' => [
+                        [
+                            'to' => [$phone],
+                            'components' => [
+                                'body_1' => [
+                                    'type'  => 'text',
+                                    'value' => $otp,
                                 ],
                             ],
                         ],
                     ],
                 ],
+            ],
+        ];
+
+        try {
+            $client = \Config\Services::curlrequest();
+            $response = $client->post($this->apiUrl, [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'authkey'      => $this->authKey,
+                ],
+                'body'        => json_encode($payload),
                 'http_errors' => false,
-                'timeout'     => 10,
+                'timeout'     => 15,
+                'verify'      => false,
             ]);
 
             $statusCode = $response->getStatusCode();
-            if ($statusCode >= 200 && $statusCode < 300) {
-                log_message('info', "[WhatsAppService] Live OTP sent successfully to {$phone}.");
+            $body = (string)$response->getBody();
+            $data = json_decode($body, true);
+
+            if ($statusCode >= 200 && $statusCode < 300 && ($data['status'] ?? '') === 'success') {
+                $requestId = $data['request_id'] ?? 'N/A';
+                log_message('info', "[WhatsAppService] MSG91 OTP sent successfully to {$phone} via {$senderNumber}. Request ID: {$requestId}");
                 return true;
             }
 
-            log_message('error', "[WhatsAppService] Live OTP send failed for {$phone}. Status: {$statusCode}, Body: " . $response->getBody());
+            log_message('warning', "[WhatsAppService] MSG91 send attempt failed for {$phone} via {$senderNumber}. Status: {$statusCode}, Body: {$body}");
             return false;
         } catch (\Throwable $e) {
-            log_message('error', "[WhatsAppService] Exception sending OTP to {$phone}: " . $e->getMessage());
+            log_message('error', "[WhatsAppService] Exception sending MSG91 OTP to {$phone} via {$senderNumber}: " . $e->getMessage());
             return false;
         }
     }

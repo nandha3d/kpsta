@@ -7,7 +7,15 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.poppinsTextTheme();
+    // Prevent runtime network font fetching exceptions on desktop platforms
+    GoogleFonts.config.allowRuntimeFetching = false;
+
+    TextTheme baseTextTheme;
+    try {
+      baseTextTheme = GoogleFonts.poppinsTextTheme();
+    } catch (_) {
+      baseTextTheme = ThemeData.light().textTheme;
+    }
 
     return ThemeData(
       useMaterial3: true,
@@ -74,7 +82,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
-          minimumSize: const Size(double.infinity, 48),
+          minimumSize: const Size(64, 44),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
@@ -89,7 +97,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.primary),
-          minimumSize: const Size(double.infinity, 48),
+          minimumSize: const Size(64, 44),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),

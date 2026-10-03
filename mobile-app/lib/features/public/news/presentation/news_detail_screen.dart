@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -50,16 +50,16 @@ class NewsDetailScreen extends ConsumerWidget {
                 if (imageUrl != null && imageUrl.isNotEmpty) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
+                    child: AppNetworkImage(
                       imageUrl: imageUrl,
                       width: double.infinity,
                       height: 220,
                       fit: BoxFit.cover,
-                      placeholder: (c, u) => Container(
+                      placeholder: Container(
                         color: AppColors.bgLight,
                         height: 220,
                       ),
-                      errorWidget: (c, u, e) => const SizedBox.shrink(),
+                      errorWidget: const SizedBox.shrink(),
                     ),
                   ),
                   const SizedBox(height: 16),

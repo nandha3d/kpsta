@@ -187,10 +187,38 @@ class AuthService
                 ->getRowArray();
         }
 
+        // Auto-provision verified WhatsApp mobile user if not already in aauth_users
+        if (!$user) {
+            $tenDigit = strlen($normalized) >= 10 ? substr($normalized, -10) : $normalized;
+            $teacher = $this->db->table('teacher_details')
+                ->where('mobile', $normalized)
+                ->orWhere('mobile', $tenDigit)
+                ->get(1)
+                ->getRowArray();
+
+            $name = $teacher['name'] ?? ('KPSTA Member ' . substr($normalized, -4));
+            $email = 'member_' . $normalized . '@kpsta.in';
+
+            $this->db->table('aauth_users')->insert([
+                'phone'        => $normalized,
+                'username'     => $normalized,
+                'email'        => $email,
+                'name'         => $name,
+                'group_id'     => 2, // Member group
+                'banned'       => 0,
+                'date_created' => $now,
+            ]);
+
+            $user = $this->db->table('aauth_users')
+                ->where('phone', $normalized)
+                ->get(1)
+                ->getRowArray();
+        }
+
         if (!$user) {
             return [
                 'success' => false,
-                'message' => 'No active user account found matching this WhatsApp number. Please contact the administrator.',
+                'message' => 'Unable to initialize user account for this WhatsApp number. Please contact the administrator.',
                 'code'    => 'ACCOUNT_NOT_FOUND',
                 'data'    => null,
             ];

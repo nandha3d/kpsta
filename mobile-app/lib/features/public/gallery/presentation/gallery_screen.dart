@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -83,33 +83,24 @@ class GalleryScreen extends ConsumerWidget {
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(11),
                             ),
-                            child: coverUrl != null && coverUrl.isNotEmpty
-                                ? CachedNetworkImage(
-                                    imageUrl: coverUrl,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    placeholder: (c, u) => Container(
-                                      color: AppColors.bgLight,
-                                    ),
-                                    errorWidget: (c, u, e) => Container(
-                                      color: AppColors.bgLight,
-                                      child: const Icon(
-                                        Icons.image_outlined,
-                                        size: 32,
-                                        color: AppColors.textLight,
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    color: AppColors.primary.withOpacity(0.08),
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.photo_library,
-                                        color: AppColors.primary,
-                                        size: 32,
-                                      ),
-                                    ),
+                            child: AppNetworkImage(
+                              imageUrl: coverUrl,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              placeholder: Container(
+                                color: AppColors.bgLight,
+                              ),
+                              errorWidget: Container(
+                                color: AppColors.primary.withValues(alpha: 0.08),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.photo_library,
+                                    color: AppColors.primary,
+                                    size: 32,
                                   ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                         Padding(

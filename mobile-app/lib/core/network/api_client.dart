@@ -23,6 +23,7 @@ class ApiClient {
                 headers: {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json',
+                  'User-Agent': 'KPSTA-Mobile/1.0.0 (Android; Mobile)',
                 },
               ),
             ) {

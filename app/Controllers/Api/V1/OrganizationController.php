@@ -34,16 +34,16 @@ class OrganizationController extends BaseApiController
         // Group by section heading
         $grouped = [];
         foreach ($rawList as $row) {
-            $section = !empty($row['section_heading']) ? $row['section_heading'] : ($row['designation_name'] ?? 'Other');
+            $section = !empty($row['section_heading']) ? $row['section_heading'] : (!empty($row['designation']) ? $row['designation'] : 'Other');
             $grouped[$section][] = [
                 'id'              => (int)($row['id'] ?? 0),
                 'name'            => $row['name'] ?? '',
-                'designation_id'  => (int)($row['designation'] ?? 0),
-                'designation'     => $row['designation_name'] ?? $row['designation'] ?? '',
+                'designation_id'  => (int)($row['designationId'] ?? $row['designation'] ?? 0),
+                'designation'     => $row['designation'] ?? '',
                 'phone'           => !empty($row['phone']) ? (string)$row['phone'] : null,
                 'email'           => $row['email'] ?? null,
                 'address'         => $row['address'] ?? null,
-                'photo_url'       => !empty($row['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $row['photo']) : null,
+                'photo_url'       => !empty($row['image']) ? $this->formatFileUrl('uploads/office_bearer/' . $row['image']) : (!empty($row['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $row['photo']) : null),
                 'year'            => $row['year'] ?? null,
                 'level'           => $row['level'] ?? 'State',
                 'section_heading' => $row['section_heading'] ?? null,
@@ -115,8 +115,8 @@ class OrganizationController extends BaseApiController
                 foreach ($additionalPositions as $pos) {
                     $leaders[$idx]['all_positions'][] = $pos;
                 }
-                if (empty($leaders[$idx]['photo']) && !empty($ob['photo'])) {
-                    $leaders[$idx]['photo'] = $ob['photo'];
+                if (empty($leaders[$idx]['image']) && !empty($ob['image'])) {
+                    $leaders[$idx]['image'] = $ob['image'];
                 }
             } else {
                 $entry = $ob;
@@ -131,7 +131,7 @@ class OrganizationController extends BaseApiController
             return [
                 'id'          => (int)($ldr['id'] ?? 0),
                 'name'        => $ldr['name'] ?? '',
-                'photo_url'   => !empty($ldr['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $ldr['photo']) : null,
+                'photo_url'   => !empty($ldr['image']) ? $this->formatFileUrl('uploads/office_bearer/' . $ldr['image']) : (!empty($ldr['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $ldr['photo']) : null),
                 'phone'       => !empty($ldr['phone']) ? (string)$ldr['phone'] : null,
                 'email'       => $ldr['email'] ?? null,
                 'positions'   => $ldr['all_positions'] ?? [],
@@ -169,10 +169,10 @@ class OrganizationController extends BaseApiController
             $districtBearers[$distName][] = [
                 'id'             => (int)($bearer['id'] ?? 0),
                 'name'           => $bearer['name'] ?? '',
-                'designation'    => $bearer['designation_name'] ?? $bearer['designation'] ?? '',
+                'designation'    => $bearer['designation'] ?? '',
                 'phone'          => !empty($bearer['phone']) ? (string)$bearer['phone'] : null,
                 'email'          => $bearer['email'] ?? null,
-                'photo_url'      => !empty($bearer['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $bearer['photo']) : null,
+                'photo_url'      => !empty($bearer['image']) ? $this->formatFileUrl('uploads/office_bearer/' . $bearer['image']) : (!empty($bearer['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $bearer['photo']) : null),
             ];
         }
 
@@ -210,7 +210,7 @@ class OrganizationController extends BaseApiController
             'is_former'       => 0,
             'active_term'     => $activeTerm,
             'level'           => 'District',
-            'section_heading' => $distName,
+            'district'        => $distName,
             'limit'           => 100,
         ]) ?: [];
 
@@ -218,10 +218,10 @@ class OrganizationController extends BaseApiController
             return [
                 'id'          => (int)($b['id'] ?? 0),
                 'name'        => $b['name'] ?? '',
-                'designation' => $b['designation_name'] ?? $b['designation'] ?? '',
+                'designation' => $b['designation'] ?? '',
                 'phone'       => !empty($b['phone']) ? (string)$b['phone'] : null,
                 'email'       => $b['email'] ?? null,
-                'photo_url'   => !empty($b['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $b['photo']) : null,
+                'photo_url'   => !empty($b['image']) ? $this->formatFileUrl('uploads/office_bearer/' . $b['image']) : (!empty($b['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $b['photo']) : null),
             ];
         }, $bearers);
 

@@ -19,15 +19,7 @@ class ApiConstants {
     if (_customBaseUrl.isNotEmpty) {
       return _customBaseUrl;
     }
-    if (kIsWeb) {
-      return 'http://localhost:8090/api/v1';
-    }
-    try {
-      if (Platform.isAndroid) {
-        return 'http://10.0.2.2:8090/api/v1';
-      }
-    } catch (_) {}
-    return 'http://127.0.0.1:8090/api/v1';
+    return 'https://kpsta.in/api/v1';
   }
 
   // Auth endpoints

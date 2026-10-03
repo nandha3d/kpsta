@@ -53,7 +53,7 @@ class _MembershipTeacherDetailScreenState
           data: {'action': action},
         );
 
-        ref.refresh(teacherDetailProvider(widget.id));
+        ref.invalidate(teacherDetailProvider(widget.id));
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

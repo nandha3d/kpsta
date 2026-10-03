@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'app_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/app_colors.dart';
 
@@ -49,43 +49,32 @@ class PersonCard extends StatelessWidget {
             // Avatar
             ClipRRect(
               borderRadius: BorderRadius.circular(30),
-              child: photoUrl != null && photoUrl!.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: photoUrl!,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      placeholder: (ctx, url) => Container(
-                        width: 60,
-                        height: 60,
-                        color: AppColors.bgLight,
-                        child: const Icon(
-                          Icons.person,
-                          color: AppColors.textLight,
-                          size: 30,
-                        ),
-                      ),
-                      errorWidget: (ctx, url, err) => Container(
-                        width: 60,
-                        height: 60,
-                        color: AppColors.bgLight,
-                        child: const Icon(
-                          Icons.person,
-                          color: AppColors.textLight,
-                          size: 30,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      width: 60,
-                      height: 60,
-                      color: AppColors.primary.withOpacity(0.1),
-                      child: const Icon(
-                        Icons.person,
-                        color: AppColors.primary,
-                        size: 30,
-                      ),
-                    ),
+              child: AppNetworkImage(
+                imageUrl: photoUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+                placeholder: Container(
+                  width: 60,
+                  height: 60,
+                  color: AppColors.bgLight,
+                  child: const Icon(
+                    Icons.person,
+                    color: AppColors.textLight,
+                    size: 30,
+                  ),
+                ),
+                errorWidget: Container(
+                  width: 60,
+                  height: 60,
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  child: const Icon(
+                    Icons.person,
+                    color: AppColors.primary,
+                    size: 30,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 14),
 

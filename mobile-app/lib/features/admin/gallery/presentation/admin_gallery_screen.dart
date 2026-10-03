@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -176,16 +176,15 @@ class AdminGalleryScreen extends ConsumerWidget {
                           width: 110,
                           height: 110,
                           color: AppColors.backgroundSecondary,
-                          child: (cover != null && cover.isNotEmpty)
-                              ? CachedNetworkImage(
-                                  imageUrl: cover,
-                                  fit: BoxFit.cover,
-                                  errorWidget: (_, __, ___) => const Icon(
-                                      Icons.photo_library,
-                                      color: AppColors.textMuted),
-                                )
-                              : const Icon(Icons.photo_library,
-                                  color: AppColors.textMuted, size: 36),
+                          child: AppNetworkImage(
+                            imageUrl: cover,
+                            fit: BoxFit.cover,
+                            errorWidget: const Icon(
+                              Icons.photo_library,
+                              color: AppColors.textMuted,
+                              size: 36,
+                            ),
+                          ),
                         ),
                         Expanded(
                           child: Padding(

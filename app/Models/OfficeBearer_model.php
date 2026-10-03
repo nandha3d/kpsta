@@ -318,10 +318,16 @@ class OfficeBearer_model extends Ci3Model {
             return;
         }
 
+        $term = $param['active_term'];
+        $parts = explode('-', $term);
+        $startYear = (int)$parts[0];
+        $endYear = isset($parts[1]) ? (int)$parts[1] : $startYear;
+
         $this->db->group_start();
-        $this->db->where("o.year", $param['active_term']);
+        $this->db->where("o.year", $term);
         $this->db->or_where("o.year IS NULL", NULL, FALSE);
         $this->db->or_where("o.year", '');
+        $this->db->or_where("(o.year LIKE '%-%' AND CAST(SUBSTRING_INDEX(o.year, '-', 1) AS UNSIGNED) <= {$endYear} AND CAST(SUBSTRING_INDEX(o.year, '-', -1) AS UNSIGNED) >= {$startYear})", NULL, FALSE);
         $this->db->group_end();
     }
 

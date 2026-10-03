@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -31,7 +31,7 @@ class GalleryDetailScreen extends ConsumerWidget {
           alignment: Alignment.center,
           children: [
             InteractiveViewer(
-              child: CachedNetworkImage(
+              child: AppNetworkImage(
                 imageUrl: url,
                 fit: BoxFit.contain,
               ),
@@ -128,12 +128,11 @@ class GalleryDetailScreen extends ConsumerWidget {
                       onTap: () => _showFullScreen(context, photoUrl, caption),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
+                        child: AppNetworkImage(
                           imageUrl: photoUrl,
                           fit: BoxFit.cover,
-                          placeholder: (c, u) =>
-                              Container(color: AppColors.bgLight),
-                          errorWidget: (c, u, e) => Container(
+                          placeholder: Container(color: AppColors.bgLight),
+                          errorWidget: Container(
                             color: AppColors.bgLight,
                             child: const Icon(Icons.broken_image),
                           ),

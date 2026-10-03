@@ -4,9 +4,12 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
+import '../../../../core/widgets/bearer_card.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/error_state.dart';
-import '../../../../core/widgets/person_card.dart';
+import '../../../../core/widgets/kpsta_footer.dart';
+import '../../../../core/widgets/page_hero_banner.dart';
+import '../../../../core/widgets/ribbon_header.dart';
 import '../../../auth/presentation/auth_providers.dart';
 
 final officeBearersProvider =
@@ -24,6 +27,7 @@ class OrganizationScreen extends ConsumerWidget {
     final bearersAsync = ref.watch(officeBearersProvider);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppTopBar(
         title: 'State Office Bearers',
         actions: [
@@ -61,39 +65,59 @@ class OrganizationScreen extends ConsumerWidget {
             color: AppColors.primary,
             onRefresh: () async => ref.refresh(officeBearersProvider),
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              children: sections.entries.map((entry) {
-                final sectionTitle = entry.key;
-                final members = entry.value as List<dynamic>? ?? [];
+              padding: EdgeInsets.zero,
+              children: [
+                // Interior Hero Banner
+                const PageHeroBanner(
+                  title: 'STATE OFFICE BEARERS',
+                  height: 100,
+                ),
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
-                        sectionTitle,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryDark,
+                const SizedBox(height: 12),
+
+                // Sections with Ribbon Header and Asymmetric Bearer Cards
+                ...sections.entries.map((entry) {
+                  final sectionTitle = entry.key;
+                  final members = entry.value as List<dynamic>? ?? [];
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: RibbonHeader(
+                          title: sectionTitle,
+                          color: const Color(0xFF016D77),
+                          margin: const EdgeInsets.only(top: 18, bottom: 12),
                         ),
                       ),
-                    ),
-                    ...members.map((m) {
-                      return PersonCard(
-                        name: m['name']?.toString() ?? '',
-                        designation: m['designation']?.toString() ?? '',
-                        photoUrl: m['photo_url']?.toString(),
-                        mobile: m['phone']?.toString() ??
-                            m['mobile']?.toString(),
-                        email: m['email']?.toString(),
-                        district: m['district']?.toString(),
-                      );
-                    }),
-                  ],
-                );
-              }).toList(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceEvenly,
+                          spacing: 12,
+                          runSpacing: 16,
+                          children: members.map((m) {
+                            return BearerCard(
+                              name: m['name']?.toString() ?? '',
+                              designation: m['designation']?.toString() ?? '',
+                              photoUrl: m['photo_url']?.toString(),
+                              phone: m['phone']?.toString() ?? m['mobile']?.toString(),
+                              year: m['year']?.toString(),
+                              width: 155,
+                              photoHeight: 160,
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                }),
+
+                const SizedBox(height: 32),
+                const KpstaFooter(),
+              ],
             ),
           );
         },

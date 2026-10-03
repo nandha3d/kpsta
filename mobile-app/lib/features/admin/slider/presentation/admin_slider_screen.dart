@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -121,25 +121,24 @@ class AdminSliderScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (imgUrl != null && imgUrl.isNotEmpty)
-                        CachedNetworkImage(
-                          imageUrl: imgUrl,
+                      AppNetworkImage(
+                        imageUrl: imgUrl,
+                        height: 160,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: Container(
                           height: 160,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            height: 160,
-                            color: AppColors.backgroundSecondary,
-                            child: const Center(
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          ),
-                          errorWidget: (_, __, ___) => Container(
-                            height: 160,
-                            color: AppColors.backgroundSecondary,
-                            child: const Icon(Icons.broken_image, size: 40),
+                          color: AppColors.backgroundSecondary,
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                         ),
+                        errorWidget: Container(
+                          height: 160,
+                          color: AppColors.backgroundSecondary,
+                          child: const Icon(Icons.broken_image, size: 40),
+                        ),
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(12),
                         child: Column(

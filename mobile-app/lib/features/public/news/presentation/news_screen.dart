@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import '../../../../core/widgets/app_network_image.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
@@ -100,35 +100,27 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
-                                  child: imageUrl != null && imageUrl.isNotEmpty
-                                      ? CachedNetworkImage(
-                                          imageUrl: imageUrl,
-                                          width: 80,
-                                          height: 80,
-                                          fit: BoxFit.cover,
-                                          placeholder: (c, u) => Container(
-                                            color: AppColors.bgLight,
-                                          ),
-                                          errorWidget: (c, u, e) => Container(
-                                            color: AppColors.bgLight,
-                                            child: const Icon(
-                                              Icons.article,
-                                              color: AppColors.primary,
-                                              size: 32,
-                                            ),
-                                          ),
-                                        )
-                                      : Container(
-                                          width: 80,
-                                          height: 80,
-                                          color: AppColors.primary
-                                              .withOpacity(0.08),
-                                          child: const Icon(
-                                            Icons.newspaper,
-                                            color: AppColors.primary,
-                                            size: 32,
-                                          ),
-                                        ),
+                                  child: AppNetworkImage(
+                                    imageUrl: imageUrl,
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                    placeholder: Container(
+                                      width: 80,
+                                      height: 80,
+                                      color: AppColors.bgLight,
+                                    ),
+                                    errorWidget: Container(
+                                      width: 80,
+                                      height: 80,
+                                      color: AppColors.primary.withValues(alpha: 0.08),
+                                      child: const Icon(
+                                        Icons.newspaper,
+                                        color: AppColors.primary,
+                                        size: 32,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 14),
                                 Expanded(

@@ -38,10 +38,10 @@ class HomeController extends BaseApiController
         $sliders = array_map(function ($s) {
             return [
                 'id'          => (int)($s['id'] ?? 0),
-                'title'       => $s['heading'] ?? $s['title'] ?? '',
+                'title'       => $s['description'] ?? $s['heading'] ?? $s['title'] ?? '',
                 'description' => $s['description'] ?? '',
-                'image_url'   => $this->formatFileUrl('uploads/slider/' . ($s['image'] ?? '')),
-                'link'        => $s['link'] ?? null,
+                'image_url'   => !empty($s['image']) ? $this->formatFileUrl('uploads/slider/' . $s['image']) : null,
+                'link'        => $s['path'] ?? $s['link'] ?? null,
                 'created_at'  => $this->formatIsoDate($s['created_at'] ?? null),
             ];
         }, $rawSliders);
@@ -51,8 +51,8 @@ class HomeController extends BaseApiController
         $flashNews = array_map(function ($f) {
             return [
                 'id'         => (int)($f['id'] ?? 0),
-                'title'      => $f['title'] ?? $f['news'] ?? '',
-                'link'       => $f['link'] ?? null,
+                'title'      => $f['description'] ?? $f['title'] ?? $f['news'] ?? '',
+                'link'       => $f['path'] ?? $f['link'] ?? null,
                 'created_at' => $this->formatIsoDate($f['created_at'] ?? null),
             ];
         }, $rawFlash);
@@ -74,12 +74,12 @@ class HomeController extends BaseApiController
         $circulars = array_map(function ($o) {
             return [
                 'id'            => (int)($o['id'] ?? 0),
-                'title'         => $o['title'] ?? '',
+                'title'         => $o['description'] ?? $o['title'] ?? '',
                 'circular_no'   => $o['circular_no'] ?? null,
                 'type'          => $o['type_name'] ?? $o['type'] ?? 'General',
-                'category'      => $o['category_name'] ?? $o['category'] ?? '',
-                'circular_date' => $this->formatIsoDate($o['circular_date'] ?? null),
-                'file_url'      => !empty($o['file']) ? $this->formatFileUrl('uploads/order_circular/' . $o['file']) : null,
+                'category'      => $o['category'] ?? $o['category_name'] ?? '',
+                'circular_date' => $this->formatIsoDate($o['date_unformat'] ?? null) ?: ($o['date'] ?? null),
+                'file_url'      => !empty($o['path']) ? $this->formatFileUrl('uploads/order_circular/' . $o['path']) : null,
             ];
         }, $rawOrders);
 
@@ -90,8 +90,8 @@ class HomeController extends BaseApiController
                 'id'         => (int)($img['id'] ?? 0),
                 'album_id'   => (int)($img['album_id'] ?? 0),
                 'album_name' => $img['album_name'] ?? '',
-                'image_url'  => $this->formatFileUrl('uploads/gallery/' . ($img['image'] ?? '')),
-                'caption'    => $img['caption'] ?? '',
+                'image_url'  => !empty($img['image']) ? $this->formatFileUrl('uploads/gallery/' . $img['image']) : null,
+                'caption'    => $img['caption'] ?? $img['description'] ?? '',
             ];
         }, $rawImages);
 
@@ -100,8 +100,8 @@ class HomeController extends BaseApiController
         $quickLinks = array_map(function ($q) {
             return [
                 'id'    => (int)($q['id'] ?? 0),
-                'title' => $q['title'] ?? '',
-                'url'   => $q['url'] ?? $q['link'] ?? '',
+                'title' => $q['description'] ?? $q['title'] ?? '',
+                'url'   => $q['path'] ?? $q['url'] ?? $q['link'] ?? '',
                 'icon'  => $q['icon'] ?? null,
             ];
         }, $rawLinks);
@@ -111,8 +111,8 @@ class HomeController extends BaseApiController
         $reactionGallery = array_map(function ($rg) {
             return [
                 'id'        => (int)($rg['id'] ?? 0),
-                'title'     => $rg['title'] ?? '',
-                'image_url' => $this->formatFileUrl('uploads/reaction_gallery/' . ($rg['image'] ?? '')),
+                'title'     => $rg['description'] ?? $rg['title'] ?? '',
+                'image_url' => !empty($rg['image']) ? $this->formatFileUrl('uploads/reaction_gallery/' . $rg['image']) : null,
             ];
         }, $rawReactions);
 
@@ -131,10 +131,10 @@ class HomeController extends BaseApiController
             return [
                 'id'          => (int)($ob['id'] ?? 0),
                 'name'        => $ob['name'] ?? '',
-                'designation' => $ob['designation_name'] ?? $ob['designation'] ?? '',
+                'designation' => $ob['designation'] ?? '',
                 'phone'       => !empty($ob['phone']) ? (string)$ob['phone'] : null,
                 'email'       => $ob['email'] ?? null,
-                'photo_url'   => !empty($ob['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $ob['photo']) : null,
+                'photo_url'   => !empty($ob['image']) ? $this->formatFileUrl('uploads/office_bearer/' . $ob['image']) : (!empty($ob['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $ob['photo']) : null),
             ];
         }, $rawLeaders);
 

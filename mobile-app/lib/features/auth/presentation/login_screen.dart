@@ -14,8 +14,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _phoneController = TextEditingController(text: '919876543210');
-  final _otpController = TextEditingController(text: '123456');
+  final _phoneController = TextEditingController();
+  final _otpController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -28,6 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleSendOtp() async {
     if (!_formKey.currentState!.validate()) return;
     final phone = _phoneController.text.trim();
+    _otpController.clear();
     final success =
         await ref.read(authNotifierProvider.notifier).requestOtp(phone);
     if (success && mounted) {

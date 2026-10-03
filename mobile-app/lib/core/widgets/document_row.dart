@@ -95,25 +95,31 @@ class DocumentRow extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
-                  Row(
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 8,
+                    runSpacing: 4,
                     children: [
-                      if (formattedDate.isNotEmpty) ...[
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 13,
-                          color: AppColors.textMuted,
+                      if (formattedDate.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              size: 13,
+                              color: AppColors.textMuted,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              formattedDate,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textMuted,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          formattedDate,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMuted,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                      ],
-                      if (category != null && category!.isNotEmpty)
+                      if (category != null && category!.trim().isNotEmpty && category!.trim() != '.')
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
@@ -134,6 +140,8 @@ class DocumentRow extends StatelessWidget {
                               color: AppColors.textMuted,
                               fontWeight: FontWeight.w500,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                     ],

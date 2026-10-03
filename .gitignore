@@ -54,6 +54,8 @@ public/downloads/
 scratch/
 *.tar
 test_*.png
+test_*.jpg
+.vscode/
 Page References/
 # Integration tests
 !tests/test_api_v1.php
