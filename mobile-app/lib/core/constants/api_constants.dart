@@ -11,6 +11,10 @@ class ApiConstants {
     _customBaseUrl = url;
   }
 
+  /// Deployed and active live website API endpoint
+  static const String liveAnimazonUrl = 'https://animazon.in/kpsta/api/v1';
+  static const String liveKpstaUrl = 'https://kpsta.in/api/v1';
+
   static String get baseUrl {
     const envUrl = String.fromEnvironment('API_BASE_URL');
     if (envUrl.isNotEmpty) {
@@ -19,7 +23,15 @@ class ApiConstants {
     if (_customBaseUrl.isNotEmpty) {
       return _customBaseUrl;
     }
-    return 'https://kpsta.in/api/v1';
+    // Active deployed live website API
+    return liveAnimazonUrl;
+  }
+
+  static String get siteUrl {
+    if (baseUrl.contains('animazon.in')) {
+      return 'https://animazon.in/kpsta';
+    }
+    return 'https://kpsta.in';
   }
 
   // Auth endpoints
