@@ -16,10 +16,10 @@ class WhatsAppService implements WhatsAppProviderInterface
         $this->provider = getenv('WHATSAPP_PROVIDER') ?: 'msg91';
         $this->apiUrl = getenv('WHATSAPP_API_URL') ?: 'https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/bulk/';
         $this->authKey = getenv('WHATSAPP_AUTH_KEY') ?: '463379AbmG58Zt6892f626P1';
-        // 15554929613 is the active integrated number in MSG91; 15559636218 is the configured fallback
-        $this->integratedNumber = getenv('WHATSAPP_INTEGRATED_NUMBER') ?: '15554929613';
-        $this->fallbackNumber = getenv('WHATSAPP_FALLBACK_NUMBER') ?: '15559636218';
-        $this->templateName = getenv('WHATSAPP_TEMPLATE_NAME') ?: 'zolofund_auth';
+        // Primary integrated number 15559636218 with template 'kpsta'; fallback number 15554929613
+        $this->integratedNumber = getenv('WHATSAPP_INTEGRATED_NUMBER') ?: '15559636218';
+        $this->fallbackNumber = getenv('WHATSAPP_FALLBACK_NUMBER') ?: '15554929613';
+        $this->templateName = getenv('WHATSAPP_TEMPLATE_NAME') ?: 'kpsta';
     }
 
     /**
