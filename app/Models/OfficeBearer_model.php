@@ -19,19 +19,52 @@ class OfficeBearer_model extends Ci3Model {
             $data['previous_positions'] = json_encode(array_values($data['previous_positions']));
         }
 
-        if ($data['position'] <> 100) {
-            $this->updatePosition($data);
+        // Auto-assign default section heading if empty
+        if (empty($data['section_heading']) && !empty($data['designation'])) {
+            $data['section_heading'] = $this->getDefaultSectionHeadingForDesignation($data['designation']);
         }
 
         $this->db->insert('office_bearer', $data);
         return $this->db->insert_id();
     }
 
+    public function getDefaultSectionHeadingForDesignation($designationIdOrName) {
+        $name = '';
+        if (is_numeric($designationIdOrName)) {
+            $row = $this->getDesignationById($designationIdOrName);
+            if ($row) $name = $row['name'];
+        } else {
+            $name = (string)$designationIdOrName;
+        }
+        $upper = strtoupper(trim($name));
+        if (strpos($upper, 'PRESIDENT') !== false && strpos($upper, 'VICE') === false) {
+            return 'President / General Secretary / Treasurer';
+        }
+        if (strpos($upper, 'GENERAL SECRETARY') !== false || strpos($upper, 'GEN SECRETARY') !== false || strpos($upper, 'GEN. SECRETARY') !== false) {
+            return 'President / General Secretary / Treasurer';
+        }
+        if (strpos($upper, 'TREASURER') !== false) {
+            return 'President / General Secretary / Treasurer';
+        }
+        if (strpos($upper, 'SENIOR VICE PRESIDENT') !== false || strpos($upper, 'SR. VICE PRESIDENT') !== false || strpos($upper, 'SR VICE PRESIDENT') !== false || strpos($upper, 'ASSOCIATE GENERAL SECRETARY') !== false) {
+            return 'Senior Vice President / Associate General Secretary';
+        }
+        if (strpos($upper, 'VICE PRESIDENT') !== false) {
+            return 'Vice President';
+        }
+        if (strpos($upper, 'SECRETARIAT') !== false || strpos($upper, 'SECRETARIATE') !== false) {
+            return 'Secretariate Members';
+        }
+        if (strpos($upper, 'SECRETARY') !== false) {
+            return 'Secretary';
+        }
+        return $name;
+    }
+
     public function updatePosition($data) {
         $this->db->where(array("position" => $data['position']));
         $query = $this->db->get('office_bearer');
         if ($query->num_rows() > 0) {
-
             $this->db->query('UPDATE office_bearer SET position = position + 1 where position >= ' . $data['position'] . ' AND designation = ' . $data['designation']);
         }
     }
@@ -54,10 +87,11 @@ class OfficeBearer_model extends Ci3Model {
     }
 
     public function getAllSectionHeadings() {
-        // Predefined headings that should always be available
+        // Predefined headings in strict hierarchy order
         $defaults = array(
             'President / General Secretary / Treasurer' => 'President / General Secretary / Treasurer',
-            'Senior Vice President & Associate General Secretary' => 'Senior Vice President & Associate General Secretary',
+            'Senior Vice President / Associate General Secretary' => 'Senior Vice President / Associate General Secretary',
+            'Senior Vice President & Associate General Secretary' => 'Senior Vice President / Associate General Secretary',
             'Vice President' => 'Vice President',
             'Secretary' => 'Secretary',
             'Secretariate Members' => 'Secretariate Members',
@@ -234,8 +268,40 @@ class OfficeBearer_model extends Ci3Model {
                 break;
             case 'position-asc':
             default:
+                // Strict Category Designation Hierarchy:
+                // 1. President / General secretary / Treasurer
+                // 2. Senior Vice President / Associate General Secretary
+                // 3. Vice President
+                // 4. Secretary
+                // 5. Secretariate Members
+                // 6. Others
+                $categoryCase = "
+                CASE 
+                    WHEN UPPER(COALESCE(o.section_heading, '')) LIKE '%PRESIDENT%TREASURER%' OR UPPER(c.name) IN ('PRESIDENT', 'GENERAL SECRETARY', 'TREASURER') THEN 1
+                    WHEN UPPER(COALESCE(o.section_heading, '')) LIKE '%SENIOR VICE%' OR UPPER(COALESCE(o.section_heading, '')) LIKE '%ASSOCIATE GENERAL%' OR UPPER(c.name) LIKE '%SENIOR VICE%' OR UPPER(c.name) LIKE '%ASSOCIATE GENERAL%' THEN 2
+                    WHEN UPPER(COALESCE(o.section_heading, '')) LIKE '%VICE PRESIDENT%' OR UPPER(c.name) LIKE '%VICE PRESIDENT%' THEN 3
+                    WHEN (UPPER(COALESCE(o.section_heading, '')) LIKE '%SECRETARY%' AND UPPER(COALESCE(o.section_heading, '')) NOT LIKE '%GENERAL%') OR (UPPER(c.name) LIKE '%SECRETARY%' AND UPPER(c.name) NOT LIKE '%GENERAL%' AND UPPER(c.name) NOT LIKE '%ASSOCIATE%') THEN 4
+                    WHEN UPPER(COALESCE(o.section_heading, '')) LIKE '%SECRETARIAT%' OR UPPER(COALESCE(o.section_heading, '')) LIKE '%SECRETARIATE%' OR UPPER(c.name) LIKE '%SECRETARIAT%' OR UPPER(c.name) LIKE '%SECRETARIATE%' THEN 5
+                    ELSE 6
+                END";
+
+                $subRankCase = "
+                CASE 
+                    WHEN UPPER(c.name) LIKE '%PRESIDENT%' AND UPPER(c.name) NOT LIKE '%VICE%' THEN 1
+                    WHEN UPPER(c.name) LIKE '%GENERAL SECRETARY%' OR UPPER(c.name) LIKE '%GEN%SECRETARY%' THEN 2
+                    WHEN UPPER(c.name) LIKE '%TREASURER%' THEN 3
+                    WHEN UPPER(c.name) LIKE '%SENIOR VICE PRESIDENT%' OR UPPER(c.name) LIKE '%SR%VICE%PRESIDENT%' THEN 4
+                    WHEN UPPER(c.name) LIKE '%ASSOCIATE GENERAL SECRETARY%' THEN 5
+                    WHEN UPPER(c.name) LIKE '%VICE PRESIDENT%' THEN 6
+                    WHEN UPPER(c.name) LIKE '%SECRETARY%' AND UPPER(c.name) NOT LIKE '%GENERAL%' AND UPPER(c.name) NOT LIKE '%ASSOCIATE%' THEN 7
+                    WHEN UPPER(c.name) LIKE '%SECRETARIAT%' OR UPPER(c.name) LIKE '%SECRETARIATE%' THEN 8
+                    ELSE 9
+                END";
+
+                $this->db->order_by($categoryCase, 'ASC', false);
+                $this->db->order_by($subRankCase, 'ASC', false);
                 $this->db->order_by('o.position', 'ASC');
-                $this->db->order_by('o.designation', 'ASC');
+                $this->db->order_by('o.id', 'ASC');
                 break;
         }
 

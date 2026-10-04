@@ -147,31 +147,130 @@ $("body").on('change', '#modal input[name="image"]', function (e) {
 
         reader.onloadend = function () {
             $("#modal .thumbnail_preview_loader").find('i').remove();
-
-            //aspectRatio: '(thumbnailwidth/thumbnailHeight), i.e 173/214',
-            $('#modal').find('#thumbnail').imgAreaSelect({
-                aspectRatio: imageWidthThumb + ':' + imageHeightThumb,
-                x1: 0,
-                y1: 0,
-                x2: imageWidthThumb,
-                y2: imageHeightThumb,
-                handles: true,
-                maxHeight: imageHeightThumb + 'px',
-                maxWidth: imageWidthThumb + 'px',
-                parent: $('.modal-content-form'),
-                onSelectChange: preview
-            });
+            setTimeout(function() {
+                initCropperOnThumbnail();
+            }, 100);
         };
-
-
     }
 });
 
+function initCropperOnThumbnail() {
+    var $thumb = $('#modal').find('#thumbnail');
+    if (!$thumb.length || !$thumb.attr('src')) return;
+
+    // Remove any previous instance first
+    $thumb.imgAreaSelect({remove: true, hide: true});
+
+    var curW = $thumb.width() || 250;
+    var curH = $thumb.height() || 300;
+
+    // Calculate a generous initial crop box (75% of image width, matching 173:214 aspect ratio)
+    var initW = Math.round(curW * 0.75);
+    var initH = Math.round(initW * (imageHeightThumb / imageWidthThumb));
+    if (initH > curH) {
+        initH = Math.round(curH * 0.85);
+        initW = Math.round(initH * (imageWidthThumb / imageHeightThumb));
+    }
+    if (initW < 50) initW = Math.min(curW, 100);
+    if (initH < 62) initH = Math.min(curH, 124);
+
+    var initX1 = Math.max(0, Math.round((curW - initW) / 2));
+    var initY1 = Math.max(0, Math.round((curH - initH) / 2));
+    var initX2 = initX1 + initW;
+    var initY2 = initY1 + initH;
+
+    $thumb.imgAreaSelect({
+        aspectRatio: imageWidthThumb + ':' + imageHeightThumb,
+        x1: initX1,
+        y1: initY1,
+        x2: initX2,
+        y2: initY2,
+        handles: true,
+        minWidth: 40,
+        minHeight: 50,
+        // Removed restrictive maxHeight / maxWidth so the box can be freely scaled to any size
+        parent: $('.modal-content-form').length ? $('.modal-content-form') : $('#modal'),
+        onSelectChange: preview,
+        onInit: function(img, sel) {
+            preview(img, sel);
+        }
+    });
+
+    enableImgAreaSelectTouch();
+}
+
+// Touch event bridge for mobile devices
+function enableImgAreaSelectTouch() {
+    $(document).off('.iastouch');
+    var activeTouchTarget = null;
+
+    $(document).on('touchstart.iastouch', '.imgareaselect-handle, .imgareaselect-selection, .imgareaselect-outer, #thumbnail', function(e) {
+        if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length === 1) {
+            activeTouchTarget = this;
+            var t = e.originalEvent.touches[0];
+            var evt = new MouseEvent('mousedown', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: t.clientX,
+                clientY: t.clientY,
+                screenX: t.screenX,
+                screenY: t.screenY,
+                button: 0,
+                which: 1
+            });
+            this.dispatchEvent(evt);
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('touchmove.iastouch', function(e) {
+        if (activeTouchTarget && e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length === 1) {
+            var t = e.originalEvent.touches[0];
+            var evt = new MouseEvent('mousemove', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: t.clientX,
+                clientY: t.clientY,
+                screenX: t.screenX,
+                screenY: t.screenY,
+                button: 0,
+                which: 1
+            });
+            document.dispatchEvent(evt);
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('touchend.iastouch touchcancel.iastouch', function(e) {
+        if (activeTouchTarget) {
+            var t = e.originalEvent && e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0] : null;
+            var evt = new MouseEvent('mouseup', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: t ? t.clientX : 0,
+                clientY: t ? t.clientY : 0,
+                screenX: t ? t.screenX : 0,
+                screenY: t ? t.screenY : 0,
+                button: 0,
+                which: 1
+            });
+            document.dispatchEvent(evt);
+            activeTouchTarget = null;
+        }
+    });
+}
+
 //create a preview of the selection
 function preview(img, selection) {
-    //get width and height of the uploaded image.
-    var current_width = $('#modal').find('#thumbnail').width();
-    var current_height = $('#modal').find('#thumbnail').height();
+    if (!selection || !selection.width || !selection.height) return;
+
+    var $thumb = $('#modal').find('#thumbnail');
+    var current_width = $thumb.width();
+    var current_height = $thumb.height();
+    if (!current_width || !current_height) return;
 
     var scaleX = imageWidthThumb / selection.width;
     var scaleY = imageHeightThumb / selection.height;
@@ -186,8 +285,6 @@ function preview(img, selection) {
     $('#y1').val(selection.y1);
     $('#x2').val(current_width);
     $('#y2').val(current_height);
-    // $('#x2').val(selection.x2);
-    //    $('#y2').val(selection.y2);    
     $('#w').val(selection.width);
     $('#h').val(selection.height);
 }
@@ -270,20 +367,15 @@ $("body").on('click', '.edit', function (e) {
 
                 $('#modal').one('shown.bs.modal', function (e) {
                     var image = new Image();
-                    image.src = $('#modal').find('#thumbnail').attr('src');
-                    if (image.width !== 0) {
-                        $('#modal').find('#thumbnail').imgAreaSelect({
-                            aspectRatio: imageWidthThumb + ':' + imageHeightThumb,
-                            x1: 0,
-                            y1: 0,
-                            x2: imageWidthThumb,
-                            y2: imageHeightThumb,
-                            handles: true,
-                            maxHeight: imageHeightThumb + 'px',
-                            maxWidth: imageWidthThumb + 'px',
-                            parent: $('.modal-content-form'),
-                            onSelectChange: preview
-                        });
+                    image.onload = function() {
+                        initCropperOnThumbnail();
+                    };
+                    var src = $('#modal').find('#thumbnail').attr('src');
+                    if (src) {
+                        image.src = src;
+                        if (image.complete) {
+                            initCropperOnThumbnail();
+                        }
                     }
                 });
             }

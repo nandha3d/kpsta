@@ -301,11 +301,11 @@ $(document).ready(function() {
         if (d.indexOf('general secretary') !== -1 || d.indexOf('gen secretary') !== -1 || d.indexOf('gen. secretary') !== -1) return 2;
         if (d.indexOf('treasurer') !== -1) return 3;
         if (d.indexOf('senior vice president') !== -1 || d.indexOf('sr. vice president') !== -1 || d.indexOf('sr vice president') !== -1) return 4;
+        if (d.indexOf('associate general secretary') !== -1 || d.indexOf('assoc. general secretary') !== -1) return 5;
         if (d.indexOf('vice president') !== -1) return 6;
-        if (d.indexOf('secretariat') !== -1 || d.indexOf('secretariate') !== -1) return 9;
-        if (d.indexOf('joint secretary') !== -1 || d.indexOf('associate general secretary') !== -1 || d.indexOf('assoc. general secretary') !== -1) return 6;
-        if (d.indexOf('secretary') !== -1) return 7;
-        if (d.indexOf('executive') !== -1 || d.indexOf('committee') !== -1) return 8;
+        if (d.indexOf('secretary') !== -1 && d.indexOf('general') === -1 && d.indexOf('associate') === -1) return 7;
+        if (d.indexOf('secretariat') !== -1 || d.indexOf('secretariate') !== -1) return 8;
+        if (d.indexOf('executive') !== -1 || d.indexOf('committee') !== -1) return 9;
         return null;
     }
 
@@ -563,7 +563,7 @@ $(document).ready(function() {
         updateCardHeaderTitle($row);
     });
 
-    // Main form designation auto-updates main position until manually changed
+    // Main form designation auto-updates main position and section heading until manually changed
     $(document).on('change select2:select', '#main_designation', function() {
         var desigText = $('#main_designation option:selected').text();
         if (!desigText || desigText === 'Select' || desigText === '-- Select --') {
@@ -574,6 +574,27 @@ $(document).ready(function() {
             var suggested = getSuggestedPositionForDesignation(desigText);
             if (suggested !== null) {
                 $mainPos.val(suggested).trigger('change.auto');
+            }
+        }
+
+        // Auto-select matching Section Heading for State level
+        if ($('#ob_level').val() === 'State') {
+            var dt = (desigText || '').toLowerCase();
+            var targetHeading = '';
+            if ((dt.indexOf('president') !== -1 && dt.indexOf('vice') === -1) || dt.indexOf('general secretary') !== -1 || dt.indexOf('treasurer') !== -1) {
+                targetHeading = 'President / General Secretary / Treasurer';
+            } else if (dt.indexOf('senior vice') !== -1 || dt.indexOf('associate general') !== -1) {
+                targetHeading = 'Senior Vice President / Associate General Secretary';
+            } else if (dt.indexOf('vice president') !== -1) {
+                targetHeading = 'Vice President';
+            } else if (dt.indexOf('secretariat') !== -1 || dt.indexOf('secretariate') !== -1) {
+                targetHeading = 'Secretariate Members';
+            } else if (dt.indexOf('secretary') !== -1 && dt.indexOf('general') === -1 && dt.indexOf('associate') === -1) {
+                targetHeading = 'Secretary';
+            }
+            if (targetHeading) {
+                $('#sh_state_select').val(targetHeading).trigger('change');
+                $('#actual_section_heading').val(targetHeading);
             }
         }
     });

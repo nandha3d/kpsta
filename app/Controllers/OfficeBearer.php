@@ -23,18 +23,29 @@ class OfficeBearer extends PublicController {
 
         $content['content'] = array();
         foreach ($result as $row) {
-            try {
-                $key = !empty($row['section_heading']) ? $row['section_heading'] : $row['designation'];
-                $content['content'][$key][] = $row;
-            } catch (\Exception $exc) {
-                
+            $rawKey = !empty($row['section_heading']) ? trim($row['section_heading']) : (!empty($row['designation']) ? trim($row['designation']) : 'Other');
+            $upperKey = strtoupper($rawKey);
+            $canonicalKey = $rawKey;
+
+            if ((strpos($upperKey, 'PRESIDENT') !== false && strpos($upperKey, 'VICE') === false) || strpos($upperKey, 'TREASURER') !== false || in_array($upperKey, ['PRESIDENT', 'GENERAL SECRETARY', 'TREASURER'])) {
+                $canonicalKey = 'President / General Secretary / Treasurer';
+            } else if (strpos($upperKey, 'SENIOR VICE') !== false || strpos($upperKey, 'ASSOCIATE GENERAL') !== false) {
+                $canonicalKey = 'Senior Vice President / Associate General Secretary';
+            } else if (strpos($upperKey, 'VICE PRESIDENT') !== false) {
+                $canonicalKey = 'Vice President';
+            } else if (strpos($upperKey, 'SECRETARIAT') !== false || strpos($upperKey, 'SECRETARIATE') !== false) {
+                $canonicalKey = 'Secretariate Members';
+            } else if (strpos($upperKey, 'SECRETARY') !== false && strpos($upperKey, 'GENERAL') === false && strpos($upperKey, 'ASSOCIATE') === false) {
+                $canonicalKey = 'Secretary';
             }
+
+            $content['content'][$canonicalKey][] = $row;
         }
 
-        // Enforce desired section display order
+        // Enforce strict category designation display order
         $sectionOrder = [
             'President / General Secretary / Treasurer',
-            'Senior Vice President & Associate General Secretary',
+            'Senior Vice President / Associate General Secretary',
             'Vice President',
             'Secretary',
             'Secretariate Members',

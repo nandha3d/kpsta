@@ -289,61 +289,49 @@ class OfficeBearer extends AppController {
 
     function createThumbnail($fileName) {
         $this->load->library('image_functions');
-        //set form data in variables
-        //X-source -starting point
         $x1 = (float)$this->input->post("x1");
-        //Y-source -starting point
         $y1 = (float)$this->input->post("y1");
-        //resizing image width[The image show is left side]
-        $x2 = (float)$this->input->post("x2");
-        //resize image height[The image show is left side]
-        $y2 = (float)$this->input->post("y2");
-        //Selected Thumbnail Area width
-        $w = (float)$this->input->post("w");
-        if (!$w || $w == 0) {
-            $w = $this->imageWidthThumb;
-        }
-        //Selected Thumbnail Area height
-        $h = (float)$this->input->post("h");
-        if (!$h || $h == 0) {
-            $h = $this->imageHeightThumb;
-        }
+        $x2 = (float)$this->input->post("x2"); // displayed width
+        $y2 = (float)$this->input->post("y2"); // displayed height
+        $w = (float)$this->input->post("w");   // selection width
+        $h = (float)$this->input->post("h");   // selection height
 
         $thumb_image_location = OFFICE_BEARER . '/' . $fileName;
         $large_image_location = OFFICE_BEARER . '/' . $fileName;
 
-        //Resize Image
         $width = $this->image_functions->getWidth($large_image_location);
         $height = $this->image_functions->getHeight($large_image_location);
-        //Scale the image if it is greater than the width set above
-        if (!$x2 || $x2 == 0) {
-            $x2 = $this->imageWidthThumb;
-        }
-        if (!$y2 || $y2 == 0) {
-            $y2 = $this->imageHeightThumb;
-        }
-        if ($width >= $x2) {
-            $tempVal = $width / $x2;
-            $scale = $x2 / $width;
-        } else {
-            $tempVal = $height / $y2;
-            $scale = 1;
-        }
-        //Set New width and height for Thumbnail According to Original Image width and Height
-        $w = $tempVal * $w;
-        $h = $tempVal * $h;
 
-        $x1PercentageTemp = $x1 / $x2;
-        $x1 = ceil($x1PercentageTemp * $width);
+        if (!$width || !$height) {
+            return;
+        }
 
-        $y1PercentageTemp = $y1 / $y2;
-        $y1 = ceil($y1PercentageTemp * $height);
+        if (!$x2 || $x2 <= 0) $x2 = $width;
+        if (!$y2 || $y2 <= 0) $y2 = $height;
 
-        //Starting to create Thumbnail
+        if (!$w || $w <= 0 || !$h || $h <= 0) {
+            $w = $x2;
+            $h = $x2 * ($this->imageHeightThumb / $this->imageWidthThumb);
+            if ($h > $y2) {
+                $h = $y2;
+                $w = $y2 * ($this->imageWidthThumb / $this->imageHeightThumb);
+            }
+            $x1 = max(0, ($x2 - $w) / 2);
+            $y1 = max(0, ($y2 - $h) / 2);
+        }
+
+        // Map selection coordinates proportionally from display scale to original image dimensions
+        $scaleX = $width / $x2;
+        $scaleY = $height / $y2;
+
+        $origCropX = max(0, min($width - 1, round($x1 * $scaleX)));
+        $origCropY = max(0, min($height - 1, round($y1 * $scaleY)));
+        $origCropW = max(1, min($width - $origCropX, round($w * $scaleX)));
+        $origCropH = max(1, min($height - $origCropY, round($h * $scaleY)));
+
         $thumb_width = $this->imageWidthThumb;
-        $scale = $thumb_width / $w;
-        $this->image_functions->resizeThumbnailImage($thumb_image_location, $large_image_location, $w, $h, $x1, $y1, $scale);
-        //End of Thumbnail
+        $scale = $thumb_width / $origCropW;
+        $this->image_functions->resizeThumbnailImage($thumb_image_location, $large_image_location, $origCropW, $origCropH, $origCropX, $origCropY, $scale);
     }
 
     function formValidation() {
