@@ -57,6 +57,40 @@ class AuthRepository {
     return user;
   }
 
+  /// Authenticate with username or email and password
+  Future<UserModel> loginWithPassword({
+    required String username,
+    required String password,
+  }) async {
+    final response = await apiClient.post(
+      ApiConstants.login,
+      data: {
+        'username': username,
+        'password': password,
+        'device_type': 'mobile_flutter',
+      },
+    );
+
+    final data = response['data'] as Map<String, dynamic>;
+    final accessToken = data['access_token'] as String;
+    final refreshToken = data['refresh_token'] as String;
+    final userData = data['user'] as Map<String, dynamic>;
+
+    final user = UserModel.fromJson(userData);
+
+    // Save tokens and session
+    await tokenStorage.saveTokens(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    );
+    await tokenStorage.saveUserData(
+      userJson: jsonEncode(user.toJson()),
+      role: user.role,
+    );
+
+    return user;
+  }
+
   /// Fetch authenticated user profile from /auth/me
   Future<UserModel> getCurrentUser() async {
     final response = await apiClient.get(ApiConstants.me);

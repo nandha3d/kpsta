@@ -480,6 +480,8 @@ $routes->add('donation/success/(:segment)', 'Donation::success');
 // ==========================================
 $routes->group('api/v1', ['filter' => 'api-cors'], function ($routes) {
     // 1. Authentication
+    $routes->post('auth/login', 'Api\V1\AuthController::login');
+    $routes->post('auth/token', 'Api\V1\AuthController::login');
     $routes->post('auth/whatsapp/request-otp', 'Api\V1\AuthController::requestOtp');
     $routes->post('auth/whatsapp/verify-otp', 'Api\V1\AuthController::verifyOtp');
     $routes->post('auth/refresh', 'Api\V1\AuthController::refresh');

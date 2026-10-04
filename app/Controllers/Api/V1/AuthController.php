@@ -15,6 +15,46 @@ class AuthController extends BaseApiController
     }
 
     /**
+     * POST /api/v1/auth/login
+     */
+    public function login(): ResponseInterface
+    {
+        try {
+            $json = $this->request->getJSON(true);
+        } catch (\Throwable $e) {
+            $json = null;
+        }
+        if (!is_array($json)) {
+            $json = $this->request->getPost();
+        }
+
+        $username = trim((string)($json['username'] ?? $json['identifier'] ?? ''));
+        $password = (string)($json['password'] ?? '');
+        $deviceId = trim((string)($json['device_id'] ?? ''));
+        $deviceType = trim((string)($json['device_type'] ?? 'mobile'));
+
+        if (empty($username) || empty($password)) {
+            return $this->respondValidationFailed([
+                'username' => empty($username) ? ['Username, email or phone is required.'] : [],
+                'password' => empty($password) ? ['Password is required.'] : [],
+            ]);
+        }
+
+        $result = $this->authService->loginWithPassword($username, $password, $deviceId, $deviceType);
+
+        if (!$result['success']) {
+            return $this->respondError(
+                $result['message'],
+                $result['code'] ?? 'LOGIN_FAILED',
+                $result['data'] ?? null,
+                200
+            );
+        }
+
+        return $this->respondSuccess($result['data'], $result['message']);
+    }
+
+    /**
      * POST /api/v1/auth/whatsapp/request-otp
      */
     public function requestOtp(): ResponseInterface

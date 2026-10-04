@@ -35,6 +35,7 @@ class ApiConstants {
   }
 
   // Auth endpoints
+  static const String login = '/auth/login';
   static const String otpRequest = '/auth/whatsapp/request-otp';
   static const String otpVerify = '/auth/whatsapp/verify-otp';
   static const String tokenRefresh = '/auth/refresh';

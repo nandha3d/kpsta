@@ -1,6 +1,7 @@
 class UserModel {
   final int id;
   final String username;
+  final String? name;
   final String? email;
   final String? phone;
   final String role;
@@ -12,6 +13,7 @@ class UserModel {
   UserModel({
     required this.id,
     required this.username,
+    this.name,
     this.email,
     this.phone,
     required this.role,
@@ -37,6 +39,7 @@ class UserModel {
     return UserModel(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
       username: json['username']?.toString() ?? '',
+      name: json['name']?.toString(),
       email: json['email']?.toString(),
       phone: json['phone']?.toString(),
       role: roleStr,
@@ -55,6 +58,7 @@ class UserModel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'username': username,
+        'name': name,
         'email': email,
         'phone': phone,
         'role': role,

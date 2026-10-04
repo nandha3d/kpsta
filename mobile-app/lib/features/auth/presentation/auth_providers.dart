@@ -81,6 +81,27 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  Future<bool> loginWithPassword(String username, String password) async {
+    state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
+    try {
+      final user = await _repo.loginWithPassword(
+        username: username.trim(),
+        password: password,
+      );
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        user: user,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: e.toString().replaceAll('ApiException: ', ''),
+      );
+      return false;
+    }
+  }
+
   Future<bool> requestOtp(String phone) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
     try {

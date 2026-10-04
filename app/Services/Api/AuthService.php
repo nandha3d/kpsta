@@ -404,4 +404,106 @@ class AuthService
             'permissions' => array_values(array_filter(array_unique($menus))),
         ];
     }
+
+    /**
+     * Authenticate via username/email/phone and password (Admin & Staff Login).
+     *
+     * @param string $identifier Username or Email or Phone
+     * @param string $password Clear text password
+     * @param string|null $deviceId
+     * @param string|null $deviceType
+     * @return array
+     */
+    public function loginWithPassword(string $identifier, string $password, ?string $deviceId = null, ?string $deviceType = 'mobile'): array
+    {
+        $identifier = trim($identifier);
+        if (empty($identifier) || empty($password)) {
+            return [
+                'success' => false,
+                'message' => 'Username and password are required.',
+                'code'    => 'VALIDATION_ERROR',
+                'data'    => null,
+            ];
+        }
+
+        // Find user by username or email in aauth_users
+        $user = $this->db->table('aauth_users')
+            ->groupStart()
+                ->where('username', $identifier)
+                ->orWhere('email', $identifier)
+            ->groupEnd()
+            ->get(1)
+            ->getRowArray();
+
+        // If not found and identifier looks like a phone number, check if linked via teachers table
+        if (!$user && preg_match('/^\+?[0-9]{10,13}$/', $identifier)) {
+            $cleanPhone = preg_replace('/^\+?91/', '', $identifier);
+            $teacher = $this->db->table('teachers')
+                ->groupStart()
+                    ->where('phone_number', $cleanPhone)
+                    ->orWhere('phone_number', $identifier)
+                ->groupEnd()
+                ->get(1)
+                ->getRowArray();
+            if ($teacher && !empty($teacher['user_id'])) {
+                $user = $this->db->table('aauth_users')
+                    ->where('id', (int)$teacher['user_id'])
+                    ->get(1)
+                    ->getRowArray();
+            }
+        }
+
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => 'Invalid username or password.',
+                'code'    => 'INVALID_CREDENTIALS',
+                'data'    => null,
+            ];
+        }
+
+        if (!empty($user['banned'])) {
+            return [
+                'success' => false,
+                'message' => 'Your account has been deactivated. Please contact support.',
+                'code'    => 'ACCOUNT_DISABLED',
+                'data'    => null,
+            ];
+        }
+
+        // Verify password against stored hash:
+        // Aauth scheme: sha256(md5($user_id) . $password)
+        $userId = (int)$user['id'];
+        $salt = md5((string)$userId);
+        $expectedHash = hash('sha256', $salt . $password);
+
+        $passwordValid = false;
+        if (hash_equals($user['pass'], $expectedHash)) {
+            $passwordValid = true;
+        } elseif (password_verify($password, $user['pass'])) {
+            $passwordValid = true;
+        }
+
+        if (!$passwordValid) {
+            return [
+                'success' => false,
+                'message' => 'Invalid username or password.',
+                'code'    => 'INVALID_CREDENTIALS',
+                'data'    => null,
+            ];
+        }
+
+        // Issue tokens
+        $tokens = $this->issueTokens($userId, $deviceId, $deviceType);
+        $profile = $this->getUserProfile($userId);
+
+        return [
+            'success' => true,
+            'message' => 'Login successful.',
+            'code'    => null,
+            'data'    => array_merge($tokens, [
+                'user' => $profile,
+            ]),
+        ];
+    }
 }

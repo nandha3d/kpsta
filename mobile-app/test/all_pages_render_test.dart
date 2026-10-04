@@ -428,7 +428,9 @@ void main() {
       );
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text('KPSTA Portal Authentication'), findsOneWidget);
+      expect(find.text('KPSTA Portal'), findsOneWidget);
+      expect(find.text('Username or Email'), findsOneWidget);
+      expect(find.text('Sign In'), findsOneWidget);
     });
 
     testWidgets('AdminDashboardScreen renders dashboard widgets', (tester) async {
