@@ -383,6 +383,11 @@ $routes->add('admin/slider/update', 'Admin\Slider::update');
 $routes->add('admin/slider/update/(:num)', 'Admin\Slider::update');
 $routes->add('admin/slider/delete', 'Admin\Slider::delete');
 $routes->add('admin/slider/delete/(:num)', 'Admin\Slider::delete');
+
+// Dedicated Popup Window Manager
+$routes->add('admin/popup_window', 'Admin\PopupWindow::index');
+$routes->add('admin/popup_window/save', 'Admin\PopupWindow::save');
+
 $routes->add('admin/flash_news/publish', 'Admin\FlashNews::publish');
 $routes->add('admin/flash_news/publish/(:num)', 'Admin\FlashNews::publish');
 $routes->add('admin/flash_news', 'Admin\FlashNews::index');

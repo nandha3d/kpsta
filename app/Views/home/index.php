@@ -336,51 +336,144 @@
     }
   </script>
 
-  <!-- Home Auto-Popup Modal (Customized in Admin Panel: Reaction Gallery / News Window & Dates) -->
+  <!-- Home Auto-Popup Modal (Customized in Admin Panel: Reaction Gallery / News Window / Custom News & File Downloader) -->
   <?php
     $ci = &get_instance();
     $ci->load->model('Settings_model');
-    $popupEnabled = $ci->Settings_model->get('reaction_popup_enabled');
-    $isPopupEnabled = ($popupEnabled === false || $popupEnabled === null) ? true : (bool)(int)$popupEnabled;
-    $popupDuration = (int)($ci->Settings_model->get('reaction_popup_duration') ?: 10);
-    $popupSource = $ci->Settings_model->get('reaction_popup_source');
-    if (!in_array($popupSource, ['both', 'reaction_gallery', 'news'], true)) {
-      $popupSource = 'both';
+    
+    // Check enabled status
+    $popupEnabledSetting = $ci->Settings_model->get('popup_enabled');
+    if ($popupEnabledSetting === false || $popupEnabledSetting === null) {
+      $popupEnabledSetting = $ci->Settings_model->get('reaction_popup_enabled');
     }
-    $popupStartDate = trim((string)($ci->Settings_model->get('reaction_popup_start_date') ?: ''));
-    $popupEndDate = trim((string)($ci->Settings_model->get('reaction_popup_end_date') ?: ''));
+    $isPopupEnabled = ($popupEnabledSetting === false || $popupEnabledSetting === null) ? true : (bool)(int)$popupEnabledSetting;
+
+    // Check device target
+    $deviceTarget = (string)($ci->Settings_model->get('popup_device_target') ?: 'both');
+    if ($deviceTarget === 'app_only') {
+      $isPopupEnabled = false;
+    }
+
+    $popupDuration = (int)($ci->Settings_model->get('popup_duration') ?: ($ci->Settings_model->get('reaction_popup_duration') ?: 10));
+    $popupMode = (string)($ci->Settings_model->get('popup_mode') ?: ($ci->Settings_model->get('reaction_popup_source') ?: 'combination'));
+    if ($popupMode === 'both') {
+      $popupMode = 'combination';
+    }
+
+    $popupStartDate = trim((string)($ci->Settings_model->get('popup_start_date') ?: ($ci->Settings_model->get('reaction_popup_start_date') ?: '')));
+    $popupEndDate = trim((string)($ci->Settings_model->get('popup_end_date') ?: ($ci->Settings_model->get('reaction_popup_end_date') ?: '')));
     $todayIst = (new \DateTimeImmutable('now', new \DateTimeZone('Asia/Kolkata')))->format('Y-m-d');
+    
+    // Pre-Determined Expiry & Schedule Check
     $inSchedule = true;
     if ($popupStartDate !== '' && $todayIst < $popupStartDate) {
       $inSchedule = false;
     }
     if ($popupEndDate !== '' && $todayIst > $popupEndDate) {
-      $inSchedule = false;
+      $inSchedule = false; // Strictly expired: once pre-determined date has passed, do not show
     }
 
     $webPopupItems = [];
-    if (($popupSource === 'both' || $popupSource === 'reaction_gallery') && !empty($reactionGalleryImages)) {
-      $firstImg = $reactionGalleryImages[0];
-      $webPopupItems[] = [
-        'type'  => 'reaction',
-        'badge' => 'KPSTA Reaction Poster',
-        'title' => $firstImg['description'] ?? 'Reaction Poster',
-        'image' => base_url('uploads/reaction_gallery/' . $firstImg['image']),
-        'url'   => base_url('gallery'),
-        'cta'   => 'Reaction Gallery &rarr;',
-      ];
+
+    // 1. Reaction Poster Tab
+    if (($popupMode === 'combination' || $popupMode === 'reaction_gallery')) {
+      $reactionId = (int)($ci->Settings_model->get('popup_reaction_id') ?: 0);
+      $chosenImg = null;
+      if ($reactionId > 0) {
+        $ci->load->model('ReactionGallery_model');
+        $specReaction = $ci->ReactionGallery_model->getById($reactionId);
+        if (!empty($specReaction) && !empty($specReaction['image'])) {
+          $chosenImg = [
+            'description' => $specReaction['description'] ?? 'Reaction Poster',
+            'image' => $specReaction['image']
+          ];
+        }
+      }
+      if (!$chosenImg && !empty($reactionGalleryImages)) {
+        $chosenImg = $reactionGalleryImages[0];
+      }
+
+      if ($chosenImg) {
+        $webPopupItems[] = [
+          'type'  => 'reaction',
+          'tab'   => 'Reaction Poster',
+          'badge' => 'KPSTA Reaction Poster',
+          'title' => $chosenImg['description'] ?? 'Reaction Poster',
+          'image' => base_url('uploads/reaction_gallery/' . $chosenImg['image']),
+          'url'   => base_url('gallery'),
+          'cta'   => 'Reaction Gallery &rarr;',
+        ];
+      }
     }
-    if (($popupSource === 'both' || $popupSource === 'news') && !empty($listNews)) {
-      $firstNews = $listNews[0];
-      $webPopupItems[] = [
-        'type'  => 'news',
-        'badge' => 'KPSTA News Bulletin',
-        'title' => $firstNews['heading'] ?? 'Latest News',
-        'image' => !empty($firstNews['image']) ? base_url('uploads/news/' . $firstNews['image']) : '',
-        'excerpt' => trim(strip_tags((string)($firstNews['content'] ?? ''))),
-        'url'   => base_url('news'),
-        'cta'   => 'News Window &rarr;',
-      ];
+
+    // 2. News Bulletin Tab
+    if (($popupMode === 'combination' || $popupMode === 'news')) {
+      $newsId = (int)($ci->Settings_model->get('popup_news_id') ?: 0);
+      $chosenNews = null;
+      if ($newsId > 0) {
+        $ci->load->model('News_model');
+        $specNews = $ci->News_model->getById($newsId);
+        if (!empty($specNews)) {
+          $chosenNews = [
+            'heading' => $specNews['heading'] ?? 'Latest News',
+            'image' => $specNews['image'] ?? '',
+            'content' => $specNews['content'] ?? '',
+          ];
+        }
+      }
+      if (!$chosenNews && !empty($listNews)) {
+        $chosenNews = $listNews[0];
+      }
+
+      if ($chosenNews) {
+        $webPopupItems[] = [
+          'type'    => 'news',
+          'tab'     => 'News Window',
+          'badge'   => 'KPSTA News Bulletin',
+          'title'   => $chosenNews['heading'] ?? 'Latest News',
+          'image'   => !empty($chosenNews['image']) ? base_url('uploads/news/' . $chosenNews['image']) : '',
+          'excerpt' => trim(strip_tags((string)($chosenNews['content'] ?? ''))),
+          'url'     => base_url('news'),
+          'cta'     => 'News Window &rarr;',
+        ];
+      }
+    }
+
+    // 3. Custom Announcement & File Downloader Tab
+    if (($popupMode === 'combination' || $popupMode === 'custom')) {
+      $customTitle = trim((string)($ci->Settings_model->get('popup_custom_title') ?: ''));
+      $customContent = trim((string)($ci->Settings_model->get('popup_custom_content') ?: ''));
+      $customImage = trim((string)($ci->Settings_model->get('popup_custom_image') ?: ''));
+      $customFile = trim((string)($ci->Settings_model->get('popup_custom_file') ?: ''));
+      $customFileName = trim((string)($ci->Settings_model->get('popup_custom_file_name') ?: 'Download Attachment'));
+      $customBadge = trim((string)($ci->Settings_model->get('popup_custom_badge') ?: 'Announcement'));
+      $customCtaText = trim((string)($ci->Settings_model->get('popup_custom_cta_text') ?: 'View More'));
+      $customCtaUrl = trim((string)($ci->Settings_model->get('popup_custom_cta_url') ?: ''));
+
+      if ($customTitle !== '' || $customContent !== '' || $customImage !== '' || $customFile !== '') {
+        $ctaTarget = $customCtaUrl;
+        if ($ctaTarget === '' && $customFile !== '') {
+          $ctaTarget = base_url($customFile);
+          if ($customCtaText === 'View More') {
+            $customCtaText = 'Download File';
+          }
+        } elseif ($ctaTarget === '') {
+          $ctaTarget = base_url();
+        }
+
+        $webPopupItems[] = [
+          'type'      => 'custom',
+          'tab'       => $customBadge ?: 'Announcement',
+          'badge'     => $customBadge ?: 'KPSTA Announcement',
+          'title'     => $customTitle ?: 'Official Announcement',
+          'image'     => ($customImage !== '' && file_exists(FCPATH . $customImage)) ? base_url($customImage) : '',
+          'content'   => $customContent,
+          'file_url'  => ($customFile !== '' && file_exists(FCPATH . $customFile)) ? base_url($customFile) : '',
+          'file_name' => $customFileName,
+          'url'       => $ctaTarget,
+          'cta'       => $customCtaText . ' &rarr;',
+        ];
+      }
     }
   ?>
   <?php if ($isPopupEnabled && $inSchedule && !empty($webPopupItems)) { ?>
@@ -391,17 +484,17 @@
           <span class="material-symbols-outlined" style="font-size:1.2rem;">campaign</span>
           <strong id="popupHeaderTitle"><?php echo htmlspecialchars($webPopupItems[0]['badge']); ?></strong>
         </div>
-        <button type="button" onclick="closeReactionPopup()" style="background:transparent; border:none; color:white; font-size:1.4rem; cursor:pointer; line-height:1;">&times;</button>
+        <button type="button" onclick="closeReactionPopup()" style="background:transparent; border:none; color:white; font-size:1.4rem; cursor:pointer; line-height:1;" aria-label="Close Popup">&times;</button>
       </div>
       <?php if (count($webPopupItems) > 1): ?>
-      <div style="display:flex; gap:6px; padding:8px 12px; background:#f1f5f9; border-bottom:1px solid #e2e8f0;">
+      <div style="display:flex; gap:6px; padding:8px 12px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; overflow-x:auto;">
         <?php foreach ($webPopupItems as $idx => $pItem): ?>
         <button type="button"
           class="btn-outline"
-          style="flex:1; padding:6px 8px; font-size:12px; font-weight:700; <?php echo $idx === 0 ? 'background:#016D77;color:#fff;border-color:#016D77;' : ''; ?>"
+          style="flex:1; white-space:nowrap; padding:6px 10px; font-size:12px; font-weight:700; <?php echo $idx === 0 ? 'background:#016D77;color:#fff;border-color:#016D77;' : ''; ?>"
           onclick="switchWebPopupTab(<?php echo $idx; ?>)"
           id="popupTabBtn<?php echo $idx; ?>">
-          <?php echo $pItem['type'] === 'news' ? 'News Window' : 'Reaction Poster'; ?>
+          <?php echo htmlspecialchars($pItem['tab'] ?? $pItem['badge']); ?>
         </button>
         <?php endforeach; ?>
       </div>
@@ -410,14 +503,34 @@
       <div class="reaction-popup-body web-popup-pane" id="popupPane<?php echo $idx; ?>" style="<?php echo $idx === 0 ? '' : 'display:none;'; ?>">
         <?php if (!empty($pItem['image'])): ?>
           <img src="<?php echo $pItem['image']; ?>" alt="<?php echo htmlspecialchars($pItem['title']); ?>">
-        <?php else: ?>
-          <div style="padding:20px; text-align:left; background:#f8fafc; border-radius:12px;">
+        <?php endif; ?>
+
+        <?php if ($pItem['type'] === 'custom'): ?>
+          <div style="padding:16px 20px; text-align:left; background:#ffffff; width:100%; box-sizing:border-box;">
+            <h3 style="margin:0 0 10px; color:#0f172a; font-size:16px; font-weight:700;"><?php echo htmlspecialchars($pItem['title']); ?></h3>
+            <?php if (!empty($pItem['content'])): ?>
+              <div style="margin:0 0 12px; font-size:13.5px; color:#334155; line-height:1.6; max-height:220px; overflow-y:auto;">
+                <?php echo $pItem['content']; ?>
+              </div>
+            <?php endif; ?>
+            <?php if (!empty($pItem['file_url'])): ?>
+              <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #cbd5e1;">
+                <a href="<?php echo $pItem['file_url']; ?>" download class="btn-green" style="display:inline-flex; align-items:center; gap:6px; padding:6px 14px; font-size:12px; font-weight:700; text-decoration:none; border-radius:8px;">
+                  <span class="material-symbols-outlined" style="font-size:16px;">download</span>
+                  <span><?php echo htmlspecialchars($pItem['file_name'] ?: 'Download Attached Document'); ?></span>
+                </a>
+              </div>
+            <?php endif; ?>
+          </div>
+        <?php elseif (empty($pItem['image'])): ?>
+          <div style="padding:20px; text-align:left; background:#f8fafc; border-radius:12px; margin:10px;">
             <h4 style="margin:0 0 8px; color:#0f172a;"><?php echo htmlspecialchars($pItem['title']); ?></h4>
             <p style="margin:0; font-size:14px; color:#475569; line-height:1.5;"><?php echo htmlspecialchars(mb_substr($pItem['excerpt'] ?? '', 0, 260)); ?></p>
           </div>
         <?php endif; ?>
-        <?php if (!empty($pItem['image']) && !empty($pItem['title'])): ?>
-          <p style="margin:8px 0 0; font-size:13px; font-weight:600; color:#1e293b;"><?php echo htmlspecialchars($pItem['title']); ?></p>
+
+        <?php if (!empty($pItem['image']) && !empty($pItem['title']) && $pItem['type'] !== 'custom'): ?>
+          <p style="margin:8px 12px 10px; font-size:13px; font-weight:600; color:#fff; text-align:center;"><?php echo htmlspecialchars($pItem['title']); ?></p>
         <?php endif; ?>
       </div>
       <?php endforeach; ?>

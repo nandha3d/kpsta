@@ -213,6 +213,18 @@ if (!isset($page_title) || $page_title === '') {
                             </a>
                         </li>
 
+                        <li class="flash_news-menu" >
+                            <a href="<?php echo site_url("admin/flash_news"); ?>" data-title="Flash News">
+                                <i class="fa fa-bolt"></i> <span>Flash News</span>
+                            </a>
+                        </li>
+
+                        <li class="popup_window-menu" >
+                            <a href="<?php echo site_url("admin/popup_window"); ?>" data-title="Popup Window">
+                                <i class="fa fa-window-restore"></i> <span>Popup Window</span>
+                            </a>
+                        </li>
+
                         <li class="gallery-menu">
                             <a href="<?php echo site_url("admin/gallery"); ?>" data-title="Gallery">
                                 <i class="fa fa-picture-o"></i> <span>Gallery</span>

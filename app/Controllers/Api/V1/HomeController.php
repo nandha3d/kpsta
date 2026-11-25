@@ -158,18 +158,33 @@ class HomeController extends BaseApiController
             ];
         }, $rawServices);
 
-        // 10. Home Auto-Popup Settings (Reaction Gallery & News Window + Start/End Dates)
-        $reactionPopupEnabled = $settingsModel->get('reaction_popup_enabled');
-        $reactionPopupDuration = $settingsModel->get('reaction_popup_duration');
-        $reactionPopupSource = $settingsModel->get('reaction_popup_source');
-        $reactionPopupStartDate = $settingsModel->get('reaction_popup_start_date');
-        $reactionPopupEndDate = $settingsModel->get('reaction_popup_end_date');
+        // 10. Home Auto-Popup Settings (PopupWindow manager settings with fallback)
+        $popupEnabled = $settingsModel->get('popup_enabled');
+        if ($popupEnabled === false || $popupEnabled === null) {
+            $popupEnabled = $settingsModel->get('reaction_popup_enabled');
+        }
+        $isPopupEnabled = ($popupEnabled === false || $popupEnabled === null) ? true : (bool)(int)$popupEnabled;
 
-        $isPopupEnabled = ($reactionPopupEnabled === false || $reactionPopupEnabled === null) ? true : (bool)(int)$reactionPopupEnabled;
-        $popupDuration = (!empty($reactionPopupDuration) && (int)$reactionPopupDuration > 0) ? (int)$reactionPopupDuration : 10;
-        $popupSource = in_array($reactionPopupSource, ['both', 'reaction_gallery', 'news'], true) ? $reactionPopupSource : 'both';
-        $startDate = ($reactionPopupStartDate !== false && $reactionPopupStartDate !== null) ? trim((string)$reactionPopupStartDate) : '';
-        $endDate = ($reactionPopupEndDate !== false && $reactionPopupEndDate !== null) ? trim((string)$reactionPopupEndDate) : '';
+        $popupDuration = $settingsModel->get('popup_duration');
+        if ($popupDuration === false || $popupDuration === null) {
+            $popupDuration = $settingsModel->get('reaction_popup_duration');
+        }
+        $popupDuration = (!empty($popupDuration) && (int)$popupDuration > 0) ? (int)$popupDuration : 10;
+
+        $popupMode = (string)($settingsModel->get('popup_mode') ?: '');
+        if ($popupMode === '') {
+            $legacySrc = (string)($settingsModel->get('reaction_popup_source') ?: 'both');
+            $popupMode = $legacySrc === 'both' ? 'combination' : $legacySrc;
+        }
+
+        $startDate = (string)($settingsModel->get('popup_start_date') ?: ($settingsModel->get('reaction_popup_start_date') ?: ''));
+        $endDate = (string)($settingsModel->get('popup_end_date') ?: ($settingsModel->get('reaction_popup_end_date') ?: ''));
+        $deviceTarget = (string)($settingsModel->get('popup_device_target') ?: 'both');
+
+        // Check device target: if 'web', mobile app should not display popup
+        if ($deviceTarget === 'web') {
+            $isPopupEnabled = false;
+        }
 
         $today = (new \DateTimeImmutable('now', new \DateTimeZone('Asia/Kolkata')))->format('Y-m-d');
         $inDateRange = true;
@@ -180,43 +195,115 @@ class HomeController extends BaseApiController
             $inDateRange = false;
         }
 
+        // Specific IDs if selected
+        $selectedReactionId = (int)($settingsModel->get('popup_reaction_id') ?: 0);
+        $selectedNewsId = (int)($settingsModel->get('popup_news_id') ?: 0);
+
+        // Custom fields
+        $customBadge = (string)($settingsModel->get('popup_custom_badge') ?: 'Announcement');
+        $customTitle = (string)($settingsModel->get('popup_custom_title') ?: 'KPSTA Special Notification');
+        $customContent = (string)($settingsModel->get('popup_custom_content') ?: '');
+        $customImage = (string)($settingsModel->get('popup_custom_image') ?: '');
+        $customFile = (string)($settingsModel->get('popup_custom_file') ?: '');
+        $customFileName = (string)($settingsModel->get('popup_custom_file_name') ?: '');
+        $customCtaText = (string)($settingsModel->get('popup_custom_cta_text') ?: 'View More');
+        $customCtaUrl = (string)($settingsModel->get('popup_custom_cta_url') ?: '');
+
+        $customImageUrl = !empty($customImage) ? $this->formatFileUrl('uploads/popup/' . $customImage) : null;
+        $customFileUrl = !empty($customFile) ? $this->formatFileUrl('uploads/popup/' . $customFile) : null;
+
         $popupItems = [];
-        if (($popupSource === 'both' || $popupSource === 'reaction_gallery') && !empty($reactionGallery)) {
-            $firstReaction = $reactionGallery[0];
+
+        // Reaction item
+        if (in_array($popupMode, ['combination', 'both', 'reaction_gallery'], true) && !empty($reactionGallery)) {
+            $reactionItem = null;
+            if ($selectedReactionId > 0) {
+                foreach ($reactionGallery as $rg) {
+                    if ((int)($rg['id'] ?? 0) === $selectedReactionId) {
+                        $reactionItem = $rg;
+                        break;
+                    }
+                }
+            }
+            if (!$reactionItem) {
+                $reactionItem = $reactionGallery[0];
+            }
             $popupItems[] = [
                 'type'         => 'reaction',
-                'id'           => (int)($firstReaction['id'] ?? 0),
-                'title'        => $firstReaction['title'] ?? 'KPSTA Reaction Poster',
+                'id'           => (int)($reactionItem['id'] ?? 0),
+                'title'        => $reactionItem['title'] ?? 'KPSTA Reaction Poster',
                 'description'  => '',
-                'image_url'    => $firstReaction['image_url'] ?? null,
+                'image_url'    => $reactionItem['image_url'] ?? null,
                 'route'        => '/reaction-gallery',
                 'button_label' => 'Reaction Gallery',
             ];
         }
-        if (($popupSource === 'both' || $popupSource === 'news') && !empty($latestNews)) {
-            $firstNews = $latestNews[0];
-            $newsId = (int)($firstNews['id'] ?? 0);
+
+        // News item
+        if (in_array($popupMode, ['combination', 'both', 'news'], true) && !empty($latestNews)) {
+            $newsItem = null;
+            if ($selectedNewsId > 0) {
+                foreach ($latestNews as $nw) {
+                    if ((int)($nw['id'] ?? 0) === $selectedNewsId) {
+                        $newsItem = $nw;
+                        break;
+                    }
+                }
+            }
+            if (!$newsItem) {
+                $newsItem = $latestNews[0];
+            }
+            $newsId = (int)($newsItem['id'] ?? 0);
             $popupItems[] = [
                 'type'         => 'news',
                 'id'           => $newsId,
-                'title'        => $firstNews['title'] ?? 'KPSTA News Bulletin',
-                'description'  => $firstNews['description'] ?? '',
-                'image_url'    => $firstNews['image_url'] ?? null,
+                'title'        => $newsItem['title'] ?? 'KPSTA News Bulletin',
+                'description'  => $newsItem['description'] ?? '',
+                'image_url'    => $newsItem['image_url'] ?? null,
                 'route'        => $newsId > 0 ? ('/news/' . $newsId) : '/news',
                 'button_label' => 'Read News',
-                'published_at' => $firstNews['published_at'] ?? null,
+                'published_at' => $newsItem['published_at'] ?? null,
+            ];
+        }
+
+        // Custom item
+        if (in_array($popupMode, ['combination', 'both', 'custom'], true) && (!empty($customContent) || !empty($customImageUrl) || !empty($customFileUrl))) {
+            $popupItems[] = [
+                'type'         => 'custom',
+                'id'           => 0,
+                'title'        => $customTitle,
+                'badge'        => $customBadge,
+                'description'  => strip_tags($customContent),
+                'content_html' => $customContent,
+                'image_url'    => $customImageUrl,
+                'file_url'     => $customFileUrl,
+                'file_name'    => $customFileName,
+                'button_label' => $customCtaText,
+                'route'        => $customCtaUrl,
             ];
         }
 
         $reactionPopup = [
-            'enabled'     => ($isPopupEnabled && $inDateRange && !empty($popupItems)),
-            'raw_enabled' => $isPopupEnabled,
-            'in_schedule' => $inDateRange,
-            'duration'    => $popupDuration,
-            'source'      => $popupSource,
-            'start_date'  => $startDate !== '' ? $startDate : null,
-            'end_date'    => $endDate !== '' ? $endDate : null,
-            'items'       => $popupItems,
+            'enabled'        => ($isPopupEnabled && $inDateRange && !empty($popupItems)),
+            'raw_enabled'    => $isPopupEnabled,
+            'in_schedule'    => $inDateRange,
+            'duration'       => $popupDuration,
+            'source'         => $popupMode,
+            'mode'           => $popupMode,
+            'device_target'  => $deviceTarget,
+            'start_date'     => $startDate !== '' ? $startDate : null,
+            'end_date'       => $endDate !== '' ? $endDate : null,
+            'items'          => $popupItems,
+            'custom'         => [
+                'badge'      => $customBadge,
+                'title'      => $customTitle,
+                'content'    => $customContent,
+                'image_url'  => $customImageUrl,
+                'file_url'   => $customFileUrl,
+                'file_name'  => $customFileName,
+                'cta_text'   => $customCtaText,
+                'cta_url'    => $customCtaUrl,
+            ],
         ];
 
         $payload = [
