@@ -131,14 +131,17 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            circularListFamilyProvider(const CircularQueryParam(type: 'all', search: '')).overrideWith((ref) async => [
-              {
-                'id': 4018,
-                'title': 'Census 2027 Facilities and Concessions',
-                'category_name': 'Census',
-                'date': '2026-07-01',
-              }
-            ]),
+            circularListFamilyProvider(const CircularQueryParam(search: '')).overrideWith((ref) async => const CircularListResult(
+              items: [
+                {
+                  'id': 4018,
+                  'title': 'Census 2027 Facilities and Concessions',
+                  'category_name': 'Census',
+                  'date': '2026-07-01',
+                }
+              ],
+              years: [2026],
+            )),
           ],
           child: const MaterialApp(home: CircularsScreen()),
         ),

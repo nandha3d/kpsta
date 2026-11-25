@@ -4,11 +4,21 @@ import '../constants/api_constants.dart';
 import '../storage/secure_token_storage.dart';
 import 'api_exceptions.dart';
 
-/// Unified Dio HTTP client with JWT interceptor and token refresh rotation
+class _CachedResponse {
+  final dynamic data;
+  final DateTime expiresAt;
+
+  _CachedResponse({required this.data, required this.expiresAt});
+
+  bool get isValid => DateTime.now().isBefore(expiresAt);
+}
+
+/// Unified Dio HTTP client with JWT interceptor, token refresh rotation, and 0ms memory caching
 class ApiClient {
   final Dio dio;
   final SecureTokenStorage tokenStorage;
   bool _isRefreshing = false;
+  final Map<String, _CachedResponse> _responseCache = {};
 
   ApiClient({
     Dio? customDio,
@@ -132,16 +142,51 @@ class ApiClient {
     return ApiException(message: error.toString());
   }
 
-  // --- HTTP Verbs ---
+  // --- HTTP Verbs with 0ms Instant Memory Caching & Offline Fallback ---
+
+  void clearCache() {
+    _responseCache.clear();
+  }
+
+  String _buildCacheKey(String path, Map<String, dynamic>? queryParameters) {
+    if (queryParameters == null || queryParameters.isEmpty) return path;
+    final sortedKeys = queryParameters.keys.toList()..sort();
+    final queryStr = sortedKeys.map((k) => '$k=${queryParameters[k]}').join('&');
+    return '$path?$queryStr';
+  }
 
   Future<dynamic> get(
     String path, {
     Map<String, dynamic>? queryParameters,
+    bool forceRefresh = false,
+    Duration cacheDuration = const Duration(seconds: 45),
   }) async {
+    final cacheKey = _buildCacheKey(path, queryParameters);
+
+    // 0ms Cache Hit: Serve instantaneously if fresh
+    if (!forceRefresh && _responseCache.containsKey(cacheKey)) {
+      final cached = _responseCache[cacheKey]!;
+      if (cached.isValid) {
+        return cached.data;
+      }
+    }
+
     try {
       final response = await dio.get(path, queryParameters: queryParameters);
-      return _unwrap(response.data);
+      final unwrapped = _unwrap(response.data);
+
+      // Cache successful response
+      _responseCache[cacheKey] = _CachedResponse(
+        data: unwrapped,
+        expiresAt: DateTime.now().add(cacheDuration),
+      );
+
+      return unwrapped;
     } catch (e) {
+      // Stale-while-revalidate offline fallback: if network fails, return cached data
+      if (_responseCache.containsKey(cacheKey)) {
+        return _responseCache[cacheKey]!.data;
+      }
       throw _handleError(e);
     }
   }
@@ -151,6 +196,7 @@ class ApiClient {
     dynamic data,
     Map<String, dynamic>? queryParameters,
   }) async {
+    _responseCache.clear(); // Invalidate cache on write
     try {
       final response = await dio.post(
         path,
@@ -168,6 +214,7 @@ class ApiClient {
     dynamic data,
     Map<String, dynamic>? queryParameters,
   }) async {
+    _responseCache.clear(); // Invalidate cache on write
     try {
       final response = await dio.put(
         path,
@@ -185,6 +232,7 @@ class ApiClient {
     dynamic data,
     Map<String, dynamic>? queryParameters,
   }) async {
+    _responseCache.clear(); // Invalidate cache on write
     try {
       final response = await dio.delete(
         path,
@@ -203,12 +251,16 @@ class ApiClient {
     String fieldName = 'file',
     String? category,
   }) async {
+    _responseCache.clear(); // Invalidate cache on write
     try {
       final fileName = file.path.split(Platform.pathSeparator).last;
-      final formData = FormData.fromMap({
+      final mapData = <String, dynamic>{
         fieldName: await MultipartFile.fromFile(file.path, filename: fileName),
-        if (category != null) 'category': category,
-      });
+      };
+      if (category != null) {
+        mapData['category'] = category;
+      }
+      final formData = FormData.fromMap(mapData);
 
       final response = await dio.post(
         path,

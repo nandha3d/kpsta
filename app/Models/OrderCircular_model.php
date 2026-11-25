@@ -50,7 +50,7 @@ class OrderCircular_model extends Ci3Model {
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;
         $param['search'] = isset($param['search']) ? $param['search'] : FALSE;
 
-        $this->db->select('o.id, o.description, o.upload_type, DATE_FORMAT(o.date,"%d-%m-%Y") as date, o.date as date_unformat, o.category as raw_category, c.name as category, o.path, o.is_publish');
+        $this->db->select('o.id, o.description, o.upload_type, DATE_FORMAT(o.date,"%d-%m-%Y") as date, o.date as date_unformat, o.created_at, o.category as raw_category, c.name as category, o.path, o.is_publish');
         $this->db->from('order_circular o');
         $this->db->join('order_circular_category c', 'o.category = c.id', 'left');
         if (isset($param['type']) && $param['type']) {

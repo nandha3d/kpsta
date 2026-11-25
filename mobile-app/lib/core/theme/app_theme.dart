@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
+import 'paper_curly_transition.dart';
 
 /// KPSTA Application Theme System
 class AppTheme {
@@ -21,7 +22,8 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       primaryColor: AppColors.primary,
-      scaffoldBackgroundColor: AppColors.bgLight,
+      scaffoldBackgroundColor: Colors.transparent,
+      canvasColor: Colors.transparent,
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: AppColors.white,
@@ -61,20 +63,23 @@ class AppTheme {
         backgroundColor: AppColors.primaryDark,
         foregroundColor: AppColors.white,
         elevation: 0,
-        centerTitle: false,
+        centerTitle: true,
         titleTextStyle: TextStyle(
           fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: AppColors.white,
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.cardBg,
+        color: Colors.white.withValues(alpha: 0.86),
         elevation: 1,
-        shadowColor: Colors.black.withOpacity(0.06),
+        shadowColor: Colors.black.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: const BorderSide(color: AppColors.border, width: 0.8),
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(
+            color: AppColors.border.withValues(alpha: 0.75),
+            width: 0.9,
+          ),
         ),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
@@ -133,7 +138,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.bgLight,
-        selectedColor: AppColors.primary.withOpacity(0.12),
+        selectedColor: AppColors.primary.withValues(alpha: 0.12),
         labelStyle: const TextStyle(fontSize: 13, color: AppColors.text),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -146,6 +151,15 @@ class AppTheme {
         unselectedItemColor: AppColors.textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PaperCurlyPageTransitionsBuilder(),
+          TargetPlatform.iOS: PaperCurlyPageTransitionsBuilder(),
+          TargetPlatform.windows: PaperCurlyPageTransitionsBuilder(),
+          TargetPlatform.linux: PaperCurlyPageTransitionsBuilder(),
+          TargetPlatform.macOS: PaperCurlyPageTransitionsBuilder(),
+        },
       ),
     );
   }

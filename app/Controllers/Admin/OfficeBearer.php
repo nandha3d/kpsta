@@ -16,9 +16,553 @@ class OfficeBearer extends AppController {
         $this->load->library('form_validation');
         /* loding model */
         $this->load->model("OfficeBearer_model");
+        $this->load->model("District_model");
 
         $this->imageWidthThumb = 173;
         $this->imageHeightThumb = 214;
+    }
+
+    /**
+     * Load live district names from the district table.
+     */
+    protected function getDistrictOptions(): array {
+        $rows = $this->District_model->getAllDistrict(['limit' => 50]);
+        $options = [];
+        if (!empty($rows)) {
+            foreach ($rows as $r) {
+                $dName = trim((string)($r['district'] ?? ''));
+                if ($dName !== '') {
+                    $options[$dName] = $dName;
+                }
+            }
+        }
+        if (empty($options)) {
+            $fallback = [
+                'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Allapuzha',
+                'Kottayam', 'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad',
+                'Malappuram', 'Kozhikode', 'Wayanad', 'Kannur', 'Kasargod',
+            ];
+            foreach ($fallback as $dName) {
+                $options[$dName] = $dName;
+            }
+        }
+        return $options;
+    }
+
+    public function stateLeaders($roleSlug = '') {
+        $this->renderSectionPage('state', (string)$roleSlug);
+    }
+
+    public function formerStateLeaders($roleSlug = '') {
+        $this->renderSectionPage('former', (string)$roleSlug);
+    }
+
+    public function districtLeaders($roleSlug = '') {
+        $this->renderSectionPage('district', (string)$roleSlug);
+    }
+
+    protected function normalizeSectionKey(string $section): string {
+        $key = strtolower(trim($section));
+        return in_array($key, ['state', 'former', 'district'], true) ? $key : 'state';
+    }
+
+    protected function rowMatchesSection(array $row, string $section): bool {
+        $level = $row['level'] ?? 'State';
+        $isFormer = (int)($row['is_former'] ?? 0);
+        if ($section === 'district') {
+            return $level === 'District' && $isFormer === 0;
+        }
+        if ($section === 'former') {
+            $hasPrev = !empty($row['previous_positions']) && $row['previous_positions'] !== '[]';
+            return $level === 'State' && ($isFormer === 1 || $hasPrev);
+        }
+        return $level === 'State' && $isFormer === 0;
+    }
+
+    protected function renderSectionPage(string $section, string $roleSlug = '') {
+        $section = $this->normalizeSectionKey($section);
+        $this->OfficeBearer_model->ensureCoreDesignations();
+        $meta = $this->OfficeBearer_model->getSectionMeta($section);
+
+        $roleSlug = strtolower(trim($roleSlug));
+        if ($roleSlug === '' || !isset($meta['roles'][$roleSlug])) {
+            $qRole = strtolower(trim((string)$this->input->get('role')));
+            $roleSlug = isset($meta['roles'][$qRole]) ? $qRole : '';
+        }
+
+        $selectedDistrict = ($section === 'district') ? trim((string)$this->input->get('district')) : '';
+        $districts = $this->getDistrictOptions();
+        if ($selectedDistrict !== '' && !isset($districts[$selectedDistrict])) {
+            $selectedDistrict = '';
+        }
+
+        $contentHtml = $this->getSectionContent($section, $roleSlug);
+        $roleCounts = $this->OfficeBearer_model->getSectionRoleCounts(
+            $section,
+            $selectedDistrict !== '' ? $selectedDistrict : null
+        );
+
+        if ($this->input->is_ajax_request()) {
+            echo json_encode([
+                'code'       => 'success',
+                'content'    => $contentHtml,
+                'roleCounts' => $roleCounts,
+                'newUrl'     => $this->newUrl,
+            ]);
+            exit;
+        }
+
+        $data = [
+            'section'          => $section,
+            'sectionMeta'      => $meta,
+            'activeRole'       => $roleSlug,
+            'roleCounts'       => $roleCounts,
+            'districts'        => $districts,
+            'selectedDistrict' => $selectedDistrict,
+            'form'             => $this->createSectionForm(
+                $section,
+                base_url($meta['base_route'] . '/add'),
+                false,
+                'Add ' . ($roleSlug !== '' ? $meta['roles'][$roleSlug]['label'] : $meta['title']),
+                $roleSlug,
+                $selectedDistrict
+            ),
+            'content'          => $contentHtml,
+        ];
+
+        $header = [
+            'page_title'  => $meta['title'] . ($roleSlug !== '' ? ' — ' . $meta['roles'][$roleSlug]['label'] : ''),
+            'public_url'  => $meta['public_url'],
+            'special_css' => ['plugins/select2/select2.min.css', 'css/imgareaselect-default.css'],
+        ];
+        $footer['special_js'] = ['plugins/select2/select2.full.min.js', 'js/jquery.imgareaselect.min.js', 'js/officeBearerSection.js'];
+
+        $this->load->view('admin/header', $header);
+        $this->load->view('admin/officeBearer/section_page', $data);
+        $this->load->view('admin/footer', $footer);
+    }
+
+    protected function getSectionContent(string $section, string $activeRole = '') {
+        $this->load->library("pagination");
+        $meta = $this->OfficeBearer_model->getSectionMeta($section);
+
+        $roleFromQuery = strtolower(trim((string)$this->input->get('role')));
+        if ($roleFromQuery !== '' && isset($meta['roles'][$roleFromQuery])) {
+            $activeRole = $roleFromQuery;
+        }
+
+        $param = [
+            'search'     => trim((string)$this->input->get('search')),
+            'level'      => $meta['level'],
+            'is_former'  => $meta['is_former'],
+            'is_publish' => $this->input->get('is_publish'),
+            'sort'       => $this->input->get('sort') ?: 'position-asc',
+            'limit'      => 15,
+        ];
+
+        $selectedDistrict = '';
+        if ($section === 'district') {
+            $selectedDistrict = trim((string)$this->input->get('district'));
+            if ($selectedDistrict !== '') {
+                $param['exact_district'] = $selectedDistrict;
+            }
+        }
+
+        if ($activeRole !== '' && isset($meta['roles'][$activeRole])) {
+            $this->OfficeBearer_model->applySectionRoleParam($param, $section, $activeRole);
+        }
+
+        $page = (int)($this->input->get('page') && $this->input->get('page') !== 'undefined' ? $this->input->get('page') : 1);
+        $param['page'] = $page > 0 ? $page : 1;
+        $param['offset'] = ($param['page'] - 1) * $param['limit'];
+
+        $config["total_rows"] = $this->OfficeBearer_model->getAllCount($param);
+        $baseRoute = $meta['base_route'] . ($activeRole !== '' ? '/' . $activeRole : '');
+        $config["base_url"] = base_url($baseRoute);
+        $config["per_page"] = $param['limit'];
+
+        $config = array_merge($config, $this->BootsrapPaginationConfig());
+        $this->pagination->initialize($config);
+
+        $config["from"] = $param['offset'] + 1;
+        $temp = $param['limit'] + $param['offset'];
+        $config["to"] = $temp <= $config["total_rows"] ? $temp : $config["total_rows"];
+
+        $this->newUrl = $this->getNewUrl([
+            'page'       => $param['page'],
+            'search'     => $param['search'],
+            'district'   => $selectedDistrict,
+            'is_publish' => $param['is_publish'],
+            'sort'       => $param['sort'],
+        ]);
+
+        $content = [
+            'links'       => $this->pagination->create_links(),
+            'config'      => $config,
+            'content'     => $this->OfficeBearer_model->getAll($param),
+            'section'     => $section,
+            'sectionMeta' => $meta,
+            'activeRole'  => $activeRole,
+        ];
+
+        return $this->load->view('admin/officeBearer/section_content', $content, TRUE);
+    }
+
+    protected function createSectionForm(
+        string $section,
+        string $url,
+        $formValues = false,
+        string $title = 'Add',
+        string $activeRole = '',
+        string $activeDistrict = ''
+    ) {
+        $meta = $this->OfficeBearer_model->getSectionMeta($section);
+        $designations = $this->OfficeBearer_model->getDesignationsForSection($section);
+
+        $roleDefaultDesigId = '';
+        $roleDefaultPos = 25;
+        if ($activeRole !== '' && isset($meta['roles'][$activeRole])) {
+            $roleDef = $meta['roles'][$activeRole];
+            $roleDefaultPos = (int)$roleDef['position'];
+            foreach ($designations as $dId => $dLabel) {
+                if (strcasecmp($dLabel, $roleDef['label']) === 0) {
+                    $roleDefaultDesigId = $dId;
+                    break;
+                }
+            }
+        }
+
+        if ($formValues === false) {
+            $formValues = [
+                'designation'     => $roleDefaultDesigId,
+                'section_heading' => $section === 'district' ? $activeDistrict : '',
+                'position'        => $roleDefaultPos,
+                'is_publish'      => 1,
+            ];
+        } else {
+            if (!isset($formValues['is_publish'])) {
+                $formValues['is_publish'] = 1;
+            }
+            if (isset($formValues['previous_positions']) && is_string($formValues['previous_positions'])) {
+                $decoded = json_decode($formValues['previous_positions'], true);
+                $formValues['previous_positions'] = is_array($decoded) ? $decoded : [];
+            }
+        }
+
+        $data = [
+            'section'            => $section,
+            'sectionMeta'        => $meta,
+            'title'              => $title,
+            'url'                => $url,
+            'addUrl'             => base_url($meta['base_route'] . '/add'),
+            'formValues'         => $formValues,
+            'designation'        => ['' => '- - - SELECT ROLE / DESIGNATION - - -'] + $designations,
+            'districts'          => ['' => '- - - SELECT DISTRICT - - -'] + $this->getDistrictOptions(),
+            'activeRole'         => $activeRole,
+            'activeDistrict'     => $activeDistrict,
+            'defaultDesignation' => $roleDefaultDesigId,
+            'defaultPosition'    => $roleDefaultPos,
+        ];
+
+        return $this->load->view('admin/officeBearer/section_form', $data, TRUE);
+    }
+
+    protected function sectionFormValidation(string $section): array {
+        $meta = $this->OfficeBearer_model->getSectionMeta($section);
+        $allowedDesigs = $this->OfficeBearer_model->getDesignationsForSection($section);
+
+        $this->form_validation->set_rules('name', 'Leader Name', 'trim|required');
+        $this->form_validation->set_rules('designation', 'Role / Designation', 'trim|required');
+        $this->form_validation->set_rules('email', 'Email', 'trim');
+        $this->form_validation->set_rules('phone', 'Phone', 'trim');
+        $this->form_validation->set_rules('year', 'Year / Term', 'trim');
+
+        if ($section === 'district') {
+            $this->form_validation->set_rules('section_heading', 'District', 'trim|required');
+        }
+
+        $this->form_validation->set_error_delimiters("<p>", "</p>");
+
+        $desigId = (int)$this->input->post('designation');
+        $desigRow = $this->OfficeBearer_model->getDesignationById($desigId);
+
+        $position = $this->input->post('position');
+        if (!$position || !is_numeric($position)) {
+            $position = 25;
+            if ($desigRow) {
+                $upperDesig = strtoupper(trim((string)$desigRow['name']));
+                foreach ($meta['roles'] as $r) {
+                    if (in_array($upperDesig, $r['match'], true)) {
+                        $position = (int)$r['position'];
+                        break;
+                    }
+                }
+            }
+        } else {
+            $position = (int)$position;
+        }
+
+        $sectionHeading = trim((string)$this->input->post('section_heading'));
+        if ($section === 'state' && $sectionHeading === '' && $desigId > 0) {
+            $sectionHeading = $this->OfficeBearer_model->getDefaultSectionHeadingForDesignation($desigId);
+        }
+
+        $isPublishRaw = $this->input->post('is_publish');
+        $isPublish = ($isPublishRaw === null || $isPublishRaw === '') ? 1 : (int)$isPublishRaw;
+
+        $formValues = [
+            'name'            => trim((string)$this->input->post('name')),
+            'designation'     => $desigId,
+            'level'           => $meta['level'],
+            'section_heading' => $sectionHeading,
+            'email'           => trim((string)$this->input->post('email')),
+            'phone'           => $this->input->post('phone') ? trim((string)$this->input->post('phone')) : NULL,
+            'is_publish'      => $isPublish,
+            'position'        => $position,
+            'year'            => trim((string)$this->input->post('year')),
+            'is_former'       => $meta['is_former'],
+            '_desig_allowed'  => isset($allowedDesigs[$desigId]),
+        ];
+
+        return $formValues;
+    }
+
+    public function sectionAdd(string $section = 'state') {
+        $section = $this->normalizeSectionKey($section);
+        $meta = $this->OfficeBearer_model->getSectionMeta($section);
+        $activeRole = strtolower(trim((string)$this->input->post('active_role')));
+        $activeDistrict = trim((string)$this->input->post('active_district'));
+        $formValues = $this->sectionFormValidation($section);
+
+        $customError = null;
+        if ($this->form_validation->run() == FALSE) {
+            $customError = null;
+        } else if (!$formValues['_desig_allowed']) {
+            $customError = 'Please select a valid role for ' . $meta['title'] . '.';
+        } else if ($section === 'district') {
+            $districts = $this->getDistrictOptions();
+            if (!isset($districts[$formValues['section_heading']])) {
+                $customError = 'Please select a valid district.';
+            }
+        }
+
+        unset($formValues['_desig_allowed']);
+
+        if ($this->form_validation->run() == FALSE || $customError !== null) {
+            if ($customError !== null) {
+                $formValues['error'] = $customError;
+            }
+            echo json_encode([
+                'code' => 'error',
+                'form' => $this->createSectionForm($section, base_url($meta['base_route'] . '/add'), $formValues, 'Add ' . $meta['title'], $activeRole, $activeDistrict),
+            ]);
+            exit;
+        }
+
+        if ($this->OfficeBearer_model->isSingleDesignation(
+            $formValues['designation'],
+            $meta['is_former'],
+            $meta['level'],
+            $section === 'district' ? $formValues['section_heading'] : null
+        )) {
+            $formValues['error'] = $section === 'district'
+                ? 'This role already exists for ' . htmlspecialchars($formValues['section_heading']) . '. Please edit the existing record instead.'
+                : 'This designation already has an active State Leader. Please update the existing record instead.';
+            echo json_encode([
+                'code' => 'error',
+                'form' => $this->createSectionForm($section, base_url($meta['base_route'] . '/add'), $formValues, 'Add ' . $meta['title'], $activeRole, $activeDistrict),
+            ]);
+            exit;
+        }
+
+        $formValues['image'] = '';
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $uploadData = $this->uploadImage();
+            if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
+                $formValues['error'] = $uploadData['error'];
+                echo json_encode([
+                    'code' => 'error',
+                    'form' => $this->createSectionForm($section, base_url($meta['base_route'] . '/add'), $formValues, 'Add ' . $meta['title'], $activeRole, $activeDistrict),
+                ]);
+                exit;
+            }
+            $formValues['image'] = $uploadData['file_name'];
+        }
+
+        $addId = $this->OfficeBearer_model->add($formValues);
+        if ($addId) {
+            $districtFilter = ($section === 'district') ? trim((string)$this->input->get('district')) : null;
+            echo json_encode([
+                'code'       => 'success',
+                'lastId'     => $addId,
+                'content'    => $this->getSectionContent($section, $activeRole),
+                'roleCounts' => $this->OfficeBearer_model->getSectionRoleCounts($section, $districtFilter ?: null),
+            ]);
+        } else {
+            echo json_encode([
+                'code' => 'error',
+                'data' => 'Something went wrong! Please try again.',
+            ]);
+        }
+        exit;
+    }
+
+    public function sectionEdit(string $section = 'state', $id = 0) {
+        $section = $this->normalizeSectionKey($section);
+        $meta = $this->OfficeBearer_model->getSectionMeta($section);
+        $id = (int)$id;
+        $formInfo = $this->OfficeBearer_model->getById($id);
+
+        if (!$formInfo || !$this->rowMatchesSection($formInfo, $section)) {
+            echo json_encode(['code' => 'error', 'message' => 'Record not found in this section.']);
+            exit;
+        }
+
+        $activeRole = strtolower(trim((string)$this->input->get('role')));
+        $url = base_url($meta['base_route'] . '/update/' . $id);
+        echo json_encode([
+            'code' => 'success',
+            'form' => $this->createSectionForm($section, $url, $formInfo, 'Edit ' . $meta['title'], $activeRole),
+        ]);
+        exit;
+    }
+
+    public function sectionUpdate(string $section = 'state', $id = 0) {
+        $section = $this->normalizeSectionKey($section);
+        $meta = $this->OfficeBearer_model->getSectionMeta($section);
+        $id = (int)$id;
+        $url = base_url($meta['base_route'] . '/update/' . $id);
+        $activeRole = strtolower(trim((string)$this->input->post('active_role')));
+        $activeDistrict = trim((string)$this->input->post('active_district'));
+
+        $formInfo = $this->OfficeBearer_model->getById($id);
+        if (!$formInfo || !$this->rowMatchesSection($formInfo, $section)) {
+            echo json_encode(['code' => 'error', 'message' => 'Record not found in this section.']);
+            exit;
+        }
+
+        $formValues = $this->sectionFormValidation($section);
+        $customError = null;
+        if ($this->form_validation->run() == FALSE) {
+            $customError = null;
+        } else if (!$formValues['_desig_allowed']) {
+            $customError = 'Please select a valid role for ' . $meta['title'] . '.';
+        } else if ($section === 'district') {
+            $districts = $this->getDistrictOptions();
+            if (!isset($districts[$formValues['section_heading']])) {
+                $customError = 'Please select a valid district.';
+            }
+        }
+        unset($formValues['_desig_allowed']);
+
+        if ($this->form_validation->run() == FALSE || $customError !== null) {
+            if ($customError !== null) {
+                $formValues['error'] = $customError;
+            }
+            $formValues['image'] = $formInfo['image'];
+            echo json_encode([
+                'code' => 'error',
+                'form' => $this->createSectionForm($section, $url, $formValues, 'Edit ' . $meta['title'], $activeRole, $activeDistrict),
+            ]);
+            exit;
+        }
+
+        if ($this->OfficeBearer_model->isSingleDesignation(
+            $formValues['designation'],
+            $meta['is_former'],
+            $meta['level'],
+            $section === 'district' ? $formValues['section_heading'] : null,
+            $id
+        )) {
+            $formValues['error'] = $section === 'district'
+                ? 'This role already exists for ' . htmlspecialchars($formValues['section_heading']) . '.'
+                : 'This designation already has another active State Leader.';
+            $formValues['image'] = $formInfo['image'];
+            echo json_encode([
+                'code' => 'error',
+                'form' => $this->createSectionForm($section, $url, $formValues, 'Edit ' . $meta['title'], $activeRole, $activeDistrict),
+            ]);
+            exit;
+        }
+
+        if (isset($_FILES['image']) && $_FILES['image']['name'] != '') {
+            $uploadData = $this->uploadImage();
+            if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
+                $formValues['error'] = $uploadData['error'];
+                $formValues['image'] = $formInfo['image'];
+                echo json_encode([
+                    'code' => 'error',
+                    'form' => $this->createSectionForm($section, $url, $formValues, 'Edit ' . $meta['title'], $activeRole, $activeDistrict),
+                ]);
+                exit;
+            }
+            $formValues['image'] = $uploadData['file_name'];
+        } else if ($this->input->post("w") > 0 && !empty($formInfo['image'])) {
+            $this->createThumbnail($formInfo['image']);
+        }
+
+        $this->OfficeBearer_model->update($id, $formValues);
+        $districtFilter = ($section === 'district') ? trim((string)$this->input->get('district')) : null;
+        echo json_encode([
+            'code'       => 'success',
+            'lastId'     => $id,
+            'content'    => $this->getSectionContent($section, $activeRole),
+            'roleCounts' => $this->OfficeBearer_model->getSectionRoleCounts($section, $districtFilter ?: null),
+            'message'    => 'Saved Successfully',
+        ]);
+        exit;
+    }
+
+    public function sectionPublish(string $section = 'state', $id = 0) {
+        $section = $this->normalizeSectionKey($section);
+        $id = (int)$id;
+        $row = $this->OfficeBearer_model->getById($id);
+        if ($id && $row && $this->rowMatchesSection($row, $section)) {
+            $publish = ($row['is_publish'] == 1) ? 0 : 1;
+            $this->OfficeBearer_model->publish($id, $publish);
+            echo true;
+            exit;
+        }
+        echo false;
+        exit;
+    }
+
+    public function sectionDelete(string $section = 'state', $id = 0) {
+        $section = $this->normalizeSectionKey($section);
+        $id = (int)$id;
+        $row = $this->OfficeBearer_model->getById($id);
+        $activeRole = strtolower(trim((string)$this->input->get('role')));
+        $districtFilter = ($section === 'district') ? trim((string)$this->input->get('district')) : null;
+
+        if ($row && $this->rowMatchesSection($row, $section) && $this->deleteOne($id)) {
+            echo json_encode([
+                'code'       => 'success',
+                'lastId'     => $id,
+                'content'    => $this->getSectionContent($section, $activeRole),
+                'roleCounts' => $this->OfficeBearer_model->getSectionRoleCounts($section, $districtFilter ?: null),
+            ]);
+            exit;
+        }
+        echo json_encode(['code' => 'error', 'message' => 'Could not delete record.']);
+        exit;
+    }
+
+    public function sectionBatchDelete(string $section = 'state') {
+        $section = $this->normalizeSectionKey($section);
+        $activeRole = strtolower(trim((string)$this->input->get('role')));
+        $districtFilter = ($section === 'district') ? trim((string)$this->input->get('district')) : null;
+
+        $result = $this->runBatchDelete(function ($id) use ($section) {
+            $row = $this->OfficeBearer_model->getById((int)$id);
+            if (!$row || !$this->rowMatchesSection($row, $section)) {
+                return FALSE;
+            }
+            return $this->deleteOne((int)$id);
+        });
+        $result['content'] = $this->getSectionContent($section, $activeRole);
+        $result['roleCounts'] = $this->OfficeBearer_model->getSectionRoleCounts($section, $districtFilter ?: null);
+        echo json_encode($result);
+        exit;
     }
 
     public function index() {

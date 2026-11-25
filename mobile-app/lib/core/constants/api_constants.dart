@@ -1,6 +1,3 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart';
-
 /// KPSTA REST API Constants
 class ApiConstants {
   ApiConstants._();
@@ -12,8 +9,8 @@ class ApiConstants {
   }
 
   /// Deployed and active live website API endpoint
-  static const String liveAnimazonUrl = 'https://animazon.in/kpsta/api/v1';
-  static const String liveKpstaUrl = 'https://kpsta.in/api/v1';
+  static const String liveAnimazonUrl = 'https://animazon.in/kpsta/index.php/api/v1';
+  static const String liveKpstaUrl = 'https://kpsta.in/index.php/api/v1';
 
   static String get baseUrl {
     const envUrl = String.fromEnvironment('API_BASE_URL');
@@ -68,6 +65,9 @@ class ApiConstants {
   static const String siteVisitors = '/site-visitors';
   static const String donationInitiate = '/donations';
   static const String donationStatus = '/donations';
+  static const String registerPushToken = '/notifications/register-token';
+  static const String latestNotifications = '/notifications/latest';
+  static const String sendPushNotification = '/admin/notifications/send';
 
   // Admin endpoints
   static const String adminDashboard = '/admin/dashboard';
@@ -76,11 +76,13 @@ class ApiConstants {
   static const String adminCirculars = '/admin/order-circulars';
   static const String adminDownloads = '/admin/downloads';
   static const String adminOfficeBearers = '/admin/office-bearers';
+  static const String adminOfficeBearerMetadata = '/admin/office-bearers/metadata';
   static const String adminFlashNews = '/admin/flash-news';
   static const String adminSliders = '/admin/sliders';
   static const String adminGalleries = '/admin/galleries';
   static const String adminQuickLinks = '/admin/quick-links';
   static const String adminResultLinks = '/admin/result-links';
+  static const String adminSettings = '/admin/settings';
 
   // Membership endpoints
   static const String membershipDashboard = '/membership/dashboard';

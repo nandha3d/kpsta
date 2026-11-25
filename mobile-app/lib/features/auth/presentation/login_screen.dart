@@ -1,13 +1,20 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
-import '../../../core/widgets/app_top_bar.dart';
+import '../../../core/widgets/flag_background_wrapper.dart';
 import 'auth_providers.dart';
 
 enum LoginMode { password, whatsappOtp }
 
-/// Authentication Screen supporting Username/Password and WhatsApp OTP Login
+/// LoginScreen
+/// Beautiful, elegant authentication portal with:
+/// - Ambient KPSTA flag-colored background
+/// - Premium glassmorphic frosted card for login details
+/// - Tricolor glowing KPSTA brand emblem
+/// - Seamless Password & WhatsApp OTP authentication
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -40,6 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handlePasswordLogin() async {
     if (!_passwordFormKey.currentState!.validate()) return;
+    HapticFeedback.lightImpact();
 
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
@@ -52,12 +60,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final user = ref.read(authNotifierProvider).user;
       final displayName = (user?.name != null && user!.name!.isNotEmpty)
           ? user.name!
-          : (user?.username ?? 'User');
+          : (user?.username ?? 'Member');
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Welcome back, $displayName!'),
-          backgroundColor: AppColors.success,
+          backgroundColor: const Color(0xFF016D77),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
 
@@ -73,6 +83,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleSendOtp() async {
     if (!_otpFormKey.currentState!.validate()) return;
+    HapticFeedback.lightImpact();
+
     final phone = _phoneController.text.trim();
     _otpController.clear();
     final success =
@@ -81,7 +93,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('OTP sent via WhatsApp to $phone'),
-          backgroundColor: AppColors.success,
+          backgroundColor: const Color(0xFF2E9E14),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     }
@@ -91,13 +105,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final otp = _otpController.text.trim();
     if (otp.length < 4) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid OTP code'),
+        SnackBar(
+          content: const Text('Please enter a valid OTP code'),
           backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
       return;
     }
+    HapticFeedback.lightImpact();
 
     final success =
         await ref.read(authNotifierProvider.notifier).verifyOtp(otp);
@@ -119,146 +136,278 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = authState.status == AuthStatus.loading;
 
     return Scaffold(
-      backgroundColor: AppColors.bgLight,
-      appBar: AppTopBar(
-        title: _mode == LoginMode.password ? 'Sign In' : 'WhatsApp Login',
-        showBackButton: true,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 12),
-
-              // Header Logo / Icon
-              Center(
+      backgroundColor: Colors.transparent,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Center(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => context.pop(),
+                borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  padding: const EdgeInsets.all(18),
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _mode == LoginMode.password
-                        ? Icons.shield_outlined
-                        : Icons.chat_bubble_outline_rounded,
-                    size: 52,
-                    color: _mode == LoginMode.password
-                        ? AppColors.primary
-                        : AppColors.green,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              const Text(
-                'KPSTA Portal',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textDark,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                _mode == LoginMode.password
-                    ? 'Sign in with your username or email and password.'
-                    : 'Sign in with a one-time code sent to WhatsApp.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textMuted,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Mode Switcher (Tab Chips)
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
-                ),
-                padding: const EdgeInsets.all(4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildModeTab(
-                        mode: LoginMode.password,
-                        title: 'Password',
-                        icon: Icons.lock_outline_rounded,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildModeTab(
-                        mode: LoginMode.whatsappOtp,
-                        title: 'WhatsApp OTP',
-                        icon: Icons.chat_bubble_outline_rounded,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Error display banner
-              if (authState.errorMessage != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: AppColors.error.withOpacity(0.3),
+                      color: const Color(0xFF016D77).withValues(alpha: 0.2),
+                      width: 1,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error_outline_rounded,
-                          color: AppColors.error, size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          authState.errorMessage!,
-                          style: const TextStyle(
-                            color: AppColors.error,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
+                  child: const Icon(
+                    Icons.arrow_back_rounded,
+                    color: Color(0xFF016D77),
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(height: 20),
-              ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: FlagBackgroundWrapper(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 1. Beautiful Tricolor KPSTA Brand Emblem
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFFEE6A2A), // KPSTA Flag Orange
+                              Colors.white,      // Flag White
+                              Color(0xFF2E9E14), // KPSTA Flag Green
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFEE6A2A).withValues(alpha: 0.28),
+                              blurRadius: 18,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Container(
+                          width: 68,
+                          height: 68,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFF016D77).withValues(alpha: 0.15),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Center(
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, _, _) => const Icon(
+                                Icons.school_rounded,
+                                color: Color(0xFF016D77),
+                                size: 36,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
 
-              // Card Container for Form
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.cardBg,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                    // 2. Portal Header Typography
+                    const Text(
+                      'KPSTA Portal',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF0F1E24),
+                        letterSpacing: 0.2,
+                        height: 1.15,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'സംസ്ഥാന അധ്യാപക പോർട്ടൽ · Member & Staff Access',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF64748B),
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+
+                    // 3. Error Banner (if any)
+                    if (authState.errorMessage != null) ...[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: const Color(0xFFFCA5A5),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              color: Color(0xFFDC2626),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                authState.errorMessage!,
+                                style: const TextStyle(
+                                  color: Color(0xFFDC2626),
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // 4. Elegant Glassmorphic Login Box
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                        child: Container(
+                          padding: const EdgeInsets.all(22),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.white.withValues(alpha: 0.65),
+                                Colors.white.withValues(alpha: 0.35),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF016D77).withValues(alpha: 0.08),
+                                blurRadius: 28,
+                                offset: const Offset(0, 10),
+                              ),
+                              BoxShadow(
+                                color: const Color(0xFFEE6A2A).withValues(alpha: 0.06),
+                                blurRadius: 14,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Glass Segmented Switcher (Password vs WhatsApp OTP)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.40),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.80),
+                                    width: 1,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(4),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildModeTab(
+                                        mode: LoginMode.password,
+                                        title: 'Password',
+                                        icon: Icons.lock_outline_rounded,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _buildModeTab(
+                                        mode: LoginMode.whatsappOtp,
+                                        title: 'WhatsApp OTP',
+                                        icon: Icons.chat_bubble_outline_rounded,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 22),
+
+                              // Dynamic Form (Password vs OTP)
+                              _mode == LoginMode.password
+                                  ? _buildPasswordForm(isLoading)
+                                  : _buildOtpForm(authState, isLoading),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // 5. Help & Security Note
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.verified_user_outlined,
+                          color: Color(0xFF059669),
+                          size: 15,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'Authorized KPSTA State Committee Portal',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.all(20),
-                child: _mode == LoginMode.password
-                    ? _buildPasswordForm(isLoading)
-                    : _buildOtpForm(authState, isLoading),
               ),
-
-              const SizedBox(height: 30),
-            ],
+            ),
           ),
         ),
       ),
@@ -273,6 +422,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isSelected = _mode == mode;
     return GestureDetector(
       onTap: () {
+        HapticFeedback.selectionClick();
         if (_mode != mode) {
           setState(() {
             _mode = mode;
@@ -280,11 +430,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 220),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [Color(0xFF016D77), Color(0xFF0A5863)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF016D77).withValues(alpha: 0.28),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -292,15 +458,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : AppColors.textMuted,
+              color: isSelected ? Colors.white : const Color(0xFF64748B),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 7),
             Text(
               title,
               style: TextStyle(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.textMuted,
+                fontSize: 12.5,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF64748B),
+                letterSpacing: 0.1,
               ),
             ),
           ],
@@ -318,12 +485,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           const Text(
             'Username or Email',
             style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textDark,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F1E24),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 7),
           TextFormField(
             controller: _usernameController,
             textInputAction: TextInputAction.next,
@@ -331,9 +498,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               AutofillHints.username,
               AutofillHints.email,
             ],
-            decoration: const InputDecoration(
-              hintText: 'Enter your username or email',
-              prefixIcon: Icon(Icons.person_outline_rounded),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              hintText: 'Enter username or email address',
+              hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+              prefixIcon: const Icon(Icons.person_outline_rounded, color: Color(0xFF016D77), size: 20),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.55),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: Color(0xFF016D77), width: 1.8),
+              ),
             ),
             validator: (val) {
               if (val == null || val.trim().isEmpty) {
@@ -342,32 +526,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
 
           const Text(
             'Password',
             style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textDark,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F1E24),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 7),
           TextFormField(
             controller: _passwordController,
             obscureText: _obscurePassword,
             textInputAction: TextInputAction.done,
             autofillHints: const [AutofillHints.password],
             onFieldSubmitted: (_) => _handlePasswordLogin(),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: InputDecoration(
-              hintText: 'Enter your password',
-              prefixIcon: const Icon(Icons.lock_outline_rounded),
+              hintText: 'Enter account password',
+              hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+              prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xFF016D77), size: 20),
               suffixIcon: IconButton(
                 icon: Icon(
                   _obscurePassword
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
-                  color: AppColors.textMuted,
+                  color: const Color(0xFF64748B),
                   size: 20,
                 ),
                 onPressed: () {
@@ -375,6 +561,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     _obscurePassword = !_obscurePassword;
                   });
                 },
+              ),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.55),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: const BorderSide(color: Color(0xFF016D77), width: 1.8),
               ),
             ),
             validator: (val) {
@@ -384,33 +585,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
 
-          ElevatedButton(
-            onPressed: isLoading ? null : _handlePasswordLogin,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+          // High-End Sign In Button with KPSTA Flag Orange Glow
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFEE6A2A), Color(0xFFFE5C13)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFEE6A2A).withValues(alpha: 0.35),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: isLoading ? null : _handlePasswordLogin,
+                borderRadius: BorderRadius.circular(14),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: Center(
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Sign In to Portal',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                  ),
+                ),
               ),
             ),
-            child: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text(
-                    'Sign In',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
           ),
         ],
       ),
@@ -425,115 +648,197 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         children: [
           if (!authState.otpSent) ...[
             const Text(
-              'Mobile / WhatsApp Number',
+              'WhatsApp Mobile Number',
               style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textDark,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0F1E24),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 7),
             TextFormField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _handleSendOtp(),
-              decoration: const InputDecoration(
-                hintText: 'e.g. 9876543210',
-                prefixIcon: Icon(Icons.phone_outlined),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              decoration: InputDecoration(
+                hintText: 'e.g. 9847225059',
+                hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                prefixIcon: const Icon(Icons.phone_outlined, color: Color(0xFF2E9E14), size: 20),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.55),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFF2E9E14), width: 1.8),
+                ),
               ),
               validator: (val) {
                 if (val == null || val.trim().length < 10) {
-                  return 'Enter a valid 10-12 digit mobile number';
+                  return 'Enter a valid 10-digit mobile number';
                 }
                 return null;
               },
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: isLoading ? null : _handleSendOtp,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.green,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            const SizedBox(height: 22),
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF2E9E14), Color(0xFF1E7E0B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2E9E14).withValues(alpha: 0.35),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: isLoading ? null : _handleSendOtp,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Center(
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Send WhatsApp OTP',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                    ),
+                  ),
                 ),
               ),
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text(
-                      'Send WhatsApp OTP',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
             ),
           ] else ...[
             Text(
-              'Code sent to ${authState.pendingPhone}',
+              'Code sent to WhatsApp number: ${authState.pendingPhone}',
+              textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textMuted,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF016D77),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             TextFormField(
               controller: _otpController,
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontSize: 22,
+                fontSize: 24,
                 letterSpacing: 8,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF0F1E24),
               ),
               maxLength: 6,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: '••••••',
                 counterText: '',
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: isLoading ? null : _handleVerifyOtp,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                filled: true,
+                fillColor: Colors.white.withValues(alpha: 0.55),
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.85), width: 1.2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFF016D77), width: 1.8),
                 ),
               ),
-              child: isLoading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Text(
-                      'Verify & Continue',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
+            ),
+            const SizedBox(height: 22),
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEE6A2A), Color(0xFFFE5C13)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFEE6A2A).withValues(alpha: 0.35),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: isLoading ? null : _handleVerifyOtp,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Center(
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              'Verify & Continue',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
                     ),
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 12),
-            TextButton(
-              onPressed: isLoading
-                  ? null
-                  : () => ref.read(authNotifierProvider.notifier).resetOtp(),
-              child: const Text('Change Mobile Number'),
+            Center(
+              child: TextButton.icon(
+                onPressed: isLoading
+                    ? null
+                    : () => ref.read(authNotifierProvider.notifier).resetOtp(),
+                icon: const Icon(Icons.arrow_back, size: 16),
+                label: const Text(
+                  'Change Mobile Number',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
             ),
           ],
         ],

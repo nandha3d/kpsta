@@ -44,6 +44,18 @@ class Home extends AppController {
             'active_term' => $activeTerm,
             'level' => 'State',
         ));
+        $data['total_state_leaders'] = $this->OfficeBearer_model->getAllCount(array(
+            'level' => 'State',
+            'is_former' => 0,
+        ));
+        $data['total_former_leaders'] = $this->OfficeBearer_model->getAllCount(array(
+            'level' => 'State',
+            'is_former' => 1,
+        ));
+        $data['total_district_leaders'] = $this->OfficeBearer_model->getAllCount(array(
+            'level' => 'District',
+            'is_former' => 0,
+        ));
 
         $data['recent_news'] = $this->News_model->getAllNews(array('limit' => 5));
 

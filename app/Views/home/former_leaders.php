@@ -30,14 +30,9 @@
   <main class="page-bearers" style="padding: 3.5rem 0 5rem;">
     <div class="container">
 
-      <!-- Interactive Filter & Search Bar -->
-      <div class="former-leaders-toolbar">
-        <div class="filter-pills">
-          <button type="button" class="pill-btn active" data-filter="all">All Former Leaders</button>
-          <button type="button" class="pill-btn" data-filter="State">State Level</button>
-          <button type="button" class="pill-btn" data-filter="District">District Level</button>
-        </div>
-        <div class="search-box-wrapper">
+      <!-- Interactive Search Bar (State-level former leaders only) -->
+      <div class="former-leaders-toolbar" style="justify-content: center;">
+        <div class="search-box-wrapper" style="max-width: 480px; width: 100%;">
           <span class="material-symbols-outlined">search</span>
           <input type="text" id="leaderSearchInput" placeholder="Search leader by name, role, year..." autocomplete="off">
         </div>

@@ -15,9 +15,11 @@ import '../features/public/circulars/presentation/circular_detail_screen.dart';
 import '../features/public/downloads/presentation/downloads_screen.dart';
 import '../features/public/gallery/presentation/gallery_screen.dart';
 import '../features/public/gallery/presentation/gallery_detail_screen.dart';
+import '../features/public/gallery/presentation/reaction_gallery_screen.dart';
 import '../features/public/organization/presentation/organization_screen.dart';
 import '../features/public/organization/presentation/districts_screen.dart';
 import '../features/public/organization/presentation/former_leaders_screen.dart';
+import '../features/public/organization/presentation/chronicle_screen.dart';
 import '../features/public/services/presentation/services_screen.dart';
 import '../features/public/services/presentation/service_detail_screen.dart';
 import '../features/public/services/presentation/adayapaka_screen.dart';
@@ -77,7 +79,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      // Public Shell Route (Bottom Navigation)
+      // Public Shell Route (Floating Navigation Bar: Home, Organization, Downloads, Circulars, More)
       ShellRoute(
         builder: (context, state, child) => AppShellPublic(child: child),
         routes: [
@@ -86,16 +88,20 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const HomeScreen(),
           ),
           GoRoute(
-            path: '/news',
-            builder: (context, state) => const NewsScreen(),
+            path: '/organization',
+            builder: (context, state) => OrganizationScreen(
+              initialTab: state.uri.queryParameters['tab'],
+            ),
+          ),
+          GoRoute(
+            path: '/downloads',
+            builder: (context, state) => DownloadsScreen(
+              initialTab: state.uri.queryParameters['tab'],
+            ),
           ),
           GoRoute(
             path: '/circulars',
             builder: (context, state) => const CircularsScreen(),
-          ),
-          GoRoute(
-            path: '/downloads',
-            builder: (context, state) => const DownloadsScreen(),
           ),
           GoRoute(
             path: '/more',
@@ -105,6 +111,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // Public Detail / Dedicated Screens
+      GoRoute(
+        path: '/contact',
+        builder: (context, state) => const ContactScreen(),
+      ),
+      GoRoute(
+        path: '/news',
+        builder: (context, state) => const NewsScreen(),
+      ),
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
@@ -129,8 +143,8 @@ final routerProvider = Provider<GoRouter>((ref) {
             GalleryDetailScreen(id: state.pathParameters['id']!),
       ),
       GoRoute(
-        path: '/organization',
-        builder: (context, state) => const OrganizationScreen(),
+        path: '/reaction-gallery',
+        builder: (context, state) => const ReactionGalleryScreen(),
       ),
       GoRoute(
         path: '/organization/districts',
@@ -139,6 +153,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/organization/former-leaders',
         builder: (context, state) => const FormerLeadersScreen(),
+      ),
+      GoRoute(
+        path: '/chronicle',
+        builder: (context, state) => const ChronicleScreen(),
       ),
       GoRoute(
         path: '/services',
@@ -160,10 +178,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/links/results',
         builder: (context, state) => const ResultsScreen(),
-      ),
-      GoRoute(
-        path: '/contact',
-        builder: (context, state) => const ContactScreen(),
       ),
       GoRoute(
         path: '/privacy',
@@ -211,7 +225,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/admin/office-bearers',
-        builder: (context, state) => const AdminOfficeBearersScreen(),
+        builder: (context, state) =>
+            const AdminOfficeBearersScreen(section: LeaderSectionType.state),
+      ),
+      GoRoute(
+        path: '/admin/state-leaders',
+        builder: (context, state) =>
+            const AdminOfficeBearersScreen(section: LeaderSectionType.state),
+      ),
+      GoRoute(
+        path: '/admin/former-state-leaders',
+        builder: (context, state) =>
+            const AdminOfficeBearersScreen(section: LeaderSectionType.former),
+      ),
+      GoRoute(
+        path: '/admin/district-leaders',
+        builder: (context, state) =>
+            const AdminOfficeBearersScreen(section: LeaderSectionType.district),
       ),
       GoRoute(
         path: '/admin/flash-news',

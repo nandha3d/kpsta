@@ -166,6 +166,45 @@ abstract class BaseApiController extends BaseController
     }
 
     /**
+     * Convert gallery image filename to absolute public URL, checking original/ and thumb/ directories.
+     */
+    protected function formatGalleryImageUrl(?string $image, string $prefer = 'original'): ?string
+    {
+        if (empty($image)) {
+            return null;
+        }
+        if (preg_match('#^https?://#i', $image)) {
+            return $image;
+        }
+
+        $clean = ltrim($image, '/');
+        if (str_starts_with($clean, 'uploads/gallery/')) {
+            $clean = substr($clean, strlen('uploads/gallery/'));
+        }
+        if (str_starts_with($clean, 'original/')) {
+            $clean = substr($clean, strlen('original/'));
+        }
+        if (str_starts_with($clean, 'thumb/')) {
+            $clean = substr($clean, strlen('thumb/'));
+        }
+
+        $preferred = ($prefer === 'thumb') ? 'uploads/gallery/thumb/' : 'uploads/gallery/original/';
+        $fallback  = ($prefer === 'thumb') ? 'uploads/gallery/original/' : 'uploads/gallery/thumb/';
+
+        if (file_exists(FCPATH . $preferred . $clean)) {
+            return base_url($preferred . $clean);
+        }
+        if (file_exists(FCPATH . $fallback . $clean)) {
+            return base_url($fallback . $clean);
+        }
+        if (file_exists(FCPATH . 'uploads/gallery/' . $clean)) {
+            return base_url('uploads/gallery/' . $clean);
+        }
+
+        return base_url($preferred . $clean);
+    }
+
+    /**
      * Format a date into ISO 8601 string.
      */
     protected function formatIsoDate(?string $date): ?string

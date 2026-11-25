@@ -107,6 +107,8 @@ class NewsController extends BaseApiController
         }, $rawList);
 
         $meta = $this->buildPaginationMeta($page, $perPage, $total);
+        $settingsModel = model(\App\Models\Settings_model::class);
+        $meta['speed'] = (int)($settingsModel->get('flash_news_speed_mobile') ?: 65);
         return $this->respondSuccess($items, 'Flash news retrieved successfully.', $meta);
     }
 

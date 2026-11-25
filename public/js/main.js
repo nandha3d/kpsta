@@ -287,14 +287,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (appBubble) {
-    // Show after 2 seconds if not previously dismissed in this session
+    // Show after 10 seconds if not previously dismissed in this session
     const isDismissed = sessionStorage.getItem('kpsta_app_prompt_dismissed');
     if (!isDismissed) {
       setTimeout(() => {
         if (!appModal || !appModal.classList.contains('active')) {
           appBubble.classList.add('visible');
         }
-      }, 2000);
+      }, 10000);
     }
 
     appBubble.addEventListener('click', (e) => {

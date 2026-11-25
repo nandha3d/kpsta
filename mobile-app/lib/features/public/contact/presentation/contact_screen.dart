@@ -102,7 +102,11 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
     final contactAsync = ref.watch(contactInfoProvider);
 
     return Scaffold(
-      appBar: const AppTopBar(title: 'Contact KPSTA'),
+      backgroundColor: Colors.transparent,
+      appBar: AppTopBar(
+        title: 'Contact Us',
+        showBackButton: Navigator.of(context).canPop(),
+      ),
       body: contactAsync.when(
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppColors.primary),
@@ -118,7 +122,7 @@ class _ContactScreenState extends ConsumerState<ContactScreen> {
           final email = contact['email']?.toString() ?? 'kpsta.in@gmail.com';
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

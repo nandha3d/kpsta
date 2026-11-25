@@ -61,6 +61,299 @@ class OfficeBearer_model extends Ci3Model {
         return $name;
     }
 
+    /**
+     * Ensure core KPSTA designations (including Secretariate Members) exist.
+     */
+    public function ensureCoreDesignations(): void {
+        $res = $this->db->ci4()->query(
+            "SELECT id FROM office_bearer_designation WHERE UPPER(name) LIKE '%SECRETARIAT%' OR UPPER(name) LIKE '%SECRETARIATE%' LIMIT 1"
+        );
+        if (!$res->getRow()) {
+            $this->db->ci4()->table('office_bearer_designation')->insert([
+                'name' => 'SECRETARIATE MEMBERS',
+                'is_single' => 0,
+            ]);
+        }
+    }
+
+    /**
+     * Canonical metadata for the 3 separated admin leader sections.
+     */
+    public function getSectionMeta(string $section): array {
+        $key = strtolower(trim($section));
+        switch ($key) {
+            case 'former':
+                return [
+                    'key'         => 'former',
+                    'title'       => 'Former State Leaders',
+                    'badge'       => 'Former State Leadership',
+                    'description' => 'Manage past State Presidents, General Secretaries, and Treasurers.',
+                    'level'       => 'State',
+                    'is_former'   => 1,
+                    'base_route'  => 'admin/former_state_leaders',
+                    'public_url'  => 'former-leaders',
+                    'roles'       => $this->getSectionRoleConfig('former'),
+                ];
+            case 'district':
+                return [
+                    'key'         => 'district',
+                    'title'       => 'District Leaders',
+                    'badge'       => 'District Leadership',
+                    'description' => 'Manage District Presidents, Secretaries, and Treasurers across all 14 districts.',
+                    'level'       => 'District',
+                    'is_former'   => 0,
+                    'base_route'  => 'admin/district_leaders',
+                    'public_url'  => 'District',
+                    'roles'       => $this->getSectionRoleConfig('district'),
+                ];
+            case 'state':
+            default:
+                return [
+                    'key'         => 'state',
+                    'title'       => 'State Leaders',
+                    'badge'       => 'Active State Leadership',
+                    'description' => 'Manage active State Office Bearers by designation.',
+                    'level'       => 'State',
+                    'is_former'   => 0,
+                    'base_route'  => 'admin/state_leaders',
+                    'public_url'  => 'OfficeBearer',
+                    'roles'       => $this->getSectionRoleConfig('state'),
+                ];
+        }
+    }
+
+    /**
+     * Canonical role definitions per section (single source of truth for Web, API, and Mobile).
+     */
+    public function getSectionRoleConfig(string $section): array {
+        $key = strtolower(trim($section));
+        if ($key === 'former') {
+            return [
+                'president' => [
+                    'slug'     => 'president',
+                    'label'    => 'President',
+                    'match'    => ['PRESIDENT'],
+                    'default'  => 'PRESIDENT',
+                    'heading'  => 'President / General Secretary / Treasurer',
+                    'position' => 1,
+                ],
+                'general-secretary' => [
+                    'slug'     => 'general-secretary',
+                    'label'    => 'General Secretary',
+                    'match'    => ['GENERAL SECRETARY'],
+                    'default'  => 'GENERAL SECRETARY',
+                    'heading'  => 'President / General Secretary / Treasurer',
+                    'position' => 2,
+                ],
+                'treasurer' => [
+                    'slug'     => 'treasurer',
+                    'label'    => 'Treasurer',
+                    'match'    => ['TREASURER'],
+                    'default'  => 'TREASURER',
+                    'heading'  => 'President / General Secretary / Treasurer',
+                    'position' => 3,
+                ],
+            ];
+        }
+
+        if ($key === 'district') {
+            return [
+                'president' => [
+                    'slug'     => 'president',
+                    'label'    => 'President',
+                    'match'    => ['PRESIDENT'],
+                    'default'  => 'PRESIDENT',
+                    'heading'  => '',
+                    'position' => 1,
+                ],
+                'secretary' => [
+                    'slug'     => 'secretary',
+                    'label'    => 'Secretary',
+                    'match'    => ['GENERAL SECRETARY', 'SECRETARY'],
+                    'default'  => 'GENERAL SECRETARY',
+                    'heading'  => '',
+                    'position' => 2,
+                ],
+                'treasurer' => [
+                    'slug'     => 'treasurer',
+                    'label'    => 'Treasurer',
+                    'match'    => ['TREASURER'],
+                    'default'  => 'TREASURER',
+                    'heading'  => '',
+                    'position' => 3,
+                ],
+            ];
+        }
+
+        return [
+            'president' => [
+                'slug'     => 'president',
+                'label'    => 'President',
+                'match'    => ['PRESIDENT'],
+                'default'  => 'PRESIDENT',
+                'heading'  => 'President / General Secretary / Treasurer',
+                'position' => 1,
+            ],
+            'general-secretary' => [
+                'slug'     => 'general-secretary',
+                'label'    => 'General Secretary',
+                'match'    => ['GENERAL SECRETARY'],
+                'default'  => 'GENERAL SECRETARY',
+                'heading'  => 'President / General Secretary / Treasurer',
+                'position' => 2,
+            ],
+            'treasurer' => [
+                'slug'     => 'treasurer',
+                'label'    => 'Treasurer',
+                'match'    => ['TREASURER'],
+                'default'  => 'TREASURER',
+                'heading'  => 'President / General Secretary / Treasurer',
+                'position' => 3,
+            ],
+            'senior-vice-president' => [
+                'slug'     => 'senior-vice-president',
+                'label'    => 'Senior Vice President',
+                'match'    => ['SENIOR VICE PRESIDENT', 'SENIOR VICE PRESIDENT & ASSOCIATE GENERAL SECRETARY'],
+                'default'  => 'SENIOR VICE PRESIDENT',
+                'heading'  => 'Senior Vice President / Associate General Secretary',
+                'position' => 4,
+            ],
+            'associate-general-secretary' => [
+                'slug'     => 'associate-general-secretary',
+                'label'    => 'Associate General Secretary',
+                'match'    => ['ASSOCIATE GENERAL SECRETARY', 'SENIOR VICE PRESIDENT & ASSOCIATE GENERAL SECRETARY'],
+                'default'  => 'ASSOCIATE GENERAL SECRETARY',
+                'heading'  => 'Senior Vice President / Associate General Secretary',
+                'position' => 5,
+            ],
+            'vice-president' => [
+                'slug'     => 'vice-president',
+                'label'    => 'Vice President',
+                'match'    => ['VICE PRESIDENT'],
+                'default'  => 'VICE PRESIDENT',
+                'heading'  => 'Vice President',
+                'position' => 6,
+            ],
+            'secretary' => [
+                'slug'     => 'secretary',
+                'label'    => 'Secretary',
+                'match'    => ['SECRETARY'],
+                'default'  => 'SECRETARY',
+                'heading'  => 'Secretary',
+                'position' => 7,
+            ],
+            'secretariate-members' => [
+                'slug'     => 'secretariate-members',
+                'label'    => 'Secretariate Members',
+                'match'    => ['SECRETARIATE MEMBERS', 'SECRETARIAT MEMBERS'],
+                'default'  => 'SECRETARIATE MEMBERS',
+                'heading'  => 'Secretariate Members',
+                'position' => 8,
+            ],
+        ];
+    }
+
+    /**
+     * Map allowed designations for a specific section: [designation_id => display_label].
+     */
+    public function getDesignationsForSection(string $section): array {
+        $this->ensureCoreDesignations();
+        $all = $this->getAllDesignation();
+        $nameToId = [];
+        foreach ($all as $id => $name) {
+            $nameToId[strtoupper(trim((string)$name))] = (int)$id;
+        }
+
+        $roles = $this->getSectionRoleConfig($section);
+        $result = [];
+        foreach ($roles as $role) {
+            $resolvedId = null;
+            if (isset($nameToId[$role['default']])) {
+                $resolvedId = $nameToId[$role['default']];
+            } else {
+                foreach ($role['match'] as $mName) {
+                    if (isset($nameToId[$mName])) {
+                        $resolvedId = $nameToId[$mName];
+                        break;
+                    }
+                }
+            }
+            if ($resolvedId !== null) {
+                $result[$resolvedId] = $role['label'];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Resolve a role slug (e.g. 'president', 'secretary') to matching designation IDs.
+     */
+    public function resolveRoleDesignationIds(string $section, string $roleSlug): array {
+        $this->ensureCoreDesignations();
+        $roles = $this->getSectionRoleConfig($section);
+        $slug = strtolower(trim($roleSlug));
+        if ($slug === '' || !isset($roles[$slug])) {
+            return [];
+        }
+
+        $all = $this->getAllDesignation();
+        $matchNames = $roles[$slug]['match'];
+        $ids = [];
+        foreach ($all as $id => $name) {
+            $upper = strtoupper(trim((string)$name));
+            if (in_array($upper, $matchNames, true)) {
+                $ids[] = (int)$id;
+            }
+        }
+        return $ids;
+    }
+
+    /**
+     * Apply a role slug filter cleanly onto query params for a section.
+     */
+    public function applySectionRoleParam(array &$param, string $section, string $roleSlug): void {
+        $slug = strtolower(trim($roleSlug));
+        $roles = $this->getSectionRoleConfig($section);
+        if ($slug === '' || !isset($roles[$slug])) {
+            return;
+        }
+        $ids = $this->resolveRoleDesignationIds($section, $slug);
+        if ($section === 'former') {
+            $param['former_role_names'] = $roles[$slug]['match'];
+            $param['former_role_desig_ids'] = $ids;
+        } else if (!empty($ids)) {
+            $param['designation'] = $ids;
+        } else {
+            $param['designation'] = [-1];
+        }
+    }
+
+    /**
+     * Compute badge counts for 'all' and each role in a section.
+     */
+    public function getSectionRoleCounts(string $section, ?string $district = null): array {
+        $meta = $this->getSectionMeta($section);
+        $baseParam = [
+            'level'     => $meta['level'],
+            'is_former' => $meta['is_former'],
+        ];
+        if ($section === 'district' && $district !== null && $district !== '') {
+            $baseParam['exact_district'] = $district;
+        }
+
+        $counts = [
+            'all' => (int)$this->getAllCount($baseParam),
+        ];
+
+        foreach ($meta['roles'] as $slug => $role) {
+            $roleParam = $baseParam;
+            $this->applySectionRoleParam($roleParam, $section, $slug);
+            $counts[$slug] = (int)$this->getAllCount($roleParam);
+        }
+
+        return $counts;
+    }
+
     public function updatePosition($data) {
         $this->db->where(array("position" => $data['position']));
         $query = $this->db->get('office_bearer');
@@ -179,6 +472,10 @@ class OfficeBearer_model extends Ci3Model {
             $this->db->where("o.level", $param['level']);
         }
 
+        if (isset($param['exact_district']) && $param['exact_district'] !== '') {
+            $this->db->where("o.section_heading", $param['exact_district']);
+        }
+
         if (isset($param['district']) && $param['district'] !== '') {
             $this->db->group_start();
             $this->db->where("o.section_heading", $param['district']);
@@ -209,6 +506,24 @@ class OfficeBearer_model extends Ci3Model {
             } else {
                 $this->db->where("o.is_former", $param['is_former']);
             }
+        }
+
+        if (!empty($param['former_role_names'])) {
+            $this->db->group_start();
+            if (!empty($param['former_role_desig_ids'])) {
+                $this->db->group_start();
+                $this->db->where("o.is_former", 1);
+                $this->db->where_in("o.designation", $param['former_role_desig_ids']);
+                $this->db->group_end();
+            }
+            foreach ($param['former_role_names'] as $rName) {
+                $upperName = strtoupper(trim((string)$rName));
+                $escapedCompact = $this->db->escape('%"DESIGNATION":"' . $upperName . '"%');
+                $escapedSpaced = $this->db->escape('%"DESIGNATION": "' . $upperName . '"%');
+                $this->db->or_where("UPPER(COALESCE(o.previous_positions, '')) LIKE " . $escapedCompact, NULL, FALSE);
+                $this->db->or_where("UPPER(COALESCE(o.previous_positions, '')) LIKE " . $escapedSpaced, NULL, FALSE);
+            }
+            $this->db->group_end();
         }
 
         if (isset($param['search']) && !empty($param['search'])) {
@@ -322,6 +637,10 @@ class OfficeBearer_model extends Ci3Model {
             $this->db->where("o.level", $param['level']);
         }
 
+        if (isset($param['exact_district']) && $param['exact_district'] !== '') {
+            $this->db->where("o.section_heading", $param['exact_district']);
+        }
+
         if (isset($param['district']) && $param['district'] !== '') {
             $this->db->group_start();
             $this->db->where("o.section_heading", $param['district']);
@@ -348,6 +667,24 @@ class OfficeBearer_model extends Ci3Model {
             } else {
                 $this->db->where("o.is_former", $param['is_former']);
             }
+        }
+
+        if (!empty($param['former_role_names'])) {
+            $this->db->group_start();
+            if (!empty($param['former_role_desig_ids'])) {
+                $this->db->group_start();
+                $this->db->where("o.is_former", 1);
+                $this->db->where_in("o.designation", $param['former_role_desig_ids']);
+                $this->db->group_end();
+            }
+            foreach ($param['former_role_names'] as $rName) {
+                $upperName = strtoupper(trim((string)$rName));
+                $escapedCompact = $this->db->escape('%"DESIGNATION":"' . $upperName . '"%');
+                $escapedSpaced = $this->db->escape('%"DESIGNATION": "' . $upperName . '"%');
+                $this->db->or_where("UPPER(COALESCE(o.previous_positions, '')) LIKE " . $escapedCompact, NULL, FALSE);
+                $this->db->or_where("UPPER(COALESCE(o.previous_positions, '')) LIKE " . $escapedSpaced, NULL, FALSE);
+            }
+            $this->db->group_end();
         }
 
         if (isset($param['search']) && !empty($param['search'])) {
@@ -555,7 +892,7 @@ class OfficeBearer_model extends Ci3Model {
         return false;
     }
 
-    public function isSingleDesignation($designation, $isFormer = 0) {
+    public function isSingleDesignation($designation, $isFormer = 0, $level = 'State', $districtName = null, $excludeId = null) {
         if (!empty($isFormer)) {
             return false;
         }
@@ -563,7 +900,15 @@ class OfficeBearer_model extends Ci3Model {
         $this->db->where(array("id" => $designation));
         $query = $this->db->get('office_bearer_designation');
         if ($query->num_rows()) {
-            $this->db->where(array("designation" => $designation, "is_former" => 0));
+            $this->db->where("designation", $designation);
+            $this->db->where("is_former", 0);
+            $this->db->where("level", $level);
+            if ($level === 'District' && !empty($districtName)) {
+                $this->db->where("section_heading", $districtName);
+            }
+            if (!empty($excludeId)) {
+                $this->db->where("id !=", (int)$excludeId);
+            }
             $query = $this->db->get('office_bearer');
             if ($query->num_rows()) {
                 return TRUE;

@@ -144,6 +144,8 @@ class _MembershipTeacherFormScreenState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
                     value: _selectedDesignationId,
+                    dropdownColor: Colors.white,
+                    menuMaxHeight: 320,
                     decoration: const InputDecoration(
                       labelText: 'Designation (from API) *',
                     ),
@@ -163,6 +165,8 @@ class _MembershipTeacherFormScreenState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<int>(
                     value: _selectedDistrictId,
+                    dropdownColor: Colors.white,
+                    menuMaxHeight: 320,
                     decoration: const InputDecoration(
                       labelText: 'District (from API)',
                     ),
@@ -181,6 +185,8 @@ class _MembershipTeacherFormScreenState
                   if (schools.isNotEmpty)
                     DropdownButtonFormField<int>(
                       value: _selectedSchoolId,
+                      dropdownColor: Colors.white,
+                      menuMaxHeight: 320,
                       decoration: const InputDecoration(
                         labelText: 'Assigned School (from API)',
                       ),

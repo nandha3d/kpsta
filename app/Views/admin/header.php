@@ -106,6 +106,56 @@ if (!isset($page_title) || $page_title === '') {
                         }
                     } else {
                         ?>
+                        <li class="modern-menu-section"><span>Leadership</span></li>
+
+                        <li class="treeview state_leaders-menu">
+                            <a href="#" data-title="State Leaders">
+                                <i class="fa fa-user-circle-o"></i>
+                                <span>State Leaders</span>
+                                <i class="fa fa-angle-left modern-caret"></i>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="<?php echo site_url("admin/state_leaders"); ?>"><i class="fa fa-circle-o"></i><span>All State Leaders</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/president"); ?>"><i class="fa fa-circle-o"></i><span>President</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/general-secretary"); ?>"><i class="fa fa-circle-o"></i><span>General Secretary</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/treasurer"); ?>"><i class="fa fa-circle-o"></i><span>Treasurer</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/senior-vice-president"); ?>"><i class="fa fa-circle-o"></i><span>Senior Vice President</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/associate-general-secretary"); ?>"><i class="fa fa-circle-o"></i><span>Associate General Secretary</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/vice-president"); ?>"><i class="fa fa-circle-o"></i><span>Vice President</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/secretary"); ?>"><i class="fa fa-circle-o"></i><span>Secretary</span></a></li>
+                                <li><a href="<?php echo site_url("admin/state_leaders/secretariate-members"); ?>"><i class="fa fa-circle-o"></i><span>Secretariate Members</span></a></li>
+                            </ul>
+                        </li>
+
+                        <li class="treeview former_state_leaders-menu">
+                            <a href="#" data-title="Former State Leaders">
+                                <i class="fa fa-history"></i>
+                                <span>Former State Leaders</span>
+                                <i class="fa fa-angle-left modern-caret"></i>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="<?php echo site_url("admin/former_state_leaders"); ?>"><i class="fa fa-circle-o"></i><span>All Former State Leaders</span></a></li>
+                                <li><a href="<?php echo site_url("admin/former_state_leaders/president"); ?>"><i class="fa fa-circle-o"></i><span>President</span></a></li>
+                                <li><a href="<?php echo site_url("admin/former_state_leaders/general-secretary"); ?>"><i class="fa fa-circle-o"></i><span>General Secretary</span></a></li>
+                                <li><a href="<?php echo site_url("admin/former_state_leaders/treasurer"); ?>"><i class="fa fa-circle-o"></i><span>Treasurer</span></a></li>
+                            </ul>
+                        </li>
+
+                        <li class="treeview district_leaders-menu district-menu">
+                            <a href="#" data-title="District Leaders">
+                                <i class="fa fa-map-marker"></i>
+                                <span>District Leaders</span>
+                                <i class="fa fa-angle-left modern-caret"></i>
+                            </a>
+                            <ul class="treeview-menu">
+                                <li><a href="<?php echo site_url("admin/district_leaders"); ?>"><i class="fa fa-circle-o"></i><span>All District Leaders</span></a></li>
+                                <li><a href="<?php echo site_url("admin/district_leaders/president"); ?>"><i class="fa fa-circle-o"></i><span>President</span></a></li>
+                                <li><a href="<?php echo site_url("admin/district_leaders/secretary"); ?>"><i class="fa fa-circle-o"></i><span>Secretary</span></a></li>
+                                <li><a href="<?php echo site_url("admin/district_leaders/treasurer"); ?>"><i class="fa fa-circle-o"></i><span>Treasurer</span></a></li>
+                                <li><a href="<?php echo site_url("admin/district"); ?>"><i class="fa fa-circle-o"></i><span>Manage Districts</span></a></li>
+                            </ul>
+                        </li>
+
                         <li class="modern-menu-section"><span>Organization</span></li>
 
                         <li class="treeview office_bearer-menu">
@@ -115,9 +165,6 @@ if (!isset($page_title) || $page_title === '') {
                                 <i class="fa fa-angle-left modern-caret"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href="<?php echo site_url("admin/office_bearer"); ?>"><i class="fa fa-circle-o"></i><span>State Office Bearers</span></a></li>
-                                <li><a href="<?php echo site_url("admin/district"); ?>"><i class="fa fa-circle-o"></i><span>District Office Bearers</span></a></li>
-                                <li><a href="<?php echo site_url("admin/office_bearer?is_former=1"); ?>"><i class="fa fa-circle-o"></i><span>Former Leaders</span></a></li>
                                 <li><a href="<?php echo site_url("admin/memorandums"); ?>"><i class="fa fa-circle-o"></i><span>Memorandums</span></a></li>
                                 <li><a href="<?php echo site_url("admin/notice_poster"); ?>"><i class="fa fa-circle-o"></i><span>Notices &amp; Posters</span></a></li>
                                 <li><a href="<?php echo site_url("admin/office_bearer/designation"); ?>"><i class="fa fa-circle-o"></i><span>Designations</span></a></li>

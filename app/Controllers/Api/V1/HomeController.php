@@ -58,12 +58,13 @@ class HomeController extends BaseApiController
         }, $rawFlash);
 
         // 3. Latest News
-        $rawNews = $newsModel->getAllNews(['limit' => 5], true) ?: [];
+        $rawNews = $newsModel->getAllNews(['limit' => 5, 'isPublish' => true]) ?: [];
         $latestNews = array_map(function ($n) {
+            $rawContent = $n['description'] ?? $n['content'] ?? '';
             return [
                 'id'           => (int)($n['id'] ?? 0),
                 'title'        => $n['heading'] ?? $n['title'] ?? '',
-                'description'  => $n['description'] ?? '',
+                'description'  => trim(strip_tags((string)$rawContent)),
                 'image_url'    => !empty($n['image']) ? $this->formatFileUrl('uploads/news/' . $n['image']) : null,
                 'published_at' => $this->formatIsoDate($n['news_date'] ?? $n['created_at'] ?? null),
             ];
@@ -86,12 +87,20 @@ class HomeController extends BaseApiController
         // 5. Gallery Highlights
         $rawImages = $galleryModel->getAllImages(['limit' => 12, 'isPublish' => true]) ?: [];
         $galleryHighlights = array_map(function ($img) {
+            $imageFile = $img['image'] ?? '';
+            $albumId = (int)($img['id'] ?? 0);
+            $albumGuid = $img['guId'] ?? $img['gu_id'] ?? '';
+            $albumName = $img['name'] ?? $img['album_name'] ?? '';
+            $caption = !empty($img['title']) ? $img['title'] : (!empty($albumName) ? $albumName : 'KPSTA Event');
+
             return [
                 'id'         => (int)($img['id'] ?? 0),
-                'album_id'   => (int)($img['album_id'] ?? 0),
-                'album_name' => $img['album_name'] ?? '',
-                'image_url'  => !empty($img['image']) ? $this->formatFileUrl('uploads/gallery/' . $img['image']) : null,
-                'caption'    => $img['caption'] ?? $img['description'] ?? '',
+                'album_id'   => $albumId > 0 ? (string)$albumId : $albumGuid,
+                'album_guid' => $albumGuid,
+                'album_name' => $albumName,
+                'image_url'  => $this->formatGalleryImageUrl($imageFile, 'original'),
+                'thumb_url'  => $this->formatGalleryImageUrl($imageFile, 'thumb'),
+                'caption'    => $caption,
             ];
         }, $rawImages);
 
@@ -149,6 +158,67 @@ class HomeController extends BaseApiController
             ];
         }, $rawServices);
 
+        // 10. Home Auto-Popup Settings (Reaction Gallery & News Window + Start/End Dates)
+        $reactionPopupEnabled = $settingsModel->get('reaction_popup_enabled');
+        $reactionPopupDuration = $settingsModel->get('reaction_popup_duration');
+        $reactionPopupSource = $settingsModel->get('reaction_popup_source');
+        $reactionPopupStartDate = $settingsModel->get('reaction_popup_start_date');
+        $reactionPopupEndDate = $settingsModel->get('reaction_popup_end_date');
+
+        $isPopupEnabled = ($reactionPopupEnabled === false || $reactionPopupEnabled === null) ? true : (bool)(int)$reactionPopupEnabled;
+        $popupDuration = (!empty($reactionPopupDuration) && (int)$reactionPopupDuration > 0) ? (int)$reactionPopupDuration : 10;
+        $popupSource = in_array($reactionPopupSource, ['both', 'reaction_gallery', 'news'], true) ? $reactionPopupSource : 'both';
+        $startDate = ($reactionPopupStartDate !== false && $reactionPopupStartDate !== null) ? trim((string)$reactionPopupStartDate) : '';
+        $endDate = ($reactionPopupEndDate !== false && $reactionPopupEndDate !== null) ? trim((string)$reactionPopupEndDate) : '';
+
+        $today = (new \DateTimeImmutable('now', new \DateTimeZone('Asia/Kolkata')))->format('Y-m-d');
+        $inDateRange = true;
+        if ($startDate !== '' && $today < $startDate) {
+            $inDateRange = false;
+        }
+        if ($endDate !== '' && $today > $endDate) {
+            $inDateRange = false;
+        }
+
+        $popupItems = [];
+        if (($popupSource === 'both' || $popupSource === 'reaction_gallery') && !empty($reactionGallery)) {
+            $firstReaction = $reactionGallery[0];
+            $popupItems[] = [
+                'type'         => 'reaction',
+                'id'           => (int)($firstReaction['id'] ?? 0),
+                'title'        => $firstReaction['title'] ?? 'KPSTA Reaction Poster',
+                'description'  => '',
+                'image_url'    => $firstReaction['image_url'] ?? null,
+                'route'        => '/reaction-gallery',
+                'button_label' => 'Reaction Gallery',
+            ];
+        }
+        if (($popupSource === 'both' || $popupSource === 'news') && !empty($latestNews)) {
+            $firstNews = $latestNews[0];
+            $newsId = (int)($firstNews['id'] ?? 0);
+            $popupItems[] = [
+                'type'         => 'news',
+                'id'           => $newsId,
+                'title'        => $firstNews['title'] ?? 'KPSTA News Bulletin',
+                'description'  => $firstNews['description'] ?? '',
+                'image_url'    => $firstNews['image_url'] ?? null,
+                'route'        => $newsId > 0 ? ('/news/' . $newsId) : '/news',
+                'button_label' => 'Read News',
+                'published_at' => $firstNews['published_at'] ?? null,
+            ];
+        }
+
+        $reactionPopup = [
+            'enabled'     => ($isPopupEnabled && $inDateRange && !empty($popupItems)),
+            'raw_enabled' => $isPopupEnabled,
+            'in_schedule' => $inDateRange,
+            'duration'    => $popupDuration,
+            'source'      => $popupSource,
+            'start_date'  => $startDate !== '' ? $startDate : null,
+            'end_date'    => $endDate !== '' ? $endDate : null,
+            'items'       => $popupItems,
+        ];
+
         $payload = [
             'sliders'            => $sliders,
             'flash_news'         => $flashNews,
@@ -159,6 +229,8 @@ class HomeController extends BaseApiController
             'reaction_gallery'   => $reactionGallery,
             'office_bearers'     => $officeBearers,
             'services'           => $services,
+            'reaction_popup'     => $reactionPopup,
+            'flash_news_speed'   => (int)($settingsModel->get('flash_news_speed_mobile') ?: 65),
         ];
 
         return $this->respondSuccess($payload, 'Homepage data retrieved successfully.');

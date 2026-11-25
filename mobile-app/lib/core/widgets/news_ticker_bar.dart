@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
 /// NewsTickerBar with orange "KPSTA NEWS" badge + silky-smooth vsync marquee.
-/// Uses Flutter's AnimationController (vsync) instead of raw Timers and ScrollControllers,
-/// completely avoiding mouse tracker conflicts on desktop platforms.
+/// Uses mathematical periodic translation by exact unitWidth, guaranteeing
+/// 100% glitch-free, continuous seamless infinite scrolling.
 class NewsTickerBar extends StatefulWidget {
   final List<dynamic> items;
+  final double speed; // Pixels per second (e.g. 65.0)
 
-  const NewsTickerBar({super.key, required this.items});
+  const NewsTickerBar({
+    super.key,
+    required this.items,
+    this.speed = 65.0,
+  });
 
   @override
   State<NewsTickerBar> createState() => _NewsTickerBarState();
@@ -15,14 +20,43 @@ class NewsTickerBar extends StatefulWidget {
 class _NewsTickerBarState extends State<NewsTickerBar>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
+  double _lastUnitWidth = 0.0;
+
+  static const TextStyle _textStyle = TextStyle(
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: Color(0xFF1E293B),
+  );
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 25),
+      duration: const Duration(seconds: 20),
     )..repeat();
+  }
+
+  @override
+  void didUpdateWidget(covariant NewsTickerBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.items != widget.items || oldWidget.speed != widget.speed) {
+      _updateDuration(_lastUnitWidth);
+    }
+  }
+
+  void _updateDuration(double unitWidth) {
+    if (unitWidth <= 0) return;
+    _lastUnitWidth = unitWidth;
+    final effectiveSpeed = widget.speed.clamp(20.0, 300.0);
+    final ms = ((unitWidth / effectiveSpeed) * 1000).round().clamp(2000, 120000);
+    final newDuration = Duration(milliseconds: ms);
+    if (_animController.duration != newDuration) {
+      _animController.duration = newDuration;
+      if (!_animController.isAnimating) {
+        _animController.repeat();
+      }
+    }
   }
 
   @override
@@ -31,11 +65,8 @@ class _NewsTickerBarState extends State<NewsTickerBar>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (widget.items.isEmpty) return const SizedBox.shrink();
-
-    final tickerText = widget.items
+  String _buildUnitText() {
+    final list = widget.items
         .map((item) {
           if (item is Map) {
             return item['title']?.toString() ??
@@ -45,11 +76,18 @@ class _NewsTickerBarState extends State<NewsTickerBar>
           return item.toString();
         })
         .where((t) => t.trim().isNotEmpty)
-        .join('    ★    ');
+        .toList();
 
-    if (tickerText.trim().isEmpty) return const SizedBox.shrink();
+    if (list.isEmpty) return '';
+    return '${list.join('    ★    ')}    ★    ';
+  }
 
-    final fullText = '$tickerText    ★    $tickerText    ★    ';
+  @override
+  Widget build(BuildContext context) {
+    if (widget.items.isEmpty) return const SizedBox.shrink();
+
+    final unitText = _buildUnitText();
+    if (unitText.trim().isEmpty) return const SizedBox.shrink();
 
     return Container(
       height: 38,
@@ -79,27 +117,52 @@ class _NewsTickerBarState extends State<NewsTickerBar>
           ),
           // Infinite Smooth Ticker
           Expanded(
-            child: ClipRect(
-              child: AnimatedBuilder(
-                animation: _animController,
-                builder: (context, child) {
-                  return FractionalTranslation(
-                    translation: Offset(-_animController.value * 0.5, 0.0),
-                    child: child,
-                  );
-                },
-                child: Text(
-                  fullText,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final textPainter = TextPainter(
+                  text: TextSpan(text: unitText, style: _textStyle),
+                  textDirection: TextDirection.ltr,
                   maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.visible,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
+                )..layout();
+
+                final unitWidth = textPainter.width;
+                if (unitWidth <= 0) return const SizedBox.shrink();
+
+                // Ensure controller duration matches current unitWidth & speed
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && _lastUnitWidth != unitWidth) {
+                    _updateDuration(unitWidth);
+                  }
+                });
+
+                final visibleWidth = constraints.maxWidth;
+                final repeatsNeeded = (visibleWidth / unitWidth).ceil() + 2;
+                final fullText = unitText * repeatsNeeded;
+
+                return ClipRect(
+                  child: AnimatedBuilder(
+                    animation: _animController,
+                    builder: (context, child) {
+                      final dx = -(_animController.value * unitWidth);
+                      return Transform.translate(
+                        offset: Offset(dx, 0),
+                        child: child,
+                      );
+                    },
+                    child: OverflowBox(
+                      alignment: Alignment.centerLeft,
+                      minWidth: 0.0,
+                      maxWidth: double.infinity,
+                      child: Text(
+                        fullText,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: _textStyle,
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],

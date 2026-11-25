@@ -2,6 +2,85 @@ DirectoryIndex index.php index.html
 
 RewriteEngine on
 
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Force HSTS
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header set Connection keep-alive
+</IfModule>
+
+# ==============================================================================
+# ULTRA LIGHTNING FAST PERFORMANCE & CACHING
+# ==============================================================================
+
+# 1. Gzip / Deflate Compression (Compress HTML, CSS, JS, JSON, Fonts by 70-85%)
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE font/otf
+    AddOutputFilterByType DEFLATE font/x-woff
+    AddOutputFilterByType DEFLATE font/woff
+    AddOutputFilterByType DEFLATE font/woff2
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject
+</IfModule>
+
+# 2. Browser Cache Headers (mod_expires: Instant 0ms Repeat Page Loads)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+
+    # Images & Media: 1 Year Immutable Cache
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+
+    # Web Fonts: 1 Year Cache
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+
+    # Stylesheets and Scripts: 1 Month Cache
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+
+    # JSON Data & APIs: 5 Minutes
+    ExpiresByType application/json "access plus 5 minutes"
+</IfModule>
+
+# 3. Cache-Control & Security Headers
+<IfModule mod_headers.c>
+    <FilesMatch "\.(ico|jpe?g|png|gif|swf|webp|svg)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(woff|woff2|ttf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+    <FilesMatch "\.(css|js)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
+
 # Legacy public download path, kept so existing links keep resolving.
 RewriteRule ^public/downloads/(.*)$ uploads/download/$1 [L,NC]
 
@@ -9,11 +88,6 @@ RewriteRule ^public/downloads/(.*)$ uploads/download/$1 [L,NC]
 RewriteRule ^(app|writable|vendor|tests)/ - [F,L]
 
 # Never serve VCS metadata, environment files or dependency manifests.
-#
-# deploy.sh excludes these, but an earlier `cp`-style deploy may already have
-# left them in the document root, and .git there would disclose the whole
-# repository -- including credentials committed before they were moved to the
-# environment. Belt and braces.
 RewriteRule (^|/)\.git - [F,L]
 RewriteRule (^|/)\.env - [F,L]
 RewriteRule ^(composer\.(json|lock|phar)|package(-lock)?\.json|deploy\.sh|\.cpanel\.yml|playwright\.config\.js|spark)$ - [F,L]

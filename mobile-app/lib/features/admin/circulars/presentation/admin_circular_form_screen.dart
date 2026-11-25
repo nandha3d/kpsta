@@ -174,6 +174,8 @@ class _AdminCircularFormScreenState
                     const SizedBox(height: 14),
                     DropdownButtonFormField<String>(
                       value: _selectedType,
+                      dropdownColor: Colors.white,
+                      menuMaxHeight: 320,
                       decoration: const InputDecoration(
                         labelText: 'Education Stream *',
                       ),
@@ -205,6 +207,8 @@ class _AdminCircularFormScreenState
                         if (categories.isEmpty) return const SizedBox.shrink();
                         return DropdownButtonFormField<int>(
                           value: _selectedCategoryId,
+                          dropdownColor: Colors.white,
+                          menuMaxHeight: 320,
                           decoration: const InputDecoration(
                             labelText: 'Circular Category',
                             hintText: 'Select category from database',

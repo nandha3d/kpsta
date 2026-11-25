@@ -120,12 +120,121 @@ class AdminGalleryScreen extends ConsumerWidget {
     );
   }
 
+  void _showPopupSettingsDialog(BuildContext context, WidgetRef ref) async {
+    final client = ref.read(apiClientProvider);
+    bool isEnabled = true;
+    int duration = 20;
+
+    try {
+      final res = await client.get(ApiConstants.adminSettings);
+      final data = res['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        isEnabled = (data['reaction_popup_enabled'] ?? 1) == 1;
+        duration = data['reaction_popup_duration'] ?? 20;
+      }
+    } catch (_) {}
+
+    if (!context.mounted) return;
+
+    final durationController = TextEditingController(text: duration.toString());
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: const Text('Reaction Gallery Popup Settings'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Customize the automatic Reaction Poster popup shown to visitors on the Home Page.',
+                style: TextStyle(fontSize: 12, color: AppColors.textMuted),
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Enable Auto-Popup', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                subtitle: const Text('Shows portrait reaction poster popup on home', style: TextStyle(fontSize: 11)),
+                value: isEnabled,
+                activeThumbColor: AppColors.primary,
+                onChanged: (val) {
+                  setDialogState(() {
+                    isEnabled = val;
+                  });
+                },
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: durationController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Delay Before Popup (Seconds)',
+                  suffixText: 'sec',
+                  helperText: 'Default: 20 seconds',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final d = int.tryParse(durationController.text.trim()) ?? 20;
+                Navigator.pop(ctx);
+                try {
+                  await client.post(
+                    ApiConstants.adminSettings,
+                    data: {
+                      'reaction_popup_enabled': isEnabled ? 1 : 0,
+                      'reaction_popup_duration': d < 1 ? 20 : d,
+                    },
+                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Reaction popup settings saved successfully!'),
+                        backgroundColor: AppColors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString().replaceAll('ApiException: ', '')),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Save Settings'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final albumsAsync = ref.watch(adminGalleriesProvider);
 
     return Scaffold(
-      appBar: const AppTopBar(title: 'Manage Photo Albums'),
+      appBar: AppTopBar(
+        title: 'Manage Photo Albums',
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.tune, color: AppColors.white),
+            tooltip: 'Reaction Popup Settings',
+            onPressed: () => _showPopupSettingsDialog(context, ref),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateAlbumDialog(context, ref),
         backgroundColor: AppColors.primary,

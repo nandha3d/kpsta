@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../constants/app_colors.dart';
 
-/// KPSTA Footer matching web and mobile reference design
+/// KPSTA Footer matching web and mobile reference design with all sub-menus
 class KpstaFooter extends StatelessWidget {
   const KpstaFooter({super.key});
 
@@ -22,10 +21,11 @@ class KpstaFooter extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: const Color(0xFF0F1E24),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 32),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Logo & Name
+          // Logo & Organization Name
           Image.asset(
             'assets/images/logo.png',
             height: 52,
@@ -58,174 +58,211 @@ class KpstaFooter extends StatelessWidget {
               letterSpacing: 0.4,
             ),
           ),
-          const SizedBox(height: 24),
-          const Divider(color: Color(0xFF1E293B)),
-          const SizedBox(height: 16),
+          const SizedBox(height: 22),
+          const Divider(color: Color(0xFF1E293B), thickness: 1),
+          const SizedBox(height: 18),
 
-          // Navigation Links & Contact Details
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Links Column
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _FooterLink(
-                      label: 'Home',
-                      onTap: () => context.go('/home'),
-                    ),
-                    _FooterLink(
-                      label: 'Organization',
-                      onTap: () => context.push('/organization'),
-                    ),
-                    _FooterLink(
-                      label: 'Order & Circular',
-                      onTap: () => context.go('/circulars'),
-                    ),
-                    _FooterLink(
-                      label: 'Downloads',
-                      onTap: () => context.go('/downloads'),
-                    ),
-                    _FooterLink(
-                      label: 'Gallery',
-                      onTap: () => context.push('/gallery'),
-                    ),
-                    _FooterLink(
-                      label: 'Online Links',
-                      onTap: () => context.push('/links'),
-                    ),
-                    _FooterLink(
-                      label: 'Contact',
-                      onTap: () => context.push('/contact'),
-                    ),
-                  ],
-                ),
-              ),
+          // All Menus and Sub-Menus (Structured 3-Column / Responsive Sitemap)
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 360;
 
-              const SizedBox(width: 16),
-
-              // Contact Info Column
-              Expanded(
-                flex: 6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Address
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Icon(
-                          Icons.location_on,
-                          size: 16,
-                          color: Color(0xFFF05A22),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Column 1: Organization & Sub-menus
+                      Expanded(
+                        child: _FooterSection(
+                          title: 'Organization',
+                          links: [
+                            _FooterLinkItem('State Office Bearers', () => context.push('/organization')),
+                            _FooterLinkItem('District Committees', () => context.push('/organization/districts')),
+                            _FooterLinkItem('Former Leaders', () => context.push('/organization/former-leaders')),
+                            _FooterLinkItem('Memorandums', () => context.push('/home')),
+                            _FooterLinkItem('Notices & Posters', () => context.push('/gallery')),
+                          ],
                         ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'KPSTA BHAVAN, Chinmaya School Lane, Kunnumpuram, Trivandrum -1',
-                            style: TextStyle(
-                              color: Color(0xFFCBD5E1),
-                              fontSize: 12,
-                              height: 1.4,
-                            ),
-                          ),
+                      ),
+                      const SizedBox(width: 14),
+
+                      // Column 2: Downloads & Sub-menus
+                      Expanded(
+                        child: _FooterSection(
+                          title: 'Downloads',
+                          links: [
+                            _FooterLinkItem('Official Forms', () => context.push('/downloads?tab=forms')),
+                            _FooterLinkItem('Service Corner', () => context.push('/services')),
+                            _FooterLinkItem('Academic Corner', () => context.push('/services')),
+                            _FooterLinkItem('Software Tools', () => context.push('/downloads?tab=softwares')),
+                            _FooterLinkItem('School Melakal', () => context.push('/downloads?tab=melakal')),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Phone
-                    InkWell(
-                      onTap: () => _makeCall('0471-2575797'),
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.call,
-                            size: 16,
-                            color: Color(0xFFF05A22),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            '0471 - 2575797',
-                            style: TextStyle(
-                              color: Color(0xFFCBD5E1),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
                       ),
-                    ),
-                    const SizedBox(height: 16),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
 
-                    // Email
-                    InkWell(
-                      onTap: () => _sendEmail('kpsta.in@gmail.com'),
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.email,
-                            size: 16,
-                            color: Color(0xFFF05A22),
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'kpsta.in@gmail.com',
-                              style: TextStyle(
-                                color: Color(0xFFCBD5E1),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                  // Quick Links / Core Portals
+                  _FooterSection(
+                    title: 'Quick Links & Portals',
+                    isGrid: !isNarrow,
+                    links: [
+                      _FooterLinkItem('Home', () => context.go('/home')),
+                      _FooterLinkItem('Order & Circular', () => context.go('/circulars')),
+                      _FooterLinkItem('News Window', () => context.push('/news')),
+                      _FooterLinkItem('Photo Gallery', () => context.push('/gallery')),
+                      _FooterLinkItem('Online Links', () => context.push('/links/quick')),
+                      _FooterLinkItem('Contact Us', () => context.push('/contact')),
+                      _FooterLinkItem('Admin Login', () => context.push('/login')),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
 
-          const SizedBox(height: 28),
-          const Divider(color: Color(0xFF1E293B)),
+          const SizedBox(height: 24),
+          const Divider(color: Color(0xFF1E293B), thickness: 1),
+          const SizedBox(height: 18),
+
+          // Clean, Full-Width Contact Information
+          _buildContactRow(
+            icon: Icons.location_on,
+            text: 'KPSTA BHAVAN, Chinmaya School Lane, Kunnumpuram, Trivandrum -1',
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () => _makeCall('0471-2575797'),
+            child: _buildContactRow(
+              icon: Icons.call,
+              text: '0471 - 2575797 (State Centre Helpdesk)',
+            ),
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () => _sendEmail('kpsta.in@gmail.com'),
+            child: _buildContactRow(
+              icon: Icons.email,
+              text: 'kpsta.in@gmail.com',
+            ),
+          ),
+
+          const SizedBox(height: 22),
+          const Divider(color: Color(0xFF1E293B), thickness: 1),
           const SizedBox(height: 12),
 
           // Copyright
-          const Text(
-            'Copyright © 2016, All Rights Reserved',
-            style: TextStyle(
+          Text(
+            'Copyright © ${DateTime.now().year}, All Rights Reserved',
+            style: const TextStyle(
               color: Color(0xFF64748B),
               fontSize: 11,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildContactRow({required IconData icon, required String text}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFFF05A22)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xFFCBD5E1),
+              fontSize: 12,
+              height: 1.35,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-class _FooterLink extends StatelessWidget {
+class _FooterLinkItem {
   final String label;
   final VoidCallback onTap;
 
-  const _FooterLink({required this.label, required this.onTap});
+  const _FooterLinkItem(this.label, this.onTap);
+}
+
+class _FooterSection extends StatelessWidget {
+  final String title;
+  final List<_FooterLinkItem> links;
+  final bool isGrid;
+
+  const _FooterSection({
+    required this.title,
+    required this.links,
+    this.isGrid = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title.toUpperCase(),
+          style: const TextStyle(
+            color: Color(0xFFF05A22),
+            fontSize: 11.5,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.6,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          width: 32,
+          height: 2,
+          color: const Color(0xFFF05A22).withValues(alpha: 0.6),
+        ),
+        const SizedBox(height: 10),
+        if (isGrid)
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            children: links.map((link) => _FooterLinkWidget(link: link)).toList(),
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: links.map((link) => _FooterLinkWidget(link: link)).toList(),
+          ),
+      ],
+    );
+  }
+}
+
+class _FooterLinkWidget extends StatelessWidget {
+  final _FooterLinkItem link;
+
+  const _FooterLinkWidget({required this.link});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: InkWell(
-        onTap: onTap,
+        onTap: link.onTap,
+        borderRadius: BorderRadius.circular(4),
         child: Text(
-          label,
+          link.label,
           style: const TextStyle(
             color: Color(0xFFE2E8F0),
-            fontSize: 12.5,
-            fontWeight: FontWeight.w500,
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            height: 1.3,
           ),
         ),
       ),

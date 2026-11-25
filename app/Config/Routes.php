@@ -336,6 +336,34 @@ $routes->add('admin/office_bearer/publish', 'Admin\OfficeBearer::publish');
 $routes->add('admin/office_bearer/publish/(:num)', 'Admin\OfficeBearer::publish');
 $routes->add('admin/office_bearer/delete', 'Admin\OfficeBearer::delete');
 $routes->add('admin/office_bearer/batch_delete', 'Admin\OfficeBearer::batchDelete');
+
+// Dedicated separated admin pages for State Leaders, Former State Leaders, and District Leaders
+$routes->add('admin/state_leaders', 'Admin\OfficeBearer::stateLeaders');
+$routes->add('admin/state_leaders/add', 'Admin\OfficeBearer::sectionAdd/state');
+$routes->add('admin/state_leaders/edit/(:num)', 'Admin\OfficeBearer::sectionEdit/state/$1');
+$routes->add('admin/state_leaders/update/(:num)', 'Admin\OfficeBearer::sectionUpdate/state/$1');
+$routes->add('admin/state_leaders/publish/(:num)', 'Admin\OfficeBearer::sectionPublish/state/$1');
+$routes->add('admin/state_leaders/delete/(:num)', 'Admin\OfficeBearer::sectionDelete/state/$1');
+$routes->add('admin/state_leaders/batch_delete', 'Admin\OfficeBearer::sectionBatchDelete/state');
+$routes->add('admin/state_leaders/(:segment)', 'Admin\OfficeBearer::stateLeaders/$1');
+
+$routes->add('admin/former_state_leaders', 'Admin\OfficeBearer::formerStateLeaders');
+$routes->add('admin/former_state_leaders/add', 'Admin\OfficeBearer::sectionAdd/former');
+$routes->add('admin/former_state_leaders/edit/(:num)', 'Admin\OfficeBearer::sectionEdit/former/$1');
+$routes->add('admin/former_state_leaders/update/(:num)', 'Admin\OfficeBearer::sectionUpdate/former/$1');
+$routes->add('admin/former_state_leaders/publish/(:num)', 'Admin\OfficeBearer::sectionPublish/former/$1');
+$routes->add('admin/former_state_leaders/delete/(:num)', 'Admin\OfficeBearer::sectionDelete/former/$1');
+$routes->add('admin/former_state_leaders/batch_delete', 'Admin\OfficeBearer::sectionBatchDelete/former');
+$routes->add('admin/former_state_leaders/(:segment)', 'Admin\OfficeBearer::formerStateLeaders/$1');
+
+$routes->add('admin/district_leaders', 'Admin\OfficeBearer::districtLeaders');
+$routes->add('admin/district_leaders/add', 'Admin\OfficeBearer::sectionAdd/district');
+$routes->add('admin/district_leaders/edit/(:num)', 'Admin\OfficeBearer::sectionEdit/district/$1');
+$routes->add('admin/district_leaders/update/(:num)', 'Admin\OfficeBearer::sectionUpdate/district/$1');
+$routes->add('admin/district_leaders/publish/(:num)', 'Admin\OfficeBearer::sectionPublish/district/$1');
+$routes->add('admin/district_leaders/delete/(:num)', 'Admin\OfficeBearer::sectionDelete/district/$1');
+$routes->add('admin/district_leaders/batch_delete', 'Admin\OfficeBearer::sectionBatchDelete/district');
+$routes->add('admin/district_leaders/(:segment)', 'Admin\OfficeBearer::districtLeaders/$1');
 $routes->add('admin/editorial_board', 'Admin\EditorialBoard::index');
 $routes->add('admin/editorial_board/add', 'Admin\EditorialBoard::add');
 $routes->add('admin/editorial_board/edit', 'Admin\EditorialBoard::edit');
@@ -536,6 +564,11 @@ $routes->group('api/v1', ['filter' => 'api-cors'], function ($routes) {
     $routes->get('organization/former-leaders', 'Api\V1\OrganizationController::formerLeaders');
     $routes->get('organization/districts', 'Api\V1\OrganizationController::districts');
 
+    // Push Notifications
+    $routes->post('notifications/register-token', 'Api\V1\NotificationController::registerToken');
+    $routes->get('notifications/latest', 'Api\V1\NotificationController::getLatestNotifications');
+    $routes->post('admin/notifications/send', 'Api\V1\NotificationController::sendBroadcast', ['filter' => 'api-auth']);
+
     // 3. Admin Protected Endpoints (filter: api-auth:admin)
     $routes->group('admin', ['filter' => 'api-auth:admin'], function ($routes) {
         $routes->get('dashboard', 'Api\V1\Admin\AdminController::dashboard');
@@ -564,6 +597,7 @@ $routes->group('api/v1', ['filter' => 'api-cors'], function ($routes) {
         $routes->post('downloads/(:num)/publish', 'Api\V1\Admin\AdminController::publishDownload/$1');
 
         // Office Bearers CRUD
+        $routes->get('office-bearers/metadata', 'Api\V1\Admin\AdminController::officeBearerMetadata');
         $routes->get('office-bearers', 'Api\V1\Admin\AdminController::listOfficeBearers');
         $routes->post('office-bearers', 'Api\V1\Admin\AdminController::createOfficeBearer');
         $routes->put('office-bearers/(:num)', 'Api\V1\Admin\AdminController::updateOfficeBearer/$1');
@@ -602,6 +636,10 @@ $routes->group('api/v1', ['filter' => 'api-cors'], function ($routes) {
         $routes->post('result-links', 'Api\V1\Admin\AdminController::createResultLink');
         $routes->put('result-links/(:num)', 'Api\V1\Admin\AdminController::updateResultLink/$1');
         $routes->delete('result-links/(:num)', 'Api\V1\Admin\AdminController::deleteResultLink/$1');
+
+        // Global & Reaction Popup Settings
+        $routes->get('settings', 'Api\V1\Admin\AdminController::getSettings');
+        $routes->post('settings', 'Api\V1\Admin\AdminController::updateSettings');
     });
 
     // 4. Membership Protected Endpoints (filter: api-auth)

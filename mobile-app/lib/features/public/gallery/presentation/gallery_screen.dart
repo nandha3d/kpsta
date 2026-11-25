@@ -10,9 +10,9 @@ import '../../../../core/widgets/error_state.dart';
 import '../../../auth/presentation/auth_providers.dart';
 
 final galleryAlbumsProvider =
-    FutureProvider.autoDispose<List<dynamic>>((ref) async {
+    FutureProvider<List<dynamic>>((ref) async {
   final client = ref.watch(apiClientProvider);
-  final response = await client.get(ApiConstants.gallery);
+  final response = await client.get(ApiConstants.gallery, cacheDuration: const Duration(minutes: 5));
   return response['data'] as List<dynamic>? ?? [];
 });
 
@@ -24,6 +24,7 @@ class GalleryScreen extends ConsumerWidget {
     final albumsAsync = ref.watch(galleryAlbumsProvider);
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: const AppTopBar(title: 'Photo Gallery'),
       body: albumsAsync.when(
         loading: () => const Center(

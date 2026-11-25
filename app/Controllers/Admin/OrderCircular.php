@@ -139,6 +139,9 @@ class OrderCircular extends AppController {
         //Insert values
         $add = $this->OrderCircular_model->add($formValues);
         if ($add) {
+            if ((int)$formValues['is_publish'] === 1) {
+                \App\Libraries\PushDispatcher::notifyCircular((int)$add, (string)$formValues['description']);
+            }
             $data['code'] = 'success';
             $data['lastId'] = $add;
             $data['content'] = $this->getContent();
@@ -391,6 +394,9 @@ class OrderCircular extends AppController {
 
         //update news
         $this->OrderCircular_model->update($id, $formValues);
+        if ((int)$formValues['is_publish'] === 1 && (int)($orderInfo['is_publish'] ?? 0) !== 1) {
+            \App\Libraries\PushDispatcher::notifyCircular((int)$id, (string)$formValues['description']);
+        }
         $data['code'] = 'success';
         $data['lastId'] = $id;
         $data['content'] = $this->getContent();
@@ -410,6 +416,9 @@ class OrderCircular extends AppController {
         if ($id && $orderInfo) {
             $publish = ($orderInfo['is_publish'] == 1 ) ? 0 : 1;
             $this->OrderCircular_model->publish($id, $publish);
+            if ($publish === 1) {
+                \App\Libraries\PushDispatcher::notifyCircular((int)$id, (string)($orderInfo['description'] ?? ''));
+            }
             echo true;
             exit;
         }

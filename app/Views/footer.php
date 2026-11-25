@@ -9,15 +9,42 @@
 
         <div class="footer-divider"></div>
 
-        <ul class="footer-nav">
-          <li><a href="<?php echo base_url(); ?>">Home</a></li>
-          <li><a href="<?php echo base_url('office_bearer'); ?>">Organization</a></li>
-          <li><a href="<?php echo base_url('order-circular'); ?>">Order & Circular</a></li>
-          <li><a href="<?php echo base_url('download/forms'); ?>">Downloads</a></li>
-          <li><a href="<?php echo base_url('gallery'); ?>">Gallery</a></li>
-          <li><a href="<?php echo base_url('quicklink'); ?>">Online Links</a></li>
-          <li><a href="<?php echo base_url('contact'); ?>">Contact</a></li>
-        </ul>
+        <div class="footer-sitemap-grid">
+          <div class="footer-sitemap-col">
+            <h4 class="footer-col-title">Quick Links</h4>
+            <ul class="footer-col-links">
+              <li><a href="<?php echo base_url(); ?>">Home</a></li>
+              <li><a href="<?php echo base_url('order-circular'); ?>">Order &amp; Circular</a></li>
+              <li><a href="<?php echo base_url('news'); ?>">News Window</a></li>
+              <li><a href="<?php echo base_url('Gallery'); ?>">Gallery</a></li>
+              <li><a href="<?php echo base_url('Quicklink'); ?>">Online Links</a></li>
+              <li><a href="<?php echo base_url('Contact'); ?>">Contact Us</a></li>
+              <li><a href="<?php echo base_url('admin/login'); ?>">Admin Login</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-sitemap-col">
+            <h4 class="footer-col-title">Organization</h4>
+            <ul class="footer-col-links">
+              <li><a href="<?php echo base_url('OfficeBearer'); ?>">State Office Bearers</a></li>
+              <li><a href="<?php echo base_url('District'); ?>">District Office Bearers</a></li>
+              <li><a href="<?php echo base_url('former-leaders'); ?>">Former Leaders</a></li>
+              <li><a href="<?php echo base_url('memorandums'); ?>">Memorandums</a></li>
+              <li><a href="<?php echo base_url('notice_poster'); ?>">Notices &amp; Posters</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-sitemap-col">
+            <h4 class="footer-col-title">Downloads</h4>
+            <ul class="footer-col-links">
+              <li><a href="<?php echo base_url('download/forms'); ?>">Forms</a></li>
+              <li><a href="<?php echo base_url('service-corner'); ?>">Service Corner</a></li>
+              <li><a href="<?php echo base_url('download/academic_corner'); ?>">Academic Corner</a></li>
+              <li><a href="<?php echo base_url('download/softwares'); ?>">Software Tools</a></li>
+              <li><a href="<?php echo base_url('melakal'); ?>">Melakal</a></li>
+            </ul>
+          </div>
+        </div>
 
         <div class="footer-contacts">
           <div class="footer-contact-item">

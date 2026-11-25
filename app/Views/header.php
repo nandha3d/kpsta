@@ -57,8 +57,11 @@
   <!-- Header -->
   <header class="main-header">
     <div class="container header-container">
-      <a href="<?php echo base_url(); ?>" class="brand-logo">
+      <a href="<?php echo base_url(); ?>" class="brand-logo" title="KPSTA Home">
         <img src="<?php echo base_url('public/images/logo-wide-dark.png'); ?>" alt="KPSTA - Kerala Pradesh School Teachers' Association" class="brand-lockup">
+        <span class="header-flag-wrap" title="KPSTA Flag">
+          <img src="<?php echo base_url('public/images/flag.png?v=' . (file_exists(FCPATH . 'public/images/flag.png') ? filemtime(FCPATH . 'public/images/flag.png') : time())); ?>" alt="KPSTA Flag" class="header-flag-img">
+        </span>
       </a>
       
       <button class="mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">

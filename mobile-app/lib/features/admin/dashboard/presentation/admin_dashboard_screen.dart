@@ -46,6 +46,9 @@ class AdminDashboardScreen extends ConsumerWidget {
           final circularsCount = (counts['circulars_count'] ?? counts['total_circulars'])?.toString() ?? '0';
           final downloadsCount = (counts['downloads_count'] ?? counts['total_downloads'])?.toString() ?? '0';
           final bearersCount = (counts['office_bearers_count'] ?? counts['total_office_bearers'])?.toString() ?? '0';
+          final stateLeadersCount = counts['state_leaders_count']?.toString() ?? bearersCount;
+          final formerLeadersCount = counts['former_state_leaders_count']?.toString() ?? '0';
+          final districtLeadersCount = counts['district_leaders_count']?.toString() ?? '0';
           final albumsCount = (counts['albums_count'] ?? counts['total_gallery_albums'])?.toString() ?? '0';
           final flashCount = (counts['flash_news_count'] ?? counts['total_flash_news'])?.toString() ?? '0';
           final sliderCount = (counts['sliders_count'] ?? counts['total_sliders'])?.toString() ?? '0';
@@ -140,11 +143,25 @@ class AdminDashboardScreen extends ConsumerWidget {
                       onTap: () => context.push('/admin/downloads'),
                     ),
                     StatisticCard(
-                      title: 'Office Bearers',
-                      value: bearersCount,
+                      title: 'State Leaders',
+                      value: stateLeadersCount,
                       icon: Icons.people,
                       color: AppColors.green,
-                      onTap: () => context.push('/admin/office-bearers'),
+                      onTap: () => context.push('/admin/state-leaders'),
+                    ),
+                    StatisticCard(
+                      title: 'Former State Leaders',
+                      value: formerLeadersCount,
+                      icon: Icons.history_edu,
+                      color: AppColors.indigo,
+                      onTap: () => context.push('/admin/former-state-leaders'),
+                    ),
+                    StatisticCard(
+                      title: 'District Leaders',
+                      value: districtLeadersCount,
+                      icon: Icons.location_city,
+                      color: AppColors.primary,
+                      onTap: () => context.push('/admin/district-leaders'),
                     ),
                     StatisticCard(
                       title: 'Photo Albums',
@@ -221,9 +238,21 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ),
                 _buildAdminActionTile(
                   icon: Icons.group_outlined,
-                  title: 'Manage Office Bearers',
-                  subtitle: 'Add state officials, assign designations & districts',
-                  onTap: () => context.push('/admin/office-bearers'),
+                  title: 'State Leaders',
+                  subtitle: 'President, General Secretary, Treasurer, VPs, Secretaries & Secretariate Members',
+                  onTap: () => context.push('/admin/state-leaders'),
+                ),
+                _buildAdminActionTile(
+                  icon: Icons.history_edu_outlined,
+                  title: 'Former State Leaders',
+                  subtitle: 'Past State Presidents, General Secretaries & Treasurers',
+                  onTap: () => context.push('/admin/former-state-leaders'),
+                ),
+                _buildAdminActionTile(
+                  icon: Icons.location_city_outlined,
+                  title: 'District Leaders',
+                  subtitle: 'District Presidents, Secretaries & Treasurers across 14 districts',
+                  onTap: () => context.push('/admin/district-leaders'),
                 ),
                 _buildAdminActionTile(
                   icon: Icons.link_outlined,

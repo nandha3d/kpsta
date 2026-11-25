@@ -29,27 +29,39 @@ class AdminController extends BaseApiController
         $downloadCount = $db->table('download')->where('is_delete !=', 1)->countAllResults();
         $albumCount = $db->table('gallery_album')->countAllResults();
         $bearerCount = $db->table('office_bearer')->countAllResults();
+        $stateLeadersCount = $db->table('office_bearer')->where('level', 'State')->where('is_former', 0)->countAllResults();
+        $formerStateLeadersCount = $db->table('office_bearer')
+            ->where('level', 'State')
+            ->groupStart()
+                ->where('is_former', 1)
+                ->orWhere("(previous_positions IS NOT NULL AND previous_positions != '' AND previous_positions != '[]')", null, false)
+            ->groupEnd()
+            ->countAllResults();
+        $districtLeadersCount = $db->table('office_bearer')->where('level', 'District')->where('is_former', 0)->countAllResults();
         $teacherCount = $db->table('teacher_details')->countAllResults();
         $sliderCount = $db->table('slider')->where('is_delete !=', 1)->countAllResults();
         $flashCount = $db->table('flash_news')->where('is_delete !=', 1)->countAllResults();
 
         $payload = [
-            'total_news'           => $newsCount,
-            'news_count'           => $newsCount,
-            'total_circulars'      => $circularCount,
-            'circulars_count'      => $circularCount,
-            'total_downloads'      => $downloadCount,
-            'downloads_count'      => $downloadCount,
-            'total_gallery_albums' => $albumCount,
-            'albums_count'         => $albumCount,
-            'total_office_bearers' => $bearerCount,
-            'office_bearers_count' => $bearerCount,
-            'total_teachers'       => $teacherCount,
-            'teachers_count'       => $teacherCount,
-            'total_sliders'        => $sliderCount,
-            'sliders_count'        => $sliderCount,
-            'total_flash_news'     => $flashCount,
-            'flash_news_count'     => $flashCount,
+            'total_news'                 => $newsCount,
+            'news_count'                 => $newsCount,
+            'total_circulars'            => $circularCount,
+            'circulars_count'            => $circularCount,
+            'total_downloads'            => $downloadCount,
+            'downloads_count'            => $downloadCount,
+            'total_gallery_albums'       => $albumCount,
+            'albums_count'               => $albumCount,
+            'total_office_bearers'       => $bearerCount,
+            'office_bearers_count'       => $bearerCount,
+            'state_leaders_count'        => $stateLeadersCount,
+            'former_state_leaders_count' => $formerStateLeadersCount,
+            'district_leaders_count'     => $districtLeadersCount,
+            'total_teachers'             => $teacherCount,
+            'teachers_count'             => $teacherCount,
+            'total_sliders'              => $sliderCount,
+            'sliders_count'              => $sliderCount,
+            'total_flash_news'           => $flashCount,
+            'flash_news_count'           => $flashCount,
         ];
 
         return $this->respondSuccess($payload, 'Admin dashboard summary retrieved.');
@@ -493,30 +505,126 @@ class AdminController extends BaseApiController
     // OFFICE BEARERS CRUD
     // ==========================================
 
+    public function officeBearerMetadata(): ResponseInterface
+    {
+        $model = model(OfficeBearer_model::class);
+        $model->ensureCoreDesignations();
+        $districtModel = model(\App\Models\District_model::class);
+
+        $sectionsPayload = [];
+        foreach (['state', 'former', 'district'] as $secKey) {
+            $meta = $model->getSectionMeta($secKey);
+            $desigMap = $model->getDesignationsForSection($secKey);
+            $labelToId = [];
+            foreach ($desigMap as $dId => $dLabel) {
+                $labelToId[strtolower($dLabel)] = (int)$dId;
+            }
+
+            $rolesList = [];
+            foreach ($meta['roles'] as $slug => $role) {
+                $rolesList[] = [
+                    'slug'           => $slug,
+                    'label'          => $role['label'],
+                    'designation_id' => $labelToId[strtolower($role['label'])] ?? 0,
+                    'position'       => (int)$role['position'],
+                ];
+            }
+
+            $sectionsPayload[$secKey] = [
+                'key'       => $meta['key'],
+                'title'     => $meta['title'],
+                'level'     => $meta['level'],
+                'is_former' => (bool)$meta['is_former'],
+                'roles'     => $rolesList,
+            ];
+        }
+
+        $districtRows = $districtModel->getAllDistrict(['limit' => 50]) ?: [];
+        $districts = array_map(function ($d) {
+            return [
+                'id'   => (int)($d['id'] ?? 0),
+                'name' => $d['district'] ?? '',
+            ];
+        }, $districtRows);
+
+        return $this->respondSuccess([
+            'sections'  => $sectionsPayload,
+            'districts' => $districts,
+        ], 'Office bearer metadata retrieved.');
+    }
+
     public function listOfficeBearers(): ResponseInterface
     {
         $model = model(OfficeBearer_model::class);
+        $section = strtolower(trim((string)($this->request->getGet('section') ?? '')));
+        $roleSlug = strtolower(trim((string)($this->request->getGet('role') ?? '')));
+        $district = trim((string)($this->request->getGet('district') ?? ''));
+        $search = trim((string)($this->request->getGet('search') ?? ''));
+
         $params = [
             'limit' => 500,
         ];
-        if ($this->request->getGet('level')) {
-            $params['level'] = $this->request->getGet('level');
+
+        if ($section !== '' && in_array($section, ['state', 'former', 'district'], true)) {
+            $meta = $model->getSectionMeta($section);
+            $params['level'] = $meta['level'];
+            $params['is_former'] = $meta['is_former'];
+            if ($roleSlug !== '') {
+                $model->applySectionRoleParam($params, $section, $roleSlug);
+            }
+            if ($section === 'district' && $district !== '') {
+                $params['exact_district'] = $district;
+            }
+        } else {
+            if ($this->request->getGet('level')) {
+                $params['level'] = $this->request->getGet('level');
+            }
+            if ($this->request->getGet('is_former') !== null && $this->request->getGet('is_former') !== '') {
+                $params['is_former'] = (int)$this->request->getGet('is_former');
+            }
+            if ($district !== '') {
+                $params['district'] = $district;
+            }
+        }
+
+        if ($search !== '') {
+            $params['search'] = $search;
         }
 
         $raw = $model->getAll($params) ?: [];
-        $items = array_map(function ($row) {
+        $items = array_map(function ($row) use ($section) {
+            $desigName = $row['designation'] ?? '';
+            $roleLabel = $desigName;
+            if (($section === 'district' || ($row['level'] ?? '') === 'District') && strtoupper(trim((string)$desigName)) === 'GENERAL SECRETARY') {
+                $roleLabel = 'Secretary';
+            }
+
+            $prevPos = [];
+            if (!empty($row['previous_positions'])) {
+                $decoded = is_array($row['previous_positions']) ? $row['previous_positions'] : json_decode((string)$row['previous_positions'], true);
+                if (is_array($decoded)) {
+                    $prevPos = $decoded;
+                }
+            }
+
+            $imgFile = !empty($row['image']) ? $row['image'] : (!empty($row['photo']) ? $row['photo'] : '');
+
             return [
-                'id'              => (int)$row['id'],
-                'name'            => $row['name'] ?? '',
-                'designation_id'  => (int)($row['designation'] ?? 0),
-                'designation'     => $row['designation_name'] ?? $row['designation'] ?? '',
-                'phone'           => !empty($row['phone']) ? (string)$row['phone'] : null,
-                'email'           => $row['email'] ?? null,
-                'level'           => $row['level'] ?? 'State',
-                'section_heading' => $row['section_heading'] ?? null,
-                'is_former'       => (bool)($row['is_former'] ?? false),
-                'is_publish'      => (bool)($row['is_publish'] ?? false),
-                'photo_url'       => !empty($row['photo']) ? $this->formatFileUrl('uploads/office_bearer/' . $row['photo']) : null,
+                'id'                 => (int)$row['id'],
+                'name'               => $row['name'] ?? '',
+                'designation_id'     => (int)($row['designationId'] ?? $row['designation'] ?? 0),
+                'designation'        => $roleLabel,
+                'phone'              => !empty($row['phone']) ? (string)$row['phone'] : null,
+                'email'              => $row['email'] ?? null,
+                'level'              => $row['level'] ?? 'State',
+                'section_heading'    => $row['section_heading'] ?? null,
+                'district'           => ($row['level'] ?? 'State') === 'District' ? ($row['section_heading'] ?? null) : null,
+                'year'               => $row['year'] ?? null,
+                'position'           => (int)($row['position'] ?? 25),
+                'is_former'          => (bool)($row['is_former'] ?? false),
+                'is_publish'         => (bool)($row['is_publish'] ?? false),
+                'previous_positions' => $prevPos,
+                'photo_url'          => $imgFile !== '' ? $this->formatFileUrl('uploads/office_bearer/' . $imgFile) : null,
             ];
         }, $raw);
 
@@ -532,16 +640,54 @@ class AdminController extends BaseApiController
             return $this->respondValidationFailed(['name' => ['Name is required.']]);
         }
 
+        $model = model(OfficeBearer_model::class);
+        $model->ensureCoreDesignations();
+
+        $section = strtolower(trim((string)($json['section'] ?? '')));
+        if ($section !== '' && in_array($section, ['state', 'former', 'district'], true)) {
+            $meta = $model->getSectionMeta($section);
+            $level = $meta['level'];
+            $isFormer = $meta['is_former'];
+        } else {
+            $level = $json['level'] ?? 'State';
+            $isFormer = !empty($json['is_former']) ? 1 : 0;
+            $section = $level === 'District' ? 'district' : ($isFormer ? 'former' : 'state');
+        }
+
+        $designationId = (int)($json['designation_id'] ?? $json['designation'] ?? 1);
+        $allowed = $model->getDesignationsForSection($section);
+        if (!isset($allowed[$designationId])) {
+            return $this->respondValidationFailed(['designation_id' => ['Selected role is not valid for this section.']]);
+        }
+
+        $sectionHeading = trim((string)($json['section_heading'] ?? $json['district'] ?? ''));
+        if ($level === 'District') {
+            if ($sectionHeading === '') {
+                return $this->respondValidationFailed(['district' => ['District is required for District Leaders.']]);
+            }
+        } else if ($level === 'State' && $sectionHeading === '') {
+            $sectionHeading = $model->getDefaultSectionHeadingForDesignation($designationId);
+        }
+
+        if ($model->isSingleDesignation($designationId, $isFormer, $level, $level === 'District' ? $sectionHeading : null)) {
+            return $this->respondValidationFailed([
+                'designation_id' => ['This single-seat designation already exists in this scope. Please edit the existing leader instead.'],
+            ]);
+        }
+
+        $imgFile = trim((string)($json['image'] ?? $json['photo'] ?? ''));
+
         $data = [
             'name'            => $name,
-            'designation'     => (int)($json['designation_id'] ?? 1),
-            'phone'           => $json['phone'] ?? null,
-            'email'           => $json['email'] ?? null,
-            'level'           => $json['level'] ?? 'State',
-            'section_heading' => $json['section_heading'] ?? null,
-            'is_former'       => !empty($json['is_former']) ? 1 : 0,
-            'is_publish'      => !empty($json['is_publish']) ? 1 : 0,
-            'photo'           => $json['photo'] ?? null,
+            'designation'     => $designationId,
+            'phone'           => !empty($json['phone']) ? trim((string)$json['phone']) : null,
+            'email'           => !empty($json['email']) ? trim((string)$json['email']) : null,
+            'level'           => $level,
+            'section_heading' => $sectionHeading,
+            'year'            => trim((string)($json['year'] ?? '')),
+            'is_former'       => $isFormer,
+            'is_publish'      => isset($json['is_publish']) ? (!empty($json['is_publish']) ? 1 : 0) : 1,
+            'image'           => $imgFile,
             'position'        => (int)($json['position'] ?? 25),
             'created_at'      => date('Y-m-d H:i:s'),
         ];
@@ -555,38 +701,81 @@ class AdminController extends BaseApiController
 
     public function updateOfficeBearer(int $id): ResponseInterface
     {
+        $db = \Config\Database::connect();
+        $existing = $db->table('office_bearer')->where('id', $id)->get()->getRowArray();
+        if (!$existing) {
+            return $this->respondNotFound('Office bearer not found.');
+        }
+
+        $model = model(OfficeBearer_model::class);
         $json = $this->request->getJSON(true) ?? $this->request->getRawInput();
+
+        $section = strtolower(trim((string)($json['section'] ?? '')));
         $update = [];
+
+        if ($section !== '' && in_array($section, ['state', 'former', 'district'], true)) {
+            $meta = $model->getSectionMeta($section);
+            $update['level'] = $meta['level'];
+            $update['is_former'] = $meta['is_former'];
+        } else {
+            if (isset($json['level'])) {
+                $update['level'] = $json['level'];
+            }
+            if (isset($json['is_former'])) {
+                $update['is_former'] = !empty($json['is_former']) ? 1 : 0;
+            }
+        }
+
         if (isset($json['name'])) {
-            $update['name'] = trim((string)$json['name']);
+            $name = trim((string)$json['name']);
+            if ($name === '') {
+                return $this->respondValidationFailed(['name' => ['Name cannot be empty.']]);
+            }
+            $update['name'] = $name;
         }
-        if (isset($json['designation_id'])) {
-            $update['designation'] = (int)$json['designation_id'];
+        if (isset($json['designation_id']) || isset($json['designation'])) {
+            $update['designation'] = (int)($json['designation_id'] ?? $json['designation']);
         }
-        if (isset($json['phone'])) {
-            $update['phone'] = $json['phone'];
+        if (array_key_exists('phone', $json)) {
+            $update['phone'] = !empty($json['phone']) ? trim((string)$json['phone']) : null;
         }
-        if (isset($json['email'])) {
-            $update['email'] = $json['email'];
+        if (array_key_exists('email', $json)) {
+            $update['email'] = $json['email'] !== null ? trim((string)$json['email']) : null;
         }
-        if (isset($json['level'])) {
-            $update['level'] = $json['level'];
+        if (isset($json['district']) || isset($json['section_heading'])) {
+            $update['section_heading'] = trim((string)($json['district'] ?? $json['section_heading']));
         }
-        if (isset($json['section_heading'])) {
-            $update['section_heading'] = $json['section_heading'];
+        if (isset($json['year'])) {
+            $update['year'] = trim((string)$json['year']);
         }
-        if (isset($json['is_former'])) {
-            $update['is_former'] = !empty($json['is_former']) ? 1 : 0;
+        if (isset($json['position'])) {
+            $update['position'] = (int)$json['position'];
         }
         if (isset($json['is_publish'])) {
             $update['is_publish'] = !empty($json['is_publish']) ? 1 : 0;
         }
-        if (isset($json['photo'])) {
-            $update['photo'] = $json['photo'];
+        if (isset($json['image']) || isset($json['photo'])) {
+            $update['image'] = trim((string)($json['image'] ?? $json['photo']));
         }
 
-        $db = \Config\Database::connect();
-        $db->table('office_bearer')->where('id', $id)->update($update);
+        $effectiveLevel = $update['level'] ?? ($existing['level'] ?? 'State');
+        $effectiveFormer = $update['is_former'] ?? (int)($existing['is_former'] ?? 0);
+        $effectiveDesig = $update['designation'] ?? (int)($existing['designation'] ?? 0);
+        $effectiveHeading = $update['section_heading'] ?? ($existing['section_heading'] ?? '');
+
+        if ($effectiveLevel === 'District' && trim((string)$effectiveHeading) === '') {
+            return $this->respondValidationFailed(['district' => ['District is required for District Leaders.']]);
+        }
+
+        if ($model->isSingleDesignation($effectiveDesig, $effectiveFormer, $effectiveLevel, $effectiveLevel === 'District' ? $effectiveHeading : null, $id)) {
+            return $this->respondValidationFailed([
+                'designation_id' => ['This single-seat designation already exists in this scope.'],
+            ]);
+        }
+
+        if (!empty($update)) {
+            $db->table('office_bearer')->where('id', $id)->update($update);
+        }
 
         return $this->respondSuccess(['id' => $id], 'Office bearer updated.');
     }
@@ -1093,5 +1282,79 @@ class AdminController extends BaseApiController
         $db = \Config\Database::connect();
         $db->table('result_link')->where('id', $id)->update(['is_delete' => 1]);
         return $this->respondSuccess(null, 'Result link marked as deleted.');
+    }
+
+    /**
+     * GET /api/v1/admin/settings
+     * Global settings including Reaction Gallery Auto-Popup.
+     */
+    public function getSettings(): ResponseInterface
+    {
+        $settingsModel = model(\App\Models\Settings_model::class);
+        $rollover = $settingsModel->get('rollover_month') ?: 2;
+        $popupEnabled = $settingsModel->get('reaction_popup_enabled');
+        $popupDuration = $settingsModel->get('reaction_popup_duration');
+        $popupSource = $settingsModel->get('reaction_popup_source');
+        $popupStart = $settingsModel->get('reaction_popup_start_date');
+        $popupEnd = $settingsModel->get('reaction_popup_end_date');
+
+        return $this->respondSuccess([
+            'rollover_month'            => (int)$rollover,
+            'reaction_popup_enabled'    => ($popupEnabled === false || $popupEnabled === null) ? 1 : (int)$popupEnabled,
+            'reaction_popup_duration'   => ($popupDuration !== false && $popupDuration !== null) ? (int)$popupDuration : 20,
+            'reaction_popup_source'     => in_array($popupSource, ['both', 'reaction_gallery', 'news'], true) ? $popupSource : 'both',
+            'reaction_popup_start_date' => ($popupStart !== false && $popupStart !== null) ? trim((string)$popupStart) : '',
+            'reaction_popup_end_date'   => ($popupEnd !== false && $popupEnd !== null) ? trim((string)$popupEnd) : '',
+        ], 'Settings retrieved successfully.');
+    }
+
+    /**
+     * POST /api/v1/admin/settings
+     * Update global settings including Reaction Gallery Auto-Popup.
+     */
+    public function updateSettings(): ResponseInterface
+    {
+        $settingsModel = model(\App\Models\Settings_model::class);
+        $json = $this->request->getJSON(true) ?? $this->request->getRawInput();
+
+        if (isset($json['rollover_month'])) {
+            $month = (int)$json['rollover_month'];
+            if ($month >= 1 && $month <= 12) {
+                $settingsModel->update('rollover_month', $month);
+            }
+        }
+
+        if (isset($json['reaction_popup_enabled'])) {
+            $enabled = !empty($json['reaction_popup_enabled']) ? 1 : 0;
+            $settingsModel->update('reaction_popup_enabled', $enabled);
+        }
+
+        if (isset($json['reaction_popup_duration'])) {
+            $duration = (int)$json['reaction_popup_duration'];
+            if ($duration < 1) $duration = 20;
+            $settingsModel->update('reaction_popup_duration', $duration);
+        }
+
+        if (isset($json['reaction_popup_source'])) {
+            $source = trim((string)$json['reaction_popup_source']);
+            if (!in_array($source, ['both', 'reaction_gallery', 'news'], true)) {
+                $source = 'both';
+            }
+            $settingsModel->update('reaction_popup_source', $source);
+        }
+
+        if (array_key_exists('reaction_popup_start_date', $json)) {
+            $start = trim((string)$json['reaction_popup_start_date']);
+            $dt = $start !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $start) : false;
+            $settingsModel->update('reaction_popup_start_date', ($dt && $dt->format('Y-m-d') === $start) ? $start : '');
+        }
+
+        if (array_key_exists('reaction_popup_end_date', $json)) {
+            $end = trim((string)$json['reaction_popup_end_date']);
+            $dt = $end !== '' ? \DateTimeImmutable::createFromFormat('Y-m-d', $end) : false;
+            $settingsModel->update('reaction_popup_end_date', ($dt && $dt->format('Y-m-d') === $end) ? $end : '');
+        }
+
+        return $this->respondSuccess(null, 'Settings updated successfully.');
     }
 }

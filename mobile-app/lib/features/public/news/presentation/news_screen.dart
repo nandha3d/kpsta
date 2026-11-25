@@ -11,10 +11,11 @@ import '../../../../core/widgets/search_field.dart';
 import '../../../auth/presentation/auth_providers.dart';
 
 final newsListFamilyProvider =
-    FutureProvider.family.autoDispose<List<dynamic>, String>((ref, query) async {
+    FutureProvider.family<List<dynamic>, String>((ref, query) async {
   final client = ref.watch(apiClientProvider);
   final response = await client.get(
     ApiConstants.news,
+    cacheDuration: const Duration(minutes: 5),
     queryParameters: {
       if (query.isNotEmpty) 'q': query,
       'limit': 50,
@@ -38,6 +39,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
     final newsAsync = ref.watch(newsListFamilyProvider(_searchQuery));
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: const AppTopBar(
         title: 'News & Announcements',
         showBackButton: false,

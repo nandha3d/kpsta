@@ -157,14 +157,17 @@
       </div>
 
       <div class="circular-list">
-        <?php foreach($orderGroup as $order) { ?>
+        <?php foreach($orderGroup as $order) { 
+          $link = !empty($order['path']) ? (($order['upload_type'] == 'file') ? base_url('uploads/order_circular/'.$order['path']) : $order['path']) : '';
+          $cleanDesc = trim(strip_tags($order['description']));
+          $waShareLink = !empty($link) ? $link : base_url('order-circular');
+          $waText = "*KPSTA - Order & Circular*\n" . $cleanDesc . "\n" . $waShareLink;
+          $waUrl = 'https://api.whatsapp.com/send?text=' . rawurlencode($waText);
+        ?>
         <div class="circular-item">
           <div class="circular-date"><?php echo date('d', strtotime($order['date_unformat'])); ?></div>
           <div class="circular-content">
-            <?php 
-            if(!empty($order['path'])) { 
-                $link = ($order['upload_type'] == 'file') ? base_url('uploads/order_circular/'.$order['path']) : $order['path'];
-            ?>
+            <?php if(!empty($link)) { ?>
               <a href="<?php echo $link; ?>" target="_blank" class="circular-title" style="color:inherit; text-decoration:none;"><?php echo $order['description']; ?></a>
             <?php } else { ?>
               <span class="circular-title"><?php echo $order['description']; ?></span>
@@ -178,6 +181,13 @@
                 <?php echo htmlspecialchars($order['category']); ?>
               </a>
             <?php endif; ?>
+          </div>
+          <div class="circular-share">
+            <a href="<?php echo $waUrl; ?>" target="_blank" rel="noopener noreferrer" class="btn-whatsapp-circle" title="Share on WhatsApp" aria-label="Share on WhatsApp">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm0 18.15c-1.38 0-2.74-.35-3.94-1.06l-.29-.17-3.12.82.83-3.04-.19-.31a8.19 8.19 0 0 1-1.25-4.48c0-4.54 3.69-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.82c0 4.54-3.7 8.24-8.24 8.24zm4.51-6.17c-.25-.12-1.47-.72-1.7-.8-.23-.08-.4-.12-.56.12-.17.25-.64.8-.79.97-.14.16-.29.19-.53.07-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.22-1.46-1.36-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.17-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.83-.2-.48-.4-.42-.56-.43h-.48c-.16 0-.43.06-.65.3-.23.25-.87.85-.87 2.07s.89 2.4 1.01 2.56c.13.17 1.74 2.66 4.22 3.73.59.25 1.05.4 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.06-.11-.23-.17-.48-.29z"/>
+              </svg>
+            </a>
           </div>
         </div>
         <?php } ?>

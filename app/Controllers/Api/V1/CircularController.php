@@ -25,25 +25,27 @@ class CircularController extends BaseApiController
 
     /**
      * GET /api/v1/order-circulars
-     * Query params: type (general|hse|vhse), category, search, year, month, page, per_page
+     * Query params: type (all|general|hse|vhse), category, search/q, year, month, page, per_page/limit
      */
     public function index(): ResponseInterface
     {
         $circularModel = model(OrderCircular_model::class);
 
-        $typeStr = (string)($this->request->getGet('type') ?: 'general');
-        $typeId = $this->resolveTypeId($typeStr);
+        $rawType = strtolower(trim((string)($this->request->getGet('type') ?? 'all')));
+        $typeId = ($rawType === '' || $rawType === 'all') ? null : $this->resolveTypeId($rawType);
 
         $page = max(1, (int)$this->request->getGet('page'));
-        $perPage = min(100, max(1, (int)($this->request->getGet('per_page') ?: 20)));
+        $perPage = min(100, max(1, (int)($this->request->getGet('per_page') ?: $this->request->getGet('limit') ?: 50)));
         $offset = ($page - 1) * $perPage;
+
+        $search = $this->request->getGet('search') ?: $this->request->getGet('q') ?: null;
 
         $params = [
             'type'     => $typeId,
             'limit'    => $perPage,
             'offset'   => $offset,
             'category' => $this->request->getGet('category') ?: null,
-            'search'   => $this->request->getGet('search') ?: null,
+            'search'   => $search,
             'year'     => $this->request->getGet('year') ?: null,
             'month'    => $this->request->getGet('month') ?: null,
         ];
@@ -64,7 +66,8 @@ class CircularController extends BaseApiController
         }, $rawList);
 
         $meta = $this->buildPaginationMeta($page, $perPage, $total);
-        $meta['filter_type'] = $typeStr;
+        $meta['filter_type'] = $rawType ?: 'all';
+        $meta['years'] = $circularModel->getAvailableYears($typeId);
 
         return $this->respondSuccess($items, 'Order and circulars retrieved successfully.', $meta);
     }

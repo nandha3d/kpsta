@@ -58,8 +58,8 @@ class AppController extends BaseController
 
 
             //delete cached home page
-            if (preg_match('(order-circular|news|gallery|quicklink|slider|reaction_gallery|flash_news|office_bearer)', $this->uri->uri_string()) === 1) {
-                if (preg_match('(add|update|publish)', $this->uri->uri_string()) === 1) {
+            if (preg_match('(order-circular|news|gallery|quicklink|slider|reaction_gallery|flash_news|office_bearer|state_leaders|former_state_leaders|district_leaders|settings)', $this->uri->uri_string()) === 1) {
+                if (preg_match('(add|update|publish|settings)', $this->uri->uri_string()) === 1) {
                     $this->deleteCachedPage('/home');
                     $this->deleteCachedPage('/');
                 }

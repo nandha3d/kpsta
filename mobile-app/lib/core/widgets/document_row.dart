@@ -50,24 +50,38 @@ class DocumentRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final formattedDate = _formatDate(date);
 
-    return InkWell(
-      onTap: onTap ?? _openFile,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: const BoxDecoration(
-          color: AppColors.white,
-          border: Border(
-            bottom: BorderSide(color: AppColors.border, width: 0.8),
-          ),
-        ),
-        child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap ?? _openFile,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.95),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primaryDark.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // PDF/Document Icon
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
+                color: AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(
@@ -169,6 +183,7 @@ class DocumentRow extends StatelessWidget {
 
             if (onEdit != null || onDelete != null)
               PopupMenuButton<String>(
+                color: Colors.white,
                 icon: const Icon(Icons.more_vert, color: AppColors.textMuted),
                 onSelected: (val) {
                   if (val == 'edit') onEdit?.call();
@@ -201,8 +216,10 @@ class DocumentRow extends StatelessWidget {
                     ),
                 ],
               ),
-          ],
+            ],
+          ),
         ),
+      ),
       ),
     );
   }

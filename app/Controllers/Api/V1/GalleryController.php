@@ -38,7 +38,7 @@ class GalleryController extends BaseApiController
                 'name'        => $a['name'] ?? '',
                 'description' => $a['description'] ?? '',
                 'image_count' => (int)($a['iCount'] ?? 0),
-                'cover_image' => !empty($a['coverImage']) ? $this->formatFileUrl('uploads/gallery/' . $a['coverImage']) : null,
+                'cover_image' => !empty($a['coverImage']) ? $this->formatGalleryImageUrl($a['coverImage'], 'thumb') : null,
                 'created_at'  => $this->formatIsoDate($a['created_at'] ?? null),
             ];
         }, $pagedSlice);
@@ -69,7 +69,8 @@ class GalleryController extends BaseApiController
             return [
                 'id'         => (int)($img['id'] ?? 0),
                 'caption'    => $img['caption'] ?? '',
-                'image_url'  => $this->formatFileUrl('uploads/gallery/' . ($img['image'] ?? '')),
+                'image_url'  => $this->formatGalleryImageUrl($img['image'] ?? '', 'original'),
+                'thumb_url'  => $this->formatGalleryImageUrl($img['image'] ?? '', 'thumb'),
                 'is_cover'   => !empty($img['is_cover']),
                 'created_at' => $this->formatIsoDate($img['created_at'] ?? null),
             ];
@@ -106,7 +107,8 @@ class GalleryController extends BaseApiController
             return [
                 'id'         => (int)($img['id'] ?? 0),
                 'caption'    => $img['caption'] ?? '',
-                'image_url'  => $this->formatFileUrl('uploads/gallery/' . ($img['image'] ?? '')),
+                'image_url'  => $this->formatGalleryImageUrl($img['image'] ?? '', 'original'),
+                'thumb_url'  => $this->formatGalleryImageUrl($img['image'] ?? '', 'thumb'),
                 'is_cover'   => !empty($img['is_cover']),
                 'created_at' => $this->formatIsoDate($img['created_at'] ?? null),
             ];

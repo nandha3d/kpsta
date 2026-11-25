@@ -150,7 +150,7 @@ class District extends AppController {
         $id = $this->uri->segment(4);
         //validation FALSE
         if ($this->form_validation->run() == FALSE) {
-            $url = base_url('admin/office_bearer/update/' . $id);
+            $url = base_url('admin/district/update/' . $id);
             $data['code'] = 'error';
             $data['form'] = $this->createForm($url, $formValues, 'Edit');
             echo json_encode($data);
@@ -194,9 +194,9 @@ class District extends AppController {
             mkdir(OFFICE_BEARER, 0777, true);
         }
 
-        //upload pdf
+        //upload photo
         $config['upload_path'] = './' . OFFICE_BEARER;
-        $config['allowed_types'] = 'jpg|jpeg';
+        $config['allowed_types'] = 'jpg|jpeg|png|gif';
         $config['max_size'] = 0;
         $config['encrypt_name'] = TRUE;
         $this->load->library('upload');
@@ -410,17 +410,20 @@ class District extends AppController {
         }
 
 
-        $uploadData = $this->uploadImage();
-        if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
-            $data['code'] = 'error';
-            $formValues['error'] = $uploadData['error'];
-            $data['form'] = $this->createFormDistrictOfficeBearer(base_url('admin/district/' . $districtId . '/add'), $formValues);
-            echo json_encode($data);
-            exit;
+        $formValues['image'] = '';
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $uploadData = $this->uploadImage();
+            if (isset($uploadData['code']) && $uploadData['code'] === 'error') {
+                $data['code'] = 'error';
+                $formValues['error'] = $uploadData['error'];
+                $data['form'] = $this->createFormDistrictOfficeBearer(base_url('admin/district/' . $districtId . '/add'), $formValues);
+                echo json_encode($data);
+                exit;
+            }
+            $formValues['image'] = $uploadData['file_name'];
         }
 
         //Insert values
-        $formValues['image'] = $uploadData['file_name'];
         $formValues['district'] = $districtId;
         $add = $this->District_model->addDistrictOfficeBearer($formValues);
         if ($add) {
@@ -440,6 +443,7 @@ class District extends AppController {
         $this->form_validation->set_rules('designation', 'Designation', 'trim|required');
         $this->form_validation->set_rules('email', 'Email', 'trim');
         $this->form_validation->set_rules('phone', 'Phone', 'trim');
+        $this->form_validation->set_rules('year', 'Year', 'trim');
 
         $this->form_validation->set_error_delimiters("<p>", "</p>");
         //set all form values into array
@@ -448,6 +452,10 @@ class District extends AppController {
             'designation' => $this->input->post('designation'),
             'email' => $this->input->post('email'),
             'phone' => $this->input->post('phone') ? $this->input->post('phone') : NULL,
+            'year' => $this->input->post('year') ? trim((string)$this->input->post('year')) : '',
+            'is_former' => $this->input->post('is_former') ? (int)$this->input->post('is_former') : 0,
+            'position' => $this->input->post('position') ? (int)$this->input->post('position') : 25,
+            'is_publish' => ($this->input->post('is_publish') !== null && $this->input->post('is_publish') !== '') ? (int)$this->input->post('is_publish') : 1,
         ];
 
         return $formValues;

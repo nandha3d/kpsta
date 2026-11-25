@@ -153,6 +153,7 @@ class _AdminNewsScreenState extends ConsumerState<AdminNewsScreen> {
                             ],
                           ),
                           trailing: PopupMenuButton<String>(
+                            color: Colors.white,
                             icon: const Icon(Icons.more_vert),
                             onSelected: (val) {
                               if (val == 'edit') {

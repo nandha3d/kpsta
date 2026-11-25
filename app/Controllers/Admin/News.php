@@ -128,6 +128,9 @@ class News extends AppController {
         $formValues['created_at'] = date("Y-m-d H:i:s");
         $add = $this->news_model->addNews($formValues);
         if ($add) {
+            if ((int)$formValues['publish'] === 1) {
+                \App\Libraries\PushDispatcher::notifyNews((int)$add, (string)$formValues['heading']);
+            }
             $data['lastId'] = $add;
             $data['content'] = $this->getContent();
             $data['code'] = 'success';
@@ -219,6 +222,9 @@ class News extends AppController {
 
         //update news
         $this->news_model->update($id, $formValues);
+        if ((int)$formValues['publish'] === 1 && (int)($newsInfo['publish'] ?? 0) !== 1) {
+            \App\Libraries\PushDispatcher::notifyNews((int)$id, (string)$formValues['heading']);
+        }
         $data['code'] = 'success';
         $data['lastId'] = $id;
         $data['content'] = $this->getContent();
@@ -240,6 +246,12 @@ class News extends AppController {
             $publish = $this->input->post('publish');
 
             $this->news_model->publish($id, $publish);
+            if ((int)$publish === 1) {
+                $newsInfo = $this->news_model->getNews($id);
+                if ($newsInfo) {
+                    \App\Libraries\PushDispatcher::notifyNews((int)$id, (string)($newsInfo['heading'] ?? ''));
+                }
+            }
             echo true;
             exit;
         }

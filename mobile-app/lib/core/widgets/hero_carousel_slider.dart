@@ -90,6 +90,7 @@ class _HeroCarouselSliderState extends State<HeroCarouselSlider> {
               itemBuilder: (ctx, idx) {
                 final slider = widget.sliders.isNotEmpty ? widget.sliders[idx] : null;
                 final imgUrl = slider?['image_url']?.toString() ?? '';
+                final bool isFirstSlide = idx == 0;
 
                 return Stack(
                   fit: StackFit.expand,
@@ -110,79 +111,104 @@ class _HeroCarouselSliderState extends State<HeroCarouselSlider> {
                       ),
                     ),
 
-                    // Translucent Dark Gradient Overlay
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            const Color(0xFF082E34).withValues(alpha: 0.75),
-                            const Color(0xFF02171B).withValues(alpha: 0.85),
-                          ],
+                    if (isFirstSlide) ...[
+                      // Dark-tinted Tricolour Scrim (keeps white text crisp & flag vibrant)
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              const Color(0xFF4A1C06).withValues(alpha: 0.78),
+                              const Color(0xFF0A161A).withValues(alpha: 0.80),
+                              const Color(0xFF0A300E).withValues(alpha: 0.78),
+                            ],
+                            stops: const [0.0, 0.5, 1.0],
+                          ),
                         ),
                       ),
-                    ),
 
-                    // Overlay Content matching Web Hero Banner
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/flag.png',
-                              height: 38,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'KPSTA',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: 1.5,
-                                height: 1.1,
+                      // Overlay Content matching Web Hero Banner (Slide 1 only)
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/images/flag.png',
+                                height: 48,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                               ),
-                            ),
-                            const Text(
-                              "Kerala Pradesh School Teacher's Association",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                                letterSpacing: 0.3,
+                              const SizedBox(height: 6),
+                              const Text(
+                                'KPSTA',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: 1.5,
+                                  height: 1.1,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              'UNITE FOR QUALITY EDUCATION',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                letterSpacing: 0.6,
+                              const Text(
+                                "Kerala Pradesh School Teacher's Association",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  letterSpacing: 0.3,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            const Text(
-                              'Better education for a better world',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 11.5,
-                                color: Colors.white70,
-                                fontStyle: FontStyle.italic,
+                              const SizedBox(height: 10),
+                              const Text(
+                                'UNITE FOR QUALITY EDUCATION',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                  letterSpacing: 0.6,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 2),
+                              const Text(
+                                'Better education for a better world',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: Colors.white70,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                    ] else
+                      // Subsequent slides: NO dark/tricolour screen and NO text — ONLY the flag
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                Colors.black.withValues(alpha: 0.32),
+                                Colors.black.withValues(alpha: 0.0),
+                              ],
+                            ),
+                          ),
+                          child: Image.asset(
+                            'assets/images/flag.png',
+                            height: 76,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          ),
+                        ),
+                      ),
                   ],
                 );
               },

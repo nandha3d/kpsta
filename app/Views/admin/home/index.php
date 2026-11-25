@@ -6,7 +6,9 @@
  * it feeds, so an editor can jump straight from editing to verifying.
  */
 $stats = array(
-    array((int) (isset($total_office_bearers) ? $total_office_bearers : 0), 'Office Bearers', 'fa-user', 'bg-primary-soft', 'admin/office_bearer'),
+    array((int) (isset($total_state_leaders) ? $total_state_leaders : (isset($total_office_bearers) ? $total_office_bearers : 0)), 'State Leaders', 'fa-user', 'bg-primary-soft', 'admin/state_leaders'),
+    array((int) (isset($total_former_leaders) ? $total_former_leaders : 0), 'Former State Leaders', 'fa-history', 'bg-info-soft', 'admin/former_state_leaders'),
+    array((int) (isset($total_district_leaders) ? $total_district_leaders : 0), 'District Leaders', 'fa-map-marker', 'bg-success-soft', 'admin/district_leaders'),
     array((int) (isset($total_news) ? $total_news : 0), 'Published News', 'fa-newspaper-o', 'bg-success-soft', 'admin/news'),
     array((int) (isset($total_orders) ? $total_orders : 0), 'Orders & Circulars', 'fa-book', 'bg-warning-soft', 'admin/order-circular/general'),
     array((int) (isset($total_downloads) ? $total_downloads : 0), 'Downloads', 'fa-download', 'bg-danger-soft', 'admin/download/forms'),
@@ -15,9 +17,10 @@ $stats = array(
 );
 
 $sections = array(
-    array('State Office Bearers', 'admin/office_bearer', 'OfficeBearer', 'fa-user'),
-    array('District Office Bearers', 'admin/district', 'District', 'fa-map-marker'),
-    array('Former Leaders', 'admin/office_bearer?is_former=1', 'former-leaders', 'fa-history'),
+    array('State Leaders', 'admin/state_leaders', 'OfficeBearer', 'fa-user'),
+    array('Former State Leaders', 'admin/former_state_leaders', 'former-leaders', 'fa-history'),
+    array('District Leaders', 'admin/district_leaders', 'District', 'fa-map-marker'),
+    array('Manage Districts', 'admin/district', 'District', 'fa-building'),
     array('Memorandums', 'admin/memorandums', 'memorandums', 'fa-file-text'),
     array('Notices & Posters', 'admin/notice_poster', 'notice_poster', 'fa-thumb-tack'),
     array('Latest News', 'admin/news', 'news', 'fa-newspaper-o'),
