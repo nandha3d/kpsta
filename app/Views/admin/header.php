@@ -214,8 +214,8 @@ if (!isset($page_title) || $page_title === '') {
                         </li>
 
                         <li class="flash_news-menu" >
-                            <a href="<?php echo site_url("admin/flash_news"); ?>" data-title="Flash News">
-                                <i class="fa fa-bolt"></i> <span>Flash News</span>
+                            <a href="<?php echo site_url("admin/flash_news"); ?>" data-title="KPSTA News / Flash Ticker">
+                                <i class="fa fa-bolt"></i> <span>KPSTA News (Flash Ticker)</span>
                             </a>
                         </li>
 

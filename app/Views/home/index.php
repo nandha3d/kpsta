@@ -487,11 +487,11 @@
         <button type="button" onclick="closeReactionPopup()" style="background:transparent; border:none; color:white; font-size:1.4rem; cursor:pointer; line-height:1;" aria-label="Close Popup">&times;</button>
       </div>
       <?php if (count($webPopupItems) > 1): ?>
-      <div style="display:flex; gap:6px; padding:8px 12px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; overflow-x:auto;">
+      <div style="display:flex; gap:8px; padding:10px 14px; background:#f8fafc; border-bottom:1px solid #e2e8f0; overflow-x:auto;">
         <?php foreach ($webPopupItems as $idx => $pItem): ?>
         <button type="button"
-          class="btn-outline"
-          style="flex:1; white-space:nowrap; padding:6px 10px; font-size:12px; font-weight:700; <?php echo $idx === 0 ? 'background:#016D77;color:#fff;border-color:#016D77;' : ''; ?>"
+          class="web-popup-tab-btn"
+          style="flex:1; white-space:nowrap; padding:9px 16px; font-size:13px; font-weight:700; border-radius:20px; cursor:pointer; transition:all 0.2s ease; <?php echo $idx === 0 ? 'background:#016D77; color:#ffffff; border:1.5px solid #016D77; box-shadow:0 2px 6px rgba(1,109,119,0.3);' : 'background:#e2e8f0; color:#1e293b; border:1.5px solid #cbd5e1;'; ?>"
           onclick="switchWebPopupTab(<?php echo $idx; ?>)"
           id="popupTabBtn<?php echo $idx; ?>">
           <?php echo htmlspecialchars($pItem['tab'] ?? $pItem['badge']); ?>
@@ -534,9 +534,10 @@
         <?php endif; ?>
       </div>
       <?php endforeach; ?>
-      <div class="reaction-popup-footer">
-        <button type="button" class="btn-outline" style="flex:1; padding:8px;" onclick="closeReactionPopup()">Close</button>
-        <a href="<?php echo $webPopupItems[0]['url']; ?>" id="popupCtaLink" class="btn-green" style="flex:1.5; padding:8px; text-align:center;"><?php echo $webPopupItems[0]['cta']; ?></a>
+      <div class="reaction-popup-footer" style="padding:14px 20px; background:#ffffff; border-top:1px solid #e2e8f0; display:flex; justify-content:center; align-items:center;">
+        <a href="<?php echo $webPopupItems[0]['url']; ?>" id="popupCtaLink" style="display:inline-flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, #016D77 0%, #008080 100%); color:#ffffff !important; font-size:14.5px; font-weight:700; text-decoration:none; padding:11px 32px; border-radius:30px; box-shadow:0 4px 14px rgba(1,109,119,0.35); text-align:center; line-height:1.2; letter-spacing:0.3px; transition:transform 0.2s, box-shadow 0.2s;">
+          <span id="popupCtaText"><?php echo $webPopupItems[0]['cta']; ?></span>
+        </a>
       </div>
     </div>
   </div>
@@ -551,18 +552,25 @@
       webPopupMeta.forEach(function(_, i) {
         var btn = document.getElementById('popupTabBtn' + i);
         if (!btn) return;
-        btn.style.background = (i === idx) ? '#016D77' : '';
-        btn.style.color = (i === idx) ? '#fff' : '';
-        btn.style.borderColor = (i === idx) ? '#016D77' : '';
+        if (i === idx) {
+          btn.style.background = '#016D77';
+          btn.style.color = '#ffffff';
+          btn.style.borderColor = '#016D77';
+          btn.style.boxShadow = '0 2px 6px rgba(1,109,119,0.3)';
+        } else {
+          btn.style.background = '#e2e8f0';
+          btn.style.color = '#1e293b';
+          btn.style.borderColor = '#cbd5e1';
+          btn.style.boxShadow = 'none';
+        }
       });
       var titleEl = document.getElementById('popupHeaderTitle');
       var ctaEl = document.getElementById('popupCtaLink');
+      var ctaTextEl = document.getElementById('popupCtaText');
       if (webPopupMeta[idx]) {
         if (titleEl) titleEl.textContent = webPopupMeta[idx].badge;
-        if (ctaEl) {
-          ctaEl.setAttribute('href', webPopupMeta[idx].url);
-          ctaEl.textContent = webPopupMeta[idx].cta;
-        }
+        if (ctaEl) ctaEl.setAttribute('href', webPopupMeta[idx].url);
+        if (ctaTextEl) ctaTextEl.innerHTML = webPopupMeta[idx].cta;
       }
     }
     function closeReactionPopup() {
