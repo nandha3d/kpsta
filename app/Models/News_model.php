@@ -16,6 +16,14 @@ class News_model extends Ci3Model {
         return $this->db->insert_id();
     }
 
+    public function getAll($param = []) {
+        return $this->getAllNews($param);
+    }
+
+    public function getAllCount($param = []) {
+        return $this->getAllNewsCount($param);
+    }
+
     public function getAllNews($param) {
         $param['limit'] = isset($param['limit']) ? $param['limit'] : 10;
         $param['offset'] = isset($param['offset']) ? $param['offset'] : 0;

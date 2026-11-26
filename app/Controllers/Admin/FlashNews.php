@@ -16,7 +16,11 @@ class FlashNews extends AppController {
         /* loding model */
         $this->load->model("FlashNews_model");
 
-        $this->menuType = $this->getMenuType($this->uri->segment(3));
+        $seg3 = $this->uri->segment(3);
+        if (empty($seg3) || in_array($seg3, ['add', 'edit', 'update', 'delete', 'publish'], true)) {
+            $seg3 = 'kpsta';
+        }
+        $this->menuType = $this->getMenuType($seg3);
     }
 
     public function index() {
@@ -31,7 +35,8 @@ class FlashNews extends AppController {
             exit;
         }
 
-        $data['form'] = $this->createForm(base_url('admin/flash_news/' . $this->uri->segment(3) . '/add'));
+        $slug = !empty($this->menuType['slug']) ? $this->menuType['slug'] : 'kpsta';
+        $data['form'] = $this->createForm(base_url('admin/flash_news/' . $slug . '/add'));
 
         $footer['special_js'] = ['js/download.js'];
 
@@ -45,7 +50,9 @@ class FlashNews extends AppController {
 
         $content['menuType'] = $this->menuType;
 
-        $param['news_type'] = $content['menuType']['type'];
+        if (!empty($content['menuType']['type'])) {
+            $param['news_type'] = $content['menuType']['type'];
+        }
         $param['limit'] = 10;
         $param['search'] = trim((string)$this->input->get('search'));
         $param['page'] = (int)($this->input->get('page') && $this->input->get('page') !== 'undefined' ? $this->input->get('page') : 1);
@@ -53,7 +60,8 @@ class FlashNews extends AppController {
 
         //PAGINATION CONFIGS
         $config["total_rows"] = $this->FlashNews_model->getAllCount($param);
-        $config["base_url"] = base_url() . "admin/flash_news/" . $this->uri->segment(3);
+        $slug = !empty($this->menuType['slug']) ? $this->menuType['slug'] : 'kpsta';
+        $config["base_url"] = base_url() . "admin/flash_news/" . $slug;
         $config["per_page"] = $param['limit'];
 
         $configBootrap = $this->BootsrapPaginationConfig();
@@ -76,9 +84,10 @@ class FlashNews extends AppController {
     }
 
     public function createForm($url, $formValues = false, $title = "Add Flash News") {
+        $slug = !empty($this->menuType['slug']) ? $this->menuType['slug'] : 'kpsta';
         $data['title'] = $title;
         $data['url'] = $url;
-        $data['addUrl'] = base_url('admin/flash_news/' . $this->uri->segment(3) . '/add');
+        $data['addUrl'] = base_url('admin/flash_news/' . $slug . '/add');
         $data['formValues'] = $formValues;
 
         return $this->load->view('admin/flashNews/form', $data, TRUE);
@@ -91,25 +100,26 @@ class FlashNews extends AppController {
 
     public function add() {
         $formValues = $this->formValidation();
+        $slug = !empty($this->menuType['slug']) ? $this->menuType['slug'] : 'kpsta';
 
         //validation FALSE
         if ($this->form_validation->run() == FALSE) {
             $data['code'] = 'error';
-            $url = base_url('admin/flash_news/' . $this->uri->segment(3) . '/add');
+            $url = base_url('admin/flash_news/' . $slug . '/add');
             $data['form'] = $this->createForm($url, $formValues);
             echo json_encode($data);
             exit;
         }
 
         //Insert values
-        $formValues['news_type'] = $this->menuType['type'];
+        $formValues['news_type'] = !empty($this->menuType['type']) ? $this->menuType['type'] : 1;
         $add = $this->FlashNews_model->add($formValues);
         if ($add) {
             $data['code'] = 'success';
             $data['lastId'] = $add;
             $data['content'] = $this->getContent();
         } else {
-            $data['code'] = 'success';
+            $data['code'] = 'error';
             $data['data'] = 'Something went wrong! Pls try again';
         }
         echo json_encode($data);
@@ -155,9 +165,13 @@ class FlashNews extends AppController {
         $data['code'] = 'error';
 
         $id = $this->uri->segment(5);
+        if (!$id || !is_numeric($id)) {
+            $id = $this->uri->segment(4);
+        }
+        $slug = !empty($this->menuType['slug']) ? $this->menuType['slug'] : 'kpsta';
         $formInfo = $this->FlashNews_model->getById($id);
         if ($formInfo) {
-            $url = base_url('admin/flash_news/' . $this->uri->segment(3) . '/update/' . $id);
+            $url = base_url('admin/flash_news/' . $slug . '/update/' . $id);
 
             $data['form'] = $this->createForm($url, $formInfo, 'Edit');
             $data['code'] = 'success';
@@ -175,9 +189,13 @@ class FlashNews extends AppController {
         $formValues = $this->formValidation();
 
         $id = $this->uri->segment(5);
+        if (!$id || !is_numeric($id)) {
+            $id = $this->uri->segment(4);
+        }
+        $slug = !empty($this->menuType['slug']) ? $this->menuType['slug'] : 'kpsta';
         //validation FALSE
         if ($this->form_validation->run() == FALSE) {
-            $url = base_url('admin/flash_news/' . $this->uri->segment(3) . '/update/' . $id);
+            $url = base_url('admin/flash_news/' . $slug . '/update/' . $id);
             $data['code'] = 'error';
             $data['form'] = $this->createForm($url, $formValues, 'Edit');
             echo json_encode($data);
@@ -186,14 +204,13 @@ class FlashNews extends AppController {
 
         $orderInfo = $this->FlashNews_model->getById($id);
         if (!$orderInfo) {
-            $data['code'] = 'error';
             $data['code'] = 'Wrong Edit';
             echo json_encode($data);
             exit;
         }
 
         //update news
-        $formValues['news_type'] = $this->menuType['type'];
+        $formValues['news_type'] = !empty($this->menuType['type']) ? $this->menuType['type'] : 1;
         $this->FlashNews_model->update($id, $formValues);
         $data['code'] = 'success';
         $data['lastId'] = $id;
@@ -210,6 +227,9 @@ class FlashNews extends AppController {
      */
     public function publish() {
         $id = $this->uri->segment(4);
+        if (!$id || !is_numeric($id)) {
+            $id = $this->uri->segment(5);
+        }
         $orderInfo = $this->FlashNews_model->getById($id);
         if ($id && $orderInfo) {
             $publish = ($orderInfo['is_publish'] == 1 ) ? 0 : 1;
@@ -228,6 +248,9 @@ class FlashNews extends AppController {
     public function delete() {
         $data['code'] = 'error';
         $id = $this->uri->segment(5);
+        if (!$id || !is_numeric($id)) {
+            $id = $this->uri->segment(4);
+        }
         $orderInfo = $this->FlashNews_model->getById($id);
         if ($id && $orderInfo) {
             $this->FlashNews_model->delete($id);
@@ -241,18 +264,23 @@ class FlashNews extends AppController {
 
     function getMenuType($url) {
         switch ($url) {
-            case 'kpsta':
-                $data['type'] = 1;
-                $data['contentTitle'] = 'Kpsta News';
-                break;
             case 'flash':
                 $data['type'] = 2;
-                $data['contentTitle'] = 'Flash News';
+                $data['contentTitle'] = 'Flash News & Links';
+                $data['slug'] = 'flash';
                 break;
 
-            default:
+            case 'all':
                 $data['type'] = 0;
-                $data['contentTitle'] = 'Flash News';
+                $data['contentTitle'] = 'All Flash News';
+                $data['slug'] = 'all';
+                break;
+
+            case 'kpsta':
+            default:
+                $data['type'] = 1;
+                $data['contentTitle'] = 'KPSTA Flash News (Ticker)';
+                $data['slug'] = 'kpsta';
                 break;
         }
         return $data;

@@ -79,7 +79,13 @@ class PopupWindow extends AppController {
         $data['reaction_items'] = $this->ReactionGallery_model->getAll(['limit' => 40, 'isPublish' => 1]);
 
         // 5. Fetch available News items for dropdown
-        $data['news_items'] = $this->News_model->getAll(['limit' => 40, 'isPublish' => 1]);
+        if (method_exists($this->News_model, 'getAllNews')) {
+            $data['news_items'] = $this->News_model->getAllNews(['limit' => 40, 'isPublish' => 1]);
+        } elseif (method_exists($this->News_model, 'getAll')) {
+            $data['news_items'] = $this->News_model->getAll(['limit' => 40, 'isPublish' => 1]);
+        } else {
+            $data['news_items'] = [];
+        }
 
         // 6. Calculate Schedule Status
         $today = date('Y-m-d');

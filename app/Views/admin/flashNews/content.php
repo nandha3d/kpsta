@@ -41,8 +41,9 @@
                                 </td>
                                 <td style="text-align: right;">
                                     <div class="modern-actions">
-                                        <a href="javascript:void(0)"   class="edit btn btn-edit"   data-href="<?php echo base_url('admin/flash_news/'.$this->uri->segment(3).'/edit/'.$row['id']) ?>"><i class="fa fa-pencil"></i> Edit</a>
-                                        <a  href="javascript:void(0)" class=" btn btn-delete" data-href="<?php echo base_url('admin/flash_news/'.$this->uri->segment(3).'/delete/'.$row['id']) ?>" data-toggle="modal" data-target="#delete" data-precheck="" data-message="Are you sure you want to delete this?" data-confirm-text="Delete" data-confirm-callback="executeAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation"><i class="fa fa-trash"></i> Delete</a>
+                                        <?php $itemSlug = !empty($menuType['slug']) ? $menuType['slug'] : ($this->uri->segment(3) ?: 'kpsta'); ?>
+                                        <a href="javascript:void(0)" class="edit btn btn-edit" data-href="<?php echo base_url('admin/flash_news/'.$itemSlug.'/edit/'.$row['id']) ?>"><i class="fa fa-pencil"></i> Edit</a>
+                                        <a href="javascript:void(0)" class="btn btn-delete" data-href="<?php echo base_url('admin/flash_news/'.$itemSlug.'/delete/'.$row['id']) ?>" data-toggle="modal" data-target="#delete" data-precheck="" data-message="Are you sure you want to delete this?" data-confirm-text="Delete" data-confirm-callback="executeAction" data-cancel-text="Cancel" data-cancel-callback="dismissConfirmation"><i class="fa fa-trash"></i> Delete</a>
                                         <a href="<?php echo $row['path'] ?>" class="btn btn-view" target="_blank" data-toggle="ajax"><i class="fa fa-eye"></i> View</a>
                                     </div>
                                 </td>
