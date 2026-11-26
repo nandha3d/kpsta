@@ -291,17 +291,6 @@
                         </div>
                     </div>
 
-                    <!-- Client Expiry Requirement Guide -->
-                    <div class="box box-solid" style="border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.06); border-left:4px solid #059669; background:#f0fdf4;">
-                        <div class="box-body" style="padding:16px;">
-                            <h4 style="margin:0 0 8px; font-size:14px; font-weight:700; color:#166534;">
-                                <i class="fa fa-info-circle"></i> Pre-Determined Expiry Dates
-                            </h4>
-                            <p style="margin:0; font-size:12.5px; color:#15803d; line-height:1.5;">
-                                As requested by your leadership, setting an <strong>Expiry Date</strong> guarantees the popup stops displaying automatically as soon as that date passes. You never have to manually remember to turn off timely notifications or expired campaign posters!
-                            </p>
-                        </div>
-                    </div>
 
                     <!-- Live Mockup Preview Box -->
                     <div class="box box-solid" style="border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,0.06); background:#f8fafc; border:1px solid #e2e8f0;">
